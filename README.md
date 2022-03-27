@@ -56,17 +56,17 @@ public class Example {
 CustomScoreboards provide simplified methods to display sidebars in Minecraft.
 ```Java
 public class Example {
-    public void ShowScoreboard(Player player) {
+    public void showScoreboard(Player player) {
         // New Scoreboard with lobby as key, the name of the lobby as name and 5 lines. Store this instance to toggle and update the scoreboard lateron.
-		CustomScoreboard scoreboard = new CustomScoreboard("lobby", ServerHandler.getInstance().getCurrentServer().getDisplayName(), 5);
+	CustomScoreboard scoreboard = new CustomScoreboard("lobby", ServerHandler.getInstance().getCurrentServer().getDisplayName(), 5);
 
         // Static entry in line 2 -> won't update
-		scoreboard.registerStaticEntry(2, Component.text("Jump'n'Run Score:"));
-		// Dynamic entry in line 3 -> can be updated, e.g. in a JumpNRun Listener to refresh the high score
-		scoreboard.registerDynamicEntry(3, () -> Component.text(JumpNRunHandler.getInstance().getFormattedHighScore(player)));
+	scoreboard.registerStaticEntry(2, Component.text("Jump'n'Run Score:"));
+	// Dynamic entry in line 3 -> can be updated, e.g. in a JumpNRun Listener to refresh the high score
+	scoreboard.registerDynamicEntry(3, () -> Component.text(JumpNRunHandler.getInstance().getFormattedHighScore(player)));
 
         // Show the scoreboard instance to the player
-		scoreboard.show(player);
+	scoreboard.show(player);
     }
 }
 ```
