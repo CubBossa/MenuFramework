@@ -27,7 +27,15 @@ public class Example {
         int slot = 0;
         for(Lobby lobby : ServerHandler.getInstance().getLobbies()) {
             // Add a menu entry for each lobby, connect player to lobby when clicked
-            menu.addItemAndClickHandler(ItemUtils.createItem(Material.EMERALD, lobby.getName(), lobby.getOnlineCount(), clickContext -> {
+            menu.addItemAndClickHandler(
+                // Creaate display item
+                ItemUtils.createItem(Material.EMERALD, lobby.getName(), lobby.getOnlineCount(),
+                // Only call on right click
+                ClickType.RIGHT_CLICK,
+                // Open lambda expression with code to execute on interaction.
+                // clickContext contains relevant information for the item interaction
+                clickContext -> {
+
                 // important to use clickContext.getPlayer(), so if the inventory is shared by multiple players, the clicking player will be teleported
                 ServerHandler.getInstance().connect(clickContext.getPlayer(), lobby);
             }, slot);
@@ -56,7 +64,7 @@ public class Example {
 CustomScoreboards provide simplified methods to display sidebars in Minecraft.
 ```Java
 public class Example {
-    public void ShowScoreboard(Player player) {
+    public void showScoreboard(Player player) {
         // New Scoreboard with lobby as key, the name of the lobby as name and 5 lines. Store this instance to toggle and update the scoreboard lateron.
 		CustomScoreboard scoreboard = new CustomScoreboard("lobby", ServerHandler.getInstance().getCurrentServer().getDisplayName(), 5);
 
