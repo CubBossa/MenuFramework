@@ -121,7 +121,7 @@ public abstract class AbstractInventoryMenu<T> {
 	public AbstractInventoryMenu<T> openSubMenu(Player player, Supplier<AbstractInventoryMenu<T>> menuSupplier) {
 		AbstractInventoryMenu<T> menu = menuSupplier.get();
 		Navigation nav = viewer.get(player);
-		nav.child = menu;
+		nav.child = menu; //TODO crap, use stack in inventory handler instead
 		menu.open(player, this);
 		return menu;
 	}

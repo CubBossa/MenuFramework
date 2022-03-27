@@ -13,6 +13,12 @@
             <id>papermc</id>
             <url>https://papermc.io/repo/repository/maven-public/</url>
         </repository>
+
+        <repository>
+            <id>codemc-repo</id>
+            <url>https://repo.codemc.org/repository/maven-public/</url>
+            <layout>default</layout>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -28,6 +34,12 @@
             <artifactId>paper-api</artifactId>
             <version>1.18.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>de.tr7zw</groupId>
+            <artifactId>item-nbt-api</artifactId>
+            <version>2.9.2</version>
         </dependency>
     </dependencies>
 

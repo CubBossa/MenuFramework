@@ -1,5 +1,7 @@
 package de.cubbossa.guiframework.scoreboard;
 
+import de.cubbossa.guiframework.chat.ChatMenu;
+import de.cubbossa.guiframework.util.ChatUtils;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
@@ -40,12 +42,12 @@ public class CustomScoreboard {
 
 	public void show(Player player) {
 		Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-		Objective obj = scoreboard.registerNewObjective("BossasCrew", identifier, title);
+		Objective obj = scoreboard.registerNewObjective("GUI Framework", identifier, title);
 		scoreboards.put(player, obj);
 
 		obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-		//Statische Zeilen setzen
+		// Static lines
 		for (int i = 0; i < lines; i++) {
 			int line = lines - i;
 			String lineHex = Integer.toHexString(line);
@@ -65,7 +67,7 @@ public class CustomScoreboard {
 			team.prefix(staticEntry);
 		}
 
-		//Erstes Update ausführen um alle Werte zu setzen
+		// Run once to set all values
 		if (!dynamicEntries.isEmpty()) {
 			update(player);
 		}
@@ -151,18 +153,18 @@ public class CustomScoreboard {
 	}
 
 	/**
-	 * @return den Index der nächsten freien Zeile
+	 * @return the index of the next free line
 	 */
-	/*public int registerStaticEntry(int line, String text, int lineLength, TextColor color) {
+	public int registerStaticEntry(int line, String text, int lineLength, TextColor color) {
 		return registerStaticEntry(line, text, lineLength, color, 14);
-	}*/
+	}
 
 	/**
-	 * @param limit Gibt an, welche Zeile nicht überschritten werden darf. Es wird automatisch ein "..." angehängt, falls nicht der ganze Text auf das Scoreboard passt.
-	 * @return den Index der nächsten freien Zeile
+	 * @param limit defines, at which line the text will no longer be rendered and cut off with a "..."
+	 * @return the index of the next free line
 	 */
-	/*public int registerStaticEntry(int line, String text, int lineLength, TextColor color, int limit) {
-		List<String> lines = List.of(CommandUtils.wordWrap(text, "\n", 36).split("\n"));
+	public int registerStaticEntry(int line, String text, int lineLength, TextColor color, int limit) {
+		List<String> lines = List.of(ChatUtils.wordWrap(text, "\n", lineLength).split("\n"));
 		for (int i = 0; i < lines.size(); i++) {
 			String string = lines.get(i);
 			if (i >= line + limit - 1) {
@@ -172,19 +174,19 @@ public class CustomScoreboard {
 			registerStaticEntry(line + i, Component.text(string, color));
 		}
 		return line + lines.size();
-	}*/
+	}
 
 	/**
-	 * @return den Index der nächsten freien Zeile
+	 * @return the index of the next free line
 	 */
-	/*public int registerStaticEntry(int line, RecursiveChatElement<?> menu) {
+	public int registerStaticEntry(int line, ChatMenu<?> menu) {
 		return registerStaticEntry(line, menu, 14);
-	}*/
+	}
 
 	/**
-	 * @return den Index der nächsten freien Zeile
+	 * @return the index of the next free line
 	 */
-	/*public int registerStaticEntry(int line, RecursiveChatElement<?> menu, int limit) {
+	public int registerStaticEntry(int line, ChatMenu<?> menu, int limit) {
 		int i = line;
 		for (Component component : menu.toComponents()) {
 			if (i >= limit) {
@@ -194,7 +196,7 @@ public class CustomScoreboard {
 			i++;
 		}
 		return i;
-	}*/
+	}
 
 	public void registerDynamicEntry(int line, Supplier<Component> entry) {
 		this.dynamicEntries.put(line, new ScoreboardEntry(identifier + line, entry));
