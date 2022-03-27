@@ -62,6 +62,9 @@ public class Example {
 ### Overview
 
 CustomScoreboards provide simplified methods to display sidebars in Minecraft.
+CustomScoreboards are structured in a stack, so hiding a scoreboard will reveal the CustomScoreboard that was visible before.
+This only accounts for CustomScoreboard from this Framework and if the scoreboard hasn't been hidden for the player before.
+
 ```Java
 public class Example {
     public void showScoreboard(Player player) {

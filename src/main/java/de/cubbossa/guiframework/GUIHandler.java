@@ -1,7 +1,8 @@
-package de.cubbossa.guiframework.inventory;
+package de.cubbossa.guiframework;
 
 import lombok.Getter;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Logger;
@@ -23,7 +24,9 @@ public abstract class GUIHandler {
 		return plugin.getLogger();
 	}
 
-	public abstract void callSynchronized(Runnable runnable);
+	public void callSynchronized(Runnable runnable) {
+		Bukkit.getScheduler().runTask(plugin, runnable);
+	}
 
 	public abstract MiniMessage getMiniMessage();
 }

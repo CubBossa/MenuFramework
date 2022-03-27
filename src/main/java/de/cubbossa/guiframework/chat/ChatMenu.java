@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -53,15 +54,19 @@ public abstract class ChatMenu<T> {
 	public abstract Component toComponent(T message);
 
 	public List<Component> toComponents() {
-		return toComponents(0);
+		return toComponents(0, 0, Integer.MAX_VALUE);
 	}
 
-	public List<Component> toComponents(int indentation) {
+	public List<Component> toComponents(int page, int menusPerPage) {
+		return toComponents(0, page, menusPerPage);
+	}
+
+	public List<Component> toComponents(int indentation, int page, int menusPerPage) {
 
 		List<Component> components = Lists.newArrayList();
 		components.add(toComponent(message));
-		subMenus.forEach(subMenu -> components.addAll(subMenu.toComponents(indentation + 1)));
-		return components;
+		subMenus.forEach(subMenu -> components.addAll(subMenu.toComponents(indentation + 1, 0, Integer.MAX_VALUE)));
+		return components.subList(page * menusPerPage, page * (menusPerPage + 1));
 	}
 
 	public Component indentation(int ind) {
@@ -69,5 +74,13 @@ public abstract class ChatMenu<T> {
 		componentBuilder.append(Component.text(" ".repeat(ind)));
 		componentBuilder.append(indentComponent == null ? INDENT_COMPONENT : indentComponent).append(Component.text("  "));
 		return componentBuilder.build();
+	}
+
+	public void send(Player player) {
+		toComponents(0, Integer.MAX_VALUE).forEach(player::sendMessage);
+	}
+
+	public void send(Player player, int page, int linesPerPage) {
+		toComponents(page, linesPerPage).forEach(player::sendMessage);
 	}
 }

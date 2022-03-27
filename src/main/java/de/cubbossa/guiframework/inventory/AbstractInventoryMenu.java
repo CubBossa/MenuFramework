@@ -1,5 +1,6 @@
 package de.cubbossa.guiframework.inventory;
 
+import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.inventory.context.AnimationContext;
 import de.cubbossa.guiframework.inventory.context.ClickContext;
 import de.cubbossa.guiframework.inventory.context.CloseContext;
@@ -100,6 +101,9 @@ public abstract class AbstractInventoryMenu<T> {
 	}
 
 	public void close(Player viewer) {
+		if (viewer.getOpenInventory().getTopInventory().equals(this.inventory)) {
+			viewer.closeInventory();
+		}
 		if (this.viewer.remove(viewer.getUniqueId()) == null) {
 			return;
 		}

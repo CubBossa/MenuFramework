@@ -3,12 +3,14 @@ package de.cubbossa.guiframework.inventory;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 
 import java.util.stream.IntStream;
 
-public class InventoryMenu<T> extends AbstractInventoryMenu<T> {
+public class InventoryMenu extends AbstractInventoryMenu<ClickType> {
 
 	private InventoryType inventoryType = InventoryType.CHEST;
 	@Getter
@@ -26,6 +28,22 @@ public class InventoryMenu<T> extends AbstractInventoryMenu<T> {
 		super(title, rows * 9);
 		this.rows = rows;
 		this.slots = IntStream.range(0, rows * 9).toArray();
+	}
+
+	@Override
+	protected void openInventorySynchronized(Player viewer, Navigation navigation) {
+		if (this.getViewer().size() == 0) {
+			InventoryHandler.getInstance().getInventoryListener().register(this);
+		}
+		super.openInventorySynchronized(viewer, navigation);
+	}
+
+	@Override
+	public void close(Player viewer) {
+		super.close(viewer);
+		if (this.getViewer().size() == 0) {
+			InventoryHandler.getInstance().getInventoryListener().unregister(this);
+		}
 	}
 
 	@Override
