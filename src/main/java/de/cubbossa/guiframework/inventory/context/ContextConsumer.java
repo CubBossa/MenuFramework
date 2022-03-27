@@ -1,4 +1,4 @@
-package de.cubbossa.guiframework.context;
+package de.cubbossa.guiframework.inventory.context;
 
 import java.util.Objects;
 

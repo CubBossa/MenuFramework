@@ -1,5 +1,6 @@
-package de.cubbossa.guiframework.context;
+package de.cubbossa.guiframework.inventory.context;
 
+import de.cubbossa.guiframework.context.Context;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.inventory.ItemStack;
