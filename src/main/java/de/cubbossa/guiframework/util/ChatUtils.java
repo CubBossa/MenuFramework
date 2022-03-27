@@ -1,6 +1,7 @@
 package de.cubbossa.guiframework.util;
 
 import de.cubbossa.guiframework.inventory.GUIHandler;
+import de.cubbossa.guiframework.scoreboard.CustomScoreboard;
 import de.tr7zw.changeme.nbtapi.NBTItem;
 import lombok.experimental.UtilityClass;
 import net.kyori.adventure.key.Key;
