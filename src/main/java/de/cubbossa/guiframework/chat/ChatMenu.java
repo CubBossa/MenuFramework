@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -16,6 +17,10 @@ public abstract class ChatMenu<T> {
 	@Setter
 	protected T message;
 	protected final List<ChatMenu<?>> subMenus = Lists.newArrayList();
+
+	@Getter
+	@Setter
+	protected @Nullable Component indentComponent = null;
 
 	public ChatMenu(T message) {
 		this.message = message;
@@ -62,7 +67,7 @@ public abstract class ChatMenu<T> {
 	public Component indentation(int ind) {
 		TextComponent.Builder componentBuilder = Component.text().content("");
 		componentBuilder.append(Component.text(" ".repeat(ind)));
-		componentBuilder.append(ChatMenu.INDENT_COMPONENT).append(Component.text("  "));
+		componentBuilder.append(indentComponent == null ? INDENT_COMPONENT : indentComponent).append(Component.text("  "));
 		return componentBuilder.build();
 	}
 }
