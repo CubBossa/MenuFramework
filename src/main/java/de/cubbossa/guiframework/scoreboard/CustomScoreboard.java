@@ -1,5 +1,6 @@
 package de.cubbossa.guiframework.scoreboard;
 
+import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.chat.ChatMenu;
 import de.cubbossa.guiframework.util.ChatUtils;
 import lombok.Getter;
@@ -8,13 +9,16 @@ import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 
 public class CustomScoreboard {
 
@@ -29,6 +33,7 @@ public class CustomScoreboard {
 	private final Map<Player, Objective> scoreboards;
 	private final Map<Integer, Component> staticEntries;
 	private final Map<Integer, ScoreboardEntry> dynamicEntries;
+	private final Map<Integer, Collection<Animation>> animations;
 
 	public CustomScoreboard(String identifier, Component title, int lines) {
 		this.identifier = identifier;
@@ -36,8 +41,9 @@ public class CustomScoreboard {
 		this.lines = Integer.min(lines, 15);
 
 		this.scoreboards = new HashMap<>();
-		this.staticEntries = new HashMap<>();
-		this.dynamicEntries = new HashMap<>();
+		this.staticEntries = new TreeMap<>();
+		this.dynamicEntries = new TreeMap<>();
+		this.animations = new TreeMap<>();
 	}
 
 	public void show(Player player) {
@@ -212,5 +218,76 @@ public class CustomScoreboard {
 	public void setTitle(Component component, Player player) {
 		Objective objective = scoreboards.get(player);
 		objective.displayName(component);
+	}
+
+
+	public void playAnimation(int line, int milliseconds, Supplier<Component> lineUpdater) {
+		playAnimation(line, -1, milliseconds, lineUpdater);
+	}
+
+	public void playAnimation(int line, int intervals, int milliseconds, Supplier<Component> lineUpdater) {
+		Animation animation = new Animation(line, intervals, milliseconds, lineUpdater);
+
+		Collection<Animation> animations = this.animations.get(null);
+		if (animations == null) {
+			animations = new HashSet<>();
+		}
+		animations.add(animation);
+	}
+
+	public void stopAnimation(int... lines) {
+		for (int line : lines) {
+			Collection<Animation> animations = this.animations.get(line);
+			if (animations != null) {
+				animations.forEach(Animation::stop);
+			}
+		}
+	}
+
+	public class Animation {
+
+		private final int line;
+		private int intervals = -1;
+		private final int milliseconds;
+		private final Supplier<Component> lineUpdater;
+
+		private BukkitTask task;
+
+		public Animation(int line, int milliseconds, Supplier<Component> lineUpdater) {
+			this.line = line;
+			this.milliseconds = milliseconds;
+			this.lineUpdater = lineUpdater;
+		}
+
+		public Animation(int line, int intervals, int milliseconds, Supplier<Component> lineUpdater) {
+			this.line = line;
+			this.intervals = intervals;
+			this.milliseconds = milliseconds;
+			this.lineUpdater = lineUpdater;
+		}
+
+		public void play() {
+			AtomicInteger interval = new AtomicInteger(0);
+			task = Bukkit.getScheduler().runTaskTimer(GUIHandler.getInstance().getPlugin(), () -> {
+				if (intervals == -1 || interval.get() < intervals) {
+					try {
+						registerStaticEntry(line, lineUpdater.get());
+					} catch (Throwable t) {
+						GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error occured while playing animation in scoreboard", t);
+					}
+					interval.addAndGet(1);
+				}
+			}, 0, milliseconds);
+		}
+
+		public void stop() {
+			if (task != null && !task.isCancelled()) {
+				task.cancel();
+			}
+		}
+
+		public boolean isRunning() {
+			return !task.isCancelled();
+		}
 	}
 }

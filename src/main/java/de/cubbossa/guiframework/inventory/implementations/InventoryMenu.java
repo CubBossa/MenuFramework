@@ -1,5 +1,7 @@
-package de.cubbossa.guiframework.inventory;
+package de.cubbossa.guiframework.inventory.implementations;
 
+import de.cubbossa.guiframework.inventory.AbstractInventoryMenu;
+import de.cubbossa.guiframework.inventory.InventoryHandler;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -31,11 +33,11 @@ public class InventoryMenu extends AbstractInventoryMenu<ClickType> {
 	}
 
 	@Override
-	protected void openInventorySynchronized(Player viewer, Navigation navigation) {
+	protected void openInventorySynchronized(Player viewer, AbstractInventoryMenu<?> previous) {
 		if (this.getViewer().size() == 0) {
 			InventoryHandler.getInstance().getInventoryListener().register(this);
 		}
-		super.openInventorySynchronized(viewer, navigation);
+		super.openInventorySynchronized(viewer, previous);
 	}
 
 	@Override

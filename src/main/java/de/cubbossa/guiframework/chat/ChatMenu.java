@@ -54,25 +54,28 @@ public abstract class ChatMenu<T> {
 	public abstract Component toComponent(T message);
 
 	public List<Component> toComponents() {
-		return toComponents(0, 0, Integer.MAX_VALUE);
+		return toComponents(-1, 0, Integer.MAX_VALUE);
 	}
 
 	public List<Component> toComponents(int page, int menusPerPage) {
-		return toComponents(0, page, menusPerPage);
+		return toComponents(-1, page, menusPerPage);
 	}
 
 	public List<Component> toComponents(int indentation, int page, int menusPerPage) {
 
 		List<Component> components = Lists.newArrayList();
-		components.add(toComponent(message));
+		components.add(indentation(indentation).append(toComponent(message)));
 		subMenus.forEach(subMenu -> components.addAll(subMenu.toComponents(indentation + 1, 0, Integer.MAX_VALUE)));
-		return components.subList(page * menusPerPage, page * (menusPerPage + 1));
+		return components.subList(Integer.min(page * menusPerPage, components.size() - 1), Integer.min(page * menusPerPage + menusPerPage, components.size()));
 	}
 
 	public Component indentation(int ind) {
+		if (ind < 0) {
+			return Component.empty();
+		}
 		TextComponent.Builder componentBuilder = Component.text().content("");
 		componentBuilder.append(Component.text(" ".repeat(ind)));
-		componentBuilder.append(indentComponent == null ? INDENT_COMPONENT : indentComponent).append(Component.text("  "));
+		componentBuilder.append(indentComponent == null ? INDENT_COMPONENT : indentComponent).append(Component.text(" "));
 		return componentBuilder.build();
 	}
 

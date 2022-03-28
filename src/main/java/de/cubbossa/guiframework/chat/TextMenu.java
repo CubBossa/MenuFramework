@@ -1,5 +1,6 @@
 package de.cubbossa.guiframework.chat;
 
+import de.cubbossa.guiframework.util.ChatUtils;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
@@ -45,12 +46,12 @@ public class TextMenu extends ChatMenu<String> {
 	}
 
 	public Component toComponent(String message) {
-		Component localComponent = ComponentUtils.translateLegacy(message);
+		Component localComponent = ChatUtils.fromLegacy(message);
 		if (action != null) {
 			localComponent = localComponent.clickEvent(ClickEvent.clickEvent(action, actionString));
 		}
 		if (description != null) {
-			localComponent = localComponent.hoverEvent(HoverEvent.showText(ComponentUtils.translateLegacy(description)));
+			localComponent = localComponent.hoverEvent(HoverEvent.showText(ChatUtils.fromLegacy(description)));
 		}
 		return localComponent;
 	}

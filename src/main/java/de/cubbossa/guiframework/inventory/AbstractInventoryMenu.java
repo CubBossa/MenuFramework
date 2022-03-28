@@ -13,12 +13,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 @Getter
 public abstract class AbstractInventoryMenu<T> {
@@ -34,7 +36,7 @@ public abstract class AbstractInventoryMenu<T> {
 	private ContextConsumer<CloseContext> closeHandler;
 
 	private final Map<Integer, Collection<Animation>> animations;
-	private final Map<UUID, Navigation> viewer;
+	private final List<UUID> viewer;
 
 	private int slotsPerPage = -1;
 	private int currentPage = 0;
@@ -50,7 +52,7 @@ public abstract class AbstractInventoryMenu<T> {
 		this.clickHandler = new TreeMap<>();
 		this.defaultClickHandler = new HashMap<>();
 		this.animations = new TreeMap<>();
-		this.viewer = new HashMap<>();
+		this.viewer = new ArrayList<>();
 		this.defaultCancelled = new HashMap<>();
 
 		this.inventory = createInventory(currentPage);
@@ -59,7 +61,7 @@ public abstract class AbstractInventoryMenu<T> {
 	public abstract Inventory createInventory(int page);
 
 	public void open(Player viewer) {
-		GUIHandler.getInstance().callSynchronized(() -> openInventorySynchronized(viewer, new Navigation()));
+		GUIHandler.getInstance().callSynchronized(() -> openInventorySynchronized(viewer, null));
 	}
 
 	public void open(Collection<Player> viewers) {
@@ -67,16 +69,14 @@ public abstract class AbstractInventoryMenu<T> {
 	}
 
 	public void open(Player viewer, AbstractInventoryMenu<T> previous) {
-		Navigation navigation = new Navigation();
-		navigation.previous = previous;
-		GUIHandler.getInstance().callSynchronized(() -> openInventorySynchronized(viewer, navigation));
+		GUIHandler.getInstance().callSynchronized(() -> openInventorySynchronized(viewer, previous));
 	}
 
 	public void open(Collection<Player> viewers, AbstractInventoryMenu<T> previous) {
 		viewers.forEach(player -> open(player, previous));
 	}
 
-	protected void openInventorySynchronized(Player viewer, Navigation navigation) {
+	protected void openInventorySynchronized(Player viewer, @Nullable AbstractInventoryMenu<?> previous) {
 
 		if (inventory == null) {
 			GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Could not open inventory for " + viewer.getName() + ", inventory is null.");
@@ -96,15 +96,15 @@ public abstract class AbstractInventoryMenu<T> {
 		if (viewer.openInventory(inventory) == null) {
 			return;
 		}
-		UUID playerId = viewer.getUniqueId();
-		this.viewer.put(viewer.getUniqueId(), navigation);
+		this.viewer.add(viewer.getUniqueId());
+		InventoryHandler.getInstance().registerInventory(viewer, this, previous != null);
 	}
 
 	public void close(Player viewer) {
 		if (viewer.getOpenInventory().getTopInventory().equals(this.inventory)) {
 			viewer.closeInventory();
 		}
-		if (this.viewer.remove(viewer.getUniqueId()) == null) {
+		if (!this.viewer.remove(viewer.getUniqueId())) {
 			return;
 		}
 		try {
@@ -118,20 +118,18 @@ public abstract class AbstractInventoryMenu<T> {
 		viewers.forEach(this::close);
 	}
 
+	public void closeAll() {
+		closeAll(viewer.stream().map(Bukkit::getPlayer).collect(Collectors.toSet()));
+	}
+
 	public void loadPreset(Consumer<AbstractInventoryMenu<T>> menuProcessor) {
 		menuProcessor.accept(this);
 	}
 
 	public AbstractInventoryMenu<T> openSubMenu(Player player, Supplier<AbstractInventoryMenu<T>> menuSupplier) {
 		AbstractInventoryMenu<T> menu = menuSupplier.get();
-		Navigation nav = viewer.get(player);
-		nav.child = menu; //TODO crap, use stack in inventory handler instead
 		menu.open(player, this);
 		return menu;
-	}
-
-	public void openPreviousMenu(Player player) {
-		viewer.get(player).parent.open(player);
 	}
 
 	public void openNextPage(Player player) {
