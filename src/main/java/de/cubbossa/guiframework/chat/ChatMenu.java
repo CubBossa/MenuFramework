@@ -12,7 +12,8 @@ import java.util.List;
 
 public abstract class ChatMenu<T> {
 
-	public static final Component INDENT_COMPONENT = Component.text("\u00BB");
+	@Setter
+	public static Component INDENT_COMPONENT = Component.text("\u00BB");
 
 	@Getter
 	@Setter
