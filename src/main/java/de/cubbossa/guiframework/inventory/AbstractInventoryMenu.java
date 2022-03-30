@@ -126,7 +126,7 @@ public abstract class AbstractInventoryMenu<T> {
             return;
         }
         this.viewer.put(viewer.getUniqueId(), viewMode);
-        InventoryHandler.getInstance().registerInventory(viewer, this, previous != null);
+        InventoryHandler.getInstance().registerInventory(viewer, this, previous);
     }
 
     public void close(Player viewer) {
