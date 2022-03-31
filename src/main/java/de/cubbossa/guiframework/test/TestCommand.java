@@ -24,8 +24,14 @@ public class TestCommand implements CommandExecutor {
         - default click handlers
         - pagination
         - presets
-        -
-
+            - pagination
+            - backhandler
+            - static filling
+            - dynamic filling
+        - sub and parent menus
+        - animations
+        - shared view in top menus
+        - view modes
 
 
      */
