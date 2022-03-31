@@ -14,9 +14,9 @@ import java.util.function.BiConsumer;
  *
  * @param <T> Type of the processed {@link AbstractInventoryMenu <T>}
  */
-public interface DynamicMenuProcessor<T> {
+public interface DynamicMenuProcessor<T, C extends ClickContext> {
 
-    void placeDynamicEntries(AbstractInventoryMenu<T> menu,
+    void placeDynamicEntries(AbstractInventoryMenu<T, C> menu,
                              BiConsumer<Integer, ItemStack> placeDynamicItem,
-                             BiConsumer<Integer, Map<T, ContextConsumer<ClickContext>>> placeDynamicClickHandler);
+                             BiConsumer<Integer, Map<T, ContextConsumer<C>>> placeDynamicClickHandler);
 }

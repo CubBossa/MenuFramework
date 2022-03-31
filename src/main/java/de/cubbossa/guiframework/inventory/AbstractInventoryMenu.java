@@ -22,7 +22,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @Getter
-public abstract class AbstractInventoryMenu<T> {
+public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
 
     public enum ViewMode {
         MODIFY,
@@ -30,13 +30,13 @@ public abstract class AbstractInventoryMenu<T> {
     }
 
     protected final SortedMap<Integer, ItemStack> itemStacks;
-    protected final Map<Integer, Map<T, ContextConsumer<ClickContext>>> clickHandler;
+    protected final Map<Integer, Map<T, ContextConsumer<C>>> clickHandler;
 
-    protected final List<DynamicMenuProcessor<T>> dynamicProcessors;
+    protected final List<DynamicMenuProcessor<T, C>> dynamicProcessors;
     protected final SortedMap<Integer, ItemStack> dynamicItemStacks;
-    protected final Map<Integer, Map<T, ContextConsumer<ClickContext>>> dynamicClickHandler;
+    protected final Map<Integer, Map<T, ContextConsumer<C>>> dynamicClickHandler;
 
-    protected final Map<T, ContextConsumer<ClickContext>> defaultClickHandler;
+    protected final Map<T, ContextConsumer<C>> defaultClickHandler;
     protected final Map<T, Boolean> defaultCancelled;
     @Setter
     protected ContextConsumer<CloseContext> closeHandler;
@@ -81,16 +81,16 @@ public abstract class AbstractInventoryMenu<T> {
         viewers.forEach(player -> open(player, viewMode));
     }
 
-    public void open(Player viewer, AbstractInventoryMenu<T> previous) {
+    public void open(Player viewer, AbstractInventoryMenu<T, C> previous) {
         GUIHandler.getInstance().callSynchronized(() -> openInventorySynchronized(viewer, previous));
     }
 
-    public void open(Collection<Player> viewers, TopInventoryMenu<T> previous) {
+    public void open(Collection<Player> viewers, AbstractInventoryMenu<T, C> previous) {
         viewers.forEach(player -> open(player, previous));
     }
 
-    public AbstractInventoryMenu<T> openSubMenu(Player player, Supplier<AbstractInventoryMenu<T>> menuSupplier) {
-        AbstractInventoryMenu<T> menu = menuSupplier.get();
+    public AbstractInventoryMenu<T, C> openSubMenu(Player player, Supplier<AbstractInventoryMenu<T, C>> menuSupplier) {
+        AbstractInventoryMenu<T, C> menu = menuSupplier.get();
         menu.open(player, this);
         return menu;
     }
@@ -108,11 +108,11 @@ public abstract class AbstractInventoryMenu<T> {
         open(player);
     }
 
-    protected void openInventorySynchronized(Player viewer, @Nullable AbstractInventoryMenu<?> previous) {
+    protected void openInventorySynchronized(Player viewer, @Nullable AbstractInventoryMenu<?, ?> previous) {
         openInventorySynchronized(viewer, ViewMode.MODIFY, previous);
     }
 
-    protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable AbstractInventoryMenu<?> previous) {
+    protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable AbstractInventoryMenu<?, ?> previous) {
 
         if (inventory == null) {
             GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Could not open inventory for " + viewer.getName() + ", inventory is null.");
@@ -122,7 +122,7 @@ public abstract class AbstractInventoryMenu<T> {
             viewer.wakeup(true);
         }
 
-        for (DynamicMenuProcessor<T> processor : dynamicProcessors) {
+        for (DynamicMenuProcessor<T, C> processor : dynamicProcessors) {
             processor.placeDynamicEntries(this, dynamicItemStacks::put, dynamicClickHandler::put);
         }
 
@@ -141,7 +141,7 @@ public abstract class AbstractInventoryMenu<T> {
         InventoryHandler.getInstance().registerInventory(viewer, this, previous);
     }
 
-    public boolean handleInteract(Player player, int clickedSlot, T action) {
+    public boolean handleInteract(Player player, int clickedSlot, T action, C context) {
 
         if (Arrays.stream(getSlots()).noneMatch(value -> value == clickedSlot)) {
             return false;
@@ -149,9 +149,8 @@ public abstract class AbstractInventoryMenu<T> {
         if (viewer.get(player.getUniqueId()).equals(ViewMode.VIEW)) {
             return true;
         }
-        ClickContext context = new ClickContext(player, clickedSlot, defaultCancelled.getOrDefault(action, true));
 
-        ContextConsumer<ClickContext> clickHandler = getClickHandlerOrFallback(clickedSlot, action);
+        ContextConsumer<C> clickHandler = getClickHandlerOrFallback(clickedSlot, action);
         clickHandler = dynamicClickHandler.getOrDefault(clickedSlot, new HashMap<>()).getOrDefault(action, clickHandler);
 
         if (clickHandler != null) {
@@ -195,12 +194,12 @@ public abstract class AbstractInventoryMenu<T> {
      * @param menuProcessor the instance of the processor. Use the BiConsumer parameters to add items and clickhandler
      *                      to a specific slot.
      */
-    public DynamicMenuProcessor<T> loadPreset(DynamicMenuProcessor<T> menuProcessor) {
+    public DynamicMenuProcessor<T, C> loadPreset(DynamicMenuProcessor<T, C> menuProcessor) {
         dynamicProcessors.add(menuProcessor);
         return menuProcessor;
     }
 
-    public void unloadPreset(DynamicMenuProcessor<T> menuProcessor) {
+    public void unloadPreset(DynamicMenuProcessor<T, C> menuProcessor) {
         dynamicProcessors.remove(menuProcessor);
     }
 
@@ -211,7 +210,7 @@ public abstract class AbstractInventoryMenu<T> {
         return itemStacks.get(slot);
     }
 
-    public ContextConsumer<ClickContext> getClickHandlerOrFallback(int slot, T action) {
+    public ContextConsumer<C> getClickHandlerOrFallback(int slot, T action) {
         return clickHandler.getOrDefault(slot, new HashMap<>()).getOrDefault(action, defaultClickHandler.get(action));
     }
 
@@ -240,20 +239,20 @@ public abstract class AbstractInventoryMenu<T> {
         }
     }
 
-    public void setClickHandler(T action, ContextConsumer<ClickContext> clickHandler, int... slots) {
+    public void setClickHandler(T action, ContextConsumer<C> clickHandler, int... slots) {
         for (int slot : slots) {
-            Map<T, ContextConsumer<ClickContext>> map = this.clickHandler.getOrDefault(slot, new HashMap<>());
+            Map<T, ContextConsumer<C>> map = this.clickHandler.getOrDefault(slot, new HashMap<>());
             map.put(action, clickHandler);
             this.clickHandler.put(slot, map);
         }
     }
 
-    public void setItemAndClickHandler(ItemStack item, T action, ContextConsumer<ClickContext> clickHandler, int... slots) {
+    public void setItemAndClickHandler(ItemStack item, T action, ContextConsumer<C> clickHandler, int... slots) {
         setItem(item, slots);
         setClickHandler(action, clickHandler, slots);
     }
 
-    public void setDefaultClickHandler(T action, ContextConsumer<ClickContext> clickHandler) {
+    public void setDefaultClickHandler(T action, ContextConsumer<C> clickHandler) {
         defaultClickHandler.put(action, clickHandler);
     }
 
@@ -272,7 +271,7 @@ public abstract class AbstractInventoryMenu<T> {
 
     public void removeClickHandler(T action, int... slots) {
         for (int slot : slots) {
-            Map<T, ContextConsumer<ClickContext>> map = clickHandler.get(slot);
+            Map<T, ContextConsumer<C>> map = clickHandler.get(slot);
             if (map != null) {
                 map.remove(action);
             }
@@ -291,7 +290,7 @@ public abstract class AbstractInventoryMenu<T> {
         for (int slot : slots) {
             inventory.setItem(slot, null);
             itemStacks.remove(slot);
-            Map<T, ContextConsumer<ClickContext>> map = clickHandler.get(slot);
+            Map<T, ContextConsumer<C>> map = clickHandler.get(slot);
             if (map != null) {
                 map.remove(action);
             }

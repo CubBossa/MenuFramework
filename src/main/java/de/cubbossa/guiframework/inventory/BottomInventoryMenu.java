@@ -1,6 +1,8 @@
 package de.cubbossa.guiframework.inventory;
 
-public abstract class BottomInventoryMenu<T> extends AbstractInventoryMenu<T> {
+import de.cubbossa.guiframework.inventory.context.ClickContext;
+
+public abstract class BottomInventoryMenu<T> extends AbstractInventoryMenu<T, ClickContext> {
 
     public BottomInventoryMenu(int slotsPerPage) {
         super(slotsPerPage);

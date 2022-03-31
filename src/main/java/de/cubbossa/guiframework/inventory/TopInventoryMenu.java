@@ -23,7 +23,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @Getter
-public abstract class TopInventoryMenu<T> extends AbstractInventoryMenu<T> {
+public abstract class TopInventoryMenu<T> extends AbstractInventoryMenu<T, ClickContext> {
 
     private Component fallbackTitle;
     private final Map<Integer, Component> pageTitles;
