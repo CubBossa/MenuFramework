@@ -15,19 +15,34 @@ public class InventoryHandler {
     @Getter
     private final InventoryListener inventoryListener = new InventoryListener();
 
-    private final Collection<AbstractInventoryMenu<?>> openInventories;
-    private final Map<UUID, Stack<AbstractInventoryMenu<?>>> navigationMap;
+    private final Map<UUID, AbstractInventoryMenu<?, ?>> openTopInventories;
+    private final Map<UUID, Stack<AbstractInventoryMenu<?, ?>>> navigationTopMap;
+
+    private final Map<UUID, AbstractInventoryMenu<?, ?>> openBottomInventories;
+    private final Map<UUID, Stack<AbstractInventoryMenu<?, ?>>> navigationBottomMap;
 
     public InventoryHandler() {
         instance = this;
 
-        this.openInventories = new HashSet<>();
-        this.navigationMap = new HashMap<>();
+        this.openTopInventories = new HashMap<>();
+        this.navigationTopMap = new HashMap<>();
+
+        this.openBottomInventories = new HashMap<>();
+        this.navigationBottomMap = new HashMap<>();
     }
 
-    public void registerInventory(Player player, AbstractInventoryMenu<?> menu, @Nullable AbstractInventoryMenu<?> previous) {
-        openInventories.add(menu);
-        Stack<AbstractInventoryMenu<?>> stack = navigationMap.getOrDefault(player.getUniqueId(), new Stack<>());
+    public void registerInventory(Player player, AbstractInventoryMenu<?, ?> menu, @Nullable AbstractInventoryMenu<?, ?> previous) {
+
+        boolean top = menu instanceof TopInventoryMenu<?>;
+        if (!top && !(menu instanceof BottomInventoryMenu<?>)) {
+            return;
+        }
+
+        Map<UUID, AbstractInventoryMenu<?, ?>> openInventories = top ? openTopInventories : openBottomInventories;
+        Map<UUID, Stack<AbstractInventoryMenu<?, ?>>> navigation = top ? navigationTopMap : navigationBottomMap;
+
+        openInventories.put(player.getUniqueId(), menu);
+        Stack<AbstractInventoryMenu<?, ?>> stack = navigation.getOrDefault(player.getUniqueId(), new Stack<>());
         boolean prevOnStack = previous != stack.peek();
         if (previous == null || !prevOnStack) {
             stack.clear();
@@ -36,26 +51,50 @@ public class InventoryHandler {
             }
         }
         stack.push(menu);
-        navigationMap.put(player.getUniqueId(), stack);
+        navigation.put(player.getUniqueId(), stack);
+    }
+
+    public <T> TopInventoryMenu<T> getCurrentTopMenu(Player player) {
+        return (TopInventoryMenu<T>) openTopInventories.get(player.getUniqueId());
+    }
+
+    public <T> BottomInventoryMenu<T> getCurrentBottomMenu(Player player) {
+        return (BottomInventoryMenu<T>) openBottomInventories.get(player.getUniqueId());
     }
 
     public void closeAllMenus() {
-        for (AbstractInventoryMenu<?> menu : openInventories) {
+        for (AbstractInventoryMenu<?, ?> menu : openTopInventories.values()) {
+            menu.closeAll();
+        }
+        for (AbstractInventoryMenu<?, ?> menu : openBottomInventories.values()) {
             menu.closeAll();
         }
     }
 
-    public void closeCurrentMenu(Collection<Player> players) {
-        players.forEach(this::closeCurrentMenu);
+    public void closeCurrentTopMenu(Collection<Player> players) {
+        players.forEach(this::closeCurrentTopMenu);
     }
 
-    public void closeCurrentMenu(Player player) {
-        Stack<AbstractInventoryMenu<?>> menuStack = navigationMap.get(player.getUniqueId());
+    public void closeCurrentTopMenu(Player player) {
+        Stack<AbstractInventoryMenu<?, ?>> menuStack = navigationTopMap.get(player.getUniqueId());
         if (menuStack.isEmpty()) {
             return;
         }
-        AbstractInventoryMenu<?> menu = menuStack.pop();
-        openInventories.remove(menu);
+        openTopInventories.remove(player.getUniqueId());
+
+        menuStack.peek().open(player);
+    }
+
+    public void closeCurrentBottomMenu(Collection<Player> players) {
+        players.forEach(this::closeCurrentBottomMenu);
+    }
+
+    public void closeCurrentBottomMenu(Player player) {
+        Stack<AbstractInventoryMenu<?, ?>> menuStack = navigationBottomMap.get(player.getUniqueId());
+        if (menuStack.isEmpty()) {
+            return;
+        }
+        openBottomInventories.remove(player.getUniqueId());
 
         menuStack.peek().open(player);
     }

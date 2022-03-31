@@ -30,11 +30,11 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
     }
 
     protected final SortedMap<Integer, ItemStack> itemStacks;
-    protected final Map<Integer, Map<T, ContextConsumer<C>>> clickHandler;
+    protected final SortedMap<Integer, Map<T, ContextConsumer<C>>> clickHandler;
 
     protected final List<DynamicMenuProcessor<T, C>> dynamicProcessors;
     protected final SortedMap<Integer, ItemStack> dynamicItemStacks;
-    protected final Map<Integer, Map<T, ContextConsumer<C>>> dynamicClickHandler;
+    protected final SortedMap<Integer, Map<T, ContextConsumer<C>>> dynamicClickHandler;
 
     protected final Map<T, ContextConsumer<C>> defaultClickHandler;
     protected final Map<T, Boolean> defaultCancelled;
@@ -304,6 +304,18 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isThisInventory(Inventory inventory) {
         return this.inventory != null && this.inventory.equals(inventory);
+    }
+
+    public int getPageCount() {
+        return getMaxPage() - getMinPage();
+    }
+
+    public int getMinPage() {
+        return Integer.min((Integer.min(itemStacks.firstKey(), clickHandler.firstKey()) - 1) / slotsPerPage + 1, currentPage);
+    }
+
+    public int getMaxPage() {
+        return Integer.max((Integer.max(itemStacks.lastKey(), clickHandler.lastKey()) - 1) / slotsPerPage + 1, currentPage);
     }
 
     public void playAnimation(int slot, int milliseconds, ContextConsumer<AnimationContext> itemUpdater) {
