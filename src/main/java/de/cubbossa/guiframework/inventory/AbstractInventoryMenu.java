@@ -8,7 +8,6 @@ import de.cubbossa.guiframework.inventory.context.ContextConsumer;
 import de.cubbossa.guiframework.inventory.pagination.DynamicMenuProcessor;
 import lombok.Getter;
 import lombok.Setter;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -18,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -31,33 +29,27 @@ public abstract class AbstractInventoryMenu<T> {
         VIEW
     }
 
-    private Component fallbackTitle;
-    private final Map<Integer, Component> pageTitles;
+    protected final SortedMap<Integer, ItemStack> itemStacks;
+    protected final Map<Integer, Map<T, ContextConsumer<ClickContext>>> clickHandler;
 
-    private final SortedMap<Integer, ItemStack> itemStacks;
-    private final Map<Integer, Map<T, ContextConsumer<ClickContext>>> clickHandler;
+    protected final List<DynamicMenuProcessor<T>> dynamicProcessors;
+    protected final SortedMap<Integer, ItemStack> dynamicItemStacks;
+    protected final Map<Integer, Map<T, ContextConsumer<ClickContext>>> dynamicClickHandler;
 
-    private final List<DynamicMenuProcessor<T>> dynamicProcessors;
-    private final SortedMap<Integer, ItemStack> dynamicItemStacks;
-    private final Map<Integer, Map<T, ContextConsumer<ClickContext>>> dynamicClickHandler;
-
-    private final Map<T, ContextConsumer<ClickContext>> defaultClickHandler;
-    private final Map<T, Boolean> defaultCancelled;
+    protected final Map<T, ContextConsumer<ClickContext>> defaultClickHandler;
+    protected final Map<T, Boolean> defaultCancelled;
     @Setter
-    private ContextConsumer<CloseContext> closeHandler;
+    protected ContextConsumer<CloseContext> closeHandler;
 
-    private final Map<Integer, Collection<Animation>> animations;
-    private final Map<UUID, ViewMode> viewer;
+    protected final Map<Integer, Collection<Animation>> animations;
+    protected final Map<UUID, ViewMode> viewer;
 
-    private final int slotsPerPage;
-    private int currentPage = 0;
+    protected final int slotsPerPage;
+    protected int currentPage = 0;
 
-    private Inventory inventory;
+    protected Inventory inventory;
 
-    public AbstractInventoryMenu(Component title, int slotsPerPage) {
-        this.fallbackTitle = title;
-        this.pageTitles = new TreeMap<>();
-        this.slotsPerPage = slotsPerPage;
+    public AbstractInventoryMenu(int slotsPerPage) {
 
         this.itemStacks = new TreeMap<>();
         this.clickHandler = new TreeMap<>();
@@ -71,6 +63,7 @@ public abstract class AbstractInventoryMenu<T> {
         this.viewer = new HashMap<>();
         this.defaultCancelled = new HashMap<>();
 
+        this.slotsPerPage = slotsPerPage;
         this.inventory = createInventory(currentPage);
     }
 
@@ -92,8 +85,27 @@ public abstract class AbstractInventoryMenu<T> {
         GUIHandler.getInstance().callSynchronized(() -> openInventorySynchronized(viewer, previous));
     }
 
-    public void open(Collection<Player> viewers, AbstractInventoryMenu<T> previous) {
+    public void open(Collection<Player> viewers, TopInventoryMenu<T> previous) {
         viewers.forEach(player -> open(player, previous));
+    }
+
+    public AbstractInventoryMenu<T> openSubMenu(Player player, Supplier<AbstractInventoryMenu<T>> menuSupplier) {
+        AbstractInventoryMenu<T> menu = menuSupplier.get();
+        menu.open(player, this);
+        return menu;
+    }
+
+    public void openNextPage(Player player) {
+        openPage(player, currentPage + 1);
+    }
+
+    public void openPreviousPage(Player player) {
+        openPage(player, currentPage - 1);
+    }
+
+    public void openPage(Player player, int page) {
+        currentPage = page;
+        open(player);
     }
 
     protected void openInventorySynchronized(Player viewer, @Nullable AbstractInventoryMenu<?> previous) {
@@ -127,6 +139,31 @@ public abstract class AbstractInventoryMenu<T> {
         }
         this.viewer.put(viewer.getUniqueId(), viewMode);
         InventoryHandler.getInstance().registerInventory(viewer, this, previous);
+    }
+
+    public boolean handleInteract(Player player, int clickedSlot, T action) {
+
+        if (Arrays.stream(getSlots()).noneMatch(value -> value == clickedSlot)) {
+            return false;
+        }
+        if (viewer.get(player.getUniqueId()).equals(ViewMode.VIEW)) {
+            return true;
+        }
+        ClickContext context = new ClickContext(player, clickedSlot, defaultCancelled.getOrDefault(action, true));
+
+        ContextConsumer<ClickContext> clickHandler = getClickHandlerOrFallback(clickedSlot, action);
+        clickHandler = dynamicClickHandler.getOrDefault(clickedSlot, new HashMap<>()).getOrDefault(action, clickHandler);
+
+        if (clickHandler != null) {
+            //execute and catch exceptions so users can't dupe itemstacks.
+            try {
+                clickHandler.accept(context);
+            } catch (Exception exc) {
+                context.setCancelled(true);
+                GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error while handling GUI interaction of player " + player.getName(), exc);
+            }
+        }
+        return context.isCancelled();
     }
 
     public void close(Player viewer) {
@@ -167,86 +204,6 @@ public abstract class AbstractInventoryMenu<T> {
         dynamicProcessors.remove(menuProcessor);
     }
 
-    public AbstractInventoryMenu<T> openSubMenu(Player player, Supplier<AbstractInventoryMenu<T>> menuSupplier) {
-        AbstractInventoryMenu<T> menu = menuSupplier.get();
-        menu.open(player, this);
-        return menu;
-    }
-
-    public void openNextPage(Player player) {
-        openPage(player, currentPage + 1);
-    }
-
-    public void openPreviousPage(Player player) {
-        openPage(player, currentPage - 1);
-    }
-
-    public void openPage(Player player, int page) {
-        currentPage = page;
-        updateCurrentInventoryTitle(getTitle(page));
-        open(player);
-    }
-
-    public Component getTitle(int page) {
-        return pageTitles.getOrDefault(currentPage, fallbackTitle);
-    }
-
-    public void updateTitle(Component title) {
-        this.fallbackTitle = title;
-        if (!pageTitles.containsKey(currentPage)) {
-            updateCurrentInventoryTitle(title);
-        }
-    }
-
-    public void updateTitle(Component title, int... pages) {
-        for (int page : pages) {
-            pageTitles.put(page, title);
-            if (currentPage == page) {
-                updateCurrentInventoryTitle(title);
-            }
-        }
-    }
-
-    private void updateCurrentInventoryTitle(Component title) {
-        GUIHandler.getInstance().callSynchronized(() -> {
-            Inventory old = inventory;
-            this.inventory = createInventory(currentPage);
-            this.inventory.setContents(old.getContents());
-            for (Player viewer : viewer.keySet().stream().map(Bukkit::getPlayer).toList()) {
-                viewer.openInventory(this.inventory);
-            }
-        });
-    }
-
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean isThisInventory(Inventory inventory) {
-        return this.inventory != null && this.inventory.equals(inventory);
-    }
-
-    public boolean handleInteract(Player player, int clickedSlot, T action) {
-
-        if (Arrays.stream(getSlots()).noneMatch(value -> value == clickedSlot)) {
-            return false;
-        }
-        if (viewer.get(player.getUniqueId()).equals(ViewMode.VIEW)) {
-            return true;
-        }
-        ClickContext context = new ClickContext(player, clickedSlot, defaultCancelled.getOrDefault(action, true));
-
-        ContextConsumer<ClickContext> clickHandler = getClickHandlerOrFallback(clickedSlot, action);
-        clickHandler = dynamicClickHandler.getOrDefault(clickedSlot, new HashMap<>()).getOrDefault(action, clickHandler);
-
-        if (clickHandler != null) {
-            //execute and catch exceptions so users can't dupe itemstacks.
-            try {
-                clickHandler.accept(context);
-            } catch (Exception exc) {
-                context.setCancelled(true);
-                GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error while handling GUI interaction of player " + player.getName(), exc);
-            }
-        }
-        return context.isCancelled();
-    }
 
     public abstract int[] getSlots();
 
@@ -343,6 +300,11 @@ public abstract class AbstractInventoryMenu<T> {
 
     public void removeDefaultClickHandler(T action) {
         defaultClickHandler.remove(action);
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public boolean isThisInventory(Inventory inventory) {
+        return this.inventory != null && this.inventory.equals(inventory);
     }
 
     public void playAnimation(int slot, int milliseconds, ContextConsumer<AnimationContext> itemUpdater) {

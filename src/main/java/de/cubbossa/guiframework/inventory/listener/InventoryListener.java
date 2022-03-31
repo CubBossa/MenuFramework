@@ -1,6 +1,6 @@
 package de.cubbossa.guiframework.inventory.listener;
 
-import de.cubbossa.guiframework.inventory.AbstractInventoryMenu;
+import de.cubbossa.guiframework.inventory.TopInventoryMenu;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,13 +13,13 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class InventoryListener implements Listener {
 
-	private final Set<AbstractInventoryMenu<ClickType>> menus = new HashSet<>();
+	private final Set<TopInventoryMenu<ClickType>> menus = new HashSet<>();
 
-	public void register(AbstractInventoryMenu<ClickType> menu) {
+	public void register(TopInventoryMenu<ClickType> menu) {
 		menus.add(menu);
 	}
 
-	public void unregister(AbstractInventoryMenu<ClickType> menu) {
+	public void unregister(TopInventoryMenu<ClickType> menu) {
 		menus.remove(menu);
 	}
 

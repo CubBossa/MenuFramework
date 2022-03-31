@@ -12,7 +12,7 @@ import java.util.function.BiConsumer;
  * Allows placing dynamic items and clickhandler that are not permanent.
  * This might be useful to implement pagination presets that depend on the current page.
  *
- * @param <T> Type of the processed {@link AbstractInventoryMenu<T>}
+ * @param <T> Type of the processed {@link AbstractInventoryMenu <T>}
  */
 public interface DynamicMenuProcessor<T> {
 

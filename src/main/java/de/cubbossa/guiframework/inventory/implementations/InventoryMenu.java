@@ -1,6 +1,7 @@
 package de.cubbossa.guiframework.inventory.implementations;
 
 import de.cubbossa.guiframework.inventory.AbstractInventoryMenu;
+import de.cubbossa.guiframework.inventory.TopInventoryMenu;
 import de.cubbossa.guiframework.inventory.InventoryHandler;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
@@ -12,7 +13,7 @@ import org.bukkit.inventory.Inventory;
 
 import java.util.stream.IntStream;
 
-public class InventoryMenu extends AbstractInventoryMenu<ClickType> {
+public class InventoryMenu extends TopInventoryMenu<ClickType> {
 
 	private InventoryType inventoryType = InventoryType.CHEST;
 	@Getter
