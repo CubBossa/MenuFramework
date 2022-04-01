@@ -107,15 +107,15 @@ public class MenuPresets {
         };
     }
 
-    public static <T, C extends ClickContext> DynamicMenuProcessor<T, C> fillRow(AbstractInventoryMenu<T, C> menu, ItemStack stack, int line) {
+    public static <T, C extends ClickContext> DynamicMenuProcessor<T, C> fillRow(ItemStack stack, int line) {
         return (menu1, placeDynamicItem, placeDynamicClickHandler) -> {
             IntStream.range(line * 9, line * 9 + 9).forEach(value -> placeDynamicItem.accept(value, stack));
         };
     }
 
-    public static <T, C extends ClickContext> DynamicMenuProcessor<T, C> fillColumn(AbstractInventoryMenu<T, C> menu, ItemStack stack, int column) {
+    public static <T, C extends ClickContext> DynamicMenuProcessor<T, C> fillColumn(ItemStack stack, int column) {
         return (menu1, placeDynamicItem, placeDynamicClickHandler) -> {
-            IntStream.range(0, menu.slotsPerPage).filter(value -> value % 9 == column).forEach(value -> placeDynamicItem.accept(value, stack));
+            IntStream.range(0, 6*9).filter(value -> value % 9 == column).forEach(value -> placeDynamicItem.accept(value, stack));
         };
     }
 

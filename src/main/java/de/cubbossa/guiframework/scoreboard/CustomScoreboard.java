@@ -221,11 +221,11 @@ public class CustomScoreboard {
 	}
 
 
-	public void playAnimation(int line, int milliseconds, Supplier<Component> lineUpdater) {
-		playAnimation(line, -1, milliseconds, lineUpdater);
+	public Animation playAnimation(int line, int milliseconds, Supplier<Component> lineUpdater) {
+		return playAnimation(line, -1, milliseconds, lineUpdater);
 	}
 
-	public void playAnimation(int line, int intervals, int milliseconds, Supplier<Component> lineUpdater) {
+	public Animation playAnimation(int line, int intervals, int milliseconds, Supplier<Component> lineUpdater) {
 		Animation animation = new Animation(line, intervals, milliseconds, lineUpdater);
 
 		Collection<Animation> animations = this.animations.get(null);
@@ -233,6 +233,7 @@ public class CustomScoreboard {
 			animations = new HashSet<>();
 		}
 		animations.add(animation);
+		return animation;
 	}
 
 	public void stopAnimation(int... lines) {

@@ -8,10 +8,14 @@ import de.cubbossa.guiframework.inventory.context.ContextConsumer;
 import de.cubbossa.guiframework.inventory.pagination.DynamicMenuProcessor;
 import lombok.Getter;
 import lombok.Setter;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
 
@@ -233,6 +237,16 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
         }
     }
 
+    public void setButton(ButtonBuilder<T, C> button, int... slots) {
+        if (button.stack != null) {
+            setItem(button.stack, slots);
+        }
+        //TODO sound
+        if (!button.clickHandler.isEmpty()) {
+            setClickHandler(button.clickHandler);
+        }
+    }
+
     public void setItem(ItemStack item, int... slots) {
         for (int slot : slots) {
             itemStacks.put(slot, item);
@@ -243,6 +257,14 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
         for (int slot : slots) {
             Map<T, ContextConsumer<C>> map = this.clickHandler.getOrDefault(slot, new HashMap<>());
             map.put(action, clickHandler);
+            this.clickHandler.put(slot, map);
+        }
+    }
+
+    public void setClickHandler(Map<T, ContextConsumer<C>> clickHandler, int... slots) {
+        for (int slot : slots) {
+            Map<T, ContextConsumer<C>> map = this.clickHandler.getOrDefault(slot, new HashMap<>());
+            map.putAll(clickHandler);
             this.clickHandler.put(slot, map);
         }
     }
@@ -341,6 +363,10 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
         }
     }
 
+    public ButtonBuilder<T, C> buttonBuilder() {
+        return new ButtonBuilder<>();
+    }
+
     public class Animation {
 
         private final int slot;
@@ -386,6 +412,74 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
 
         public boolean isRunning() {
             return !task.isCancelled();
+        }
+    }
+
+    @Getter
+    public static class ButtonBuilder<T, C extends ClickContext> {
+
+        private ItemStack stack;
+        private Sound sound;
+        private float pitch;
+        private float volume;
+        private final Map<T, ContextConsumer<C>> clickHandler = new HashMap<>();
+
+        public ButtonBuilder<T, C> withItemStack(ItemStack stack) {
+            this.stack = stack;
+            return this;
+        }
+
+        public ButtonBuilder<T, C> withItemStack(Material material) {
+            this.stack = new ItemStack(material);
+            return this;
+        }
+
+        public ButtonBuilder<T, C> withItemStack(Material material, Component name) {
+            stack = new ItemStack(material);
+            ItemMeta meta = stack.getItemMeta();
+            meta.displayName(name);
+            stack.setItemMeta(meta);
+            return this;
+        }
+
+        public ButtonBuilder<T, C> withItemStack(Material material, Component name, List<Component> lore) {
+            stack = new ItemStack(material);
+            ItemMeta meta = stack.getItemMeta();
+            meta.displayName(name);
+            meta.lore(lore);
+            stack.setItemMeta(meta);
+            return this;
+        }
+
+        public ButtonBuilder<T, C> withSound(Sound sound) {
+            this.sound = sound;
+            return this;
+        }
+
+        public ButtonBuilder<T, C> withSound(Sound sound, float volume, float pitch) {
+            this.sound = sound;
+            this.volume = volume;
+            this.pitch = pitch;
+            return this;
+        }
+
+        public ButtonBuilder<T, C> withSound(Sound sound, float volumeFrom, float volumeTo, float pitchFrom, float pitchTo) {
+            this.sound = sound;
+            this.volume = (float) (volumeFrom + Math.random() * (volumeTo - volumeFrom));
+            this.pitch = (float) (pitchFrom + Math.random() * (pitchTo - pitchFrom));
+            return this;
+        }
+
+        public ButtonBuilder<T, C> withClickHandler(ContextConsumer<C> clickHandler, T... actions) {
+            for (T action : actions) {
+                this.clickHandler.put(action, clickHandler);
+            }
+            return this;
+        }
+
+        public ButtonBuilder<T, C> withClickHandler(Map<T, ContextConsumer<C>> clickHandler) {
+            this.clickHandler.putAll(clickHandler);
+            return this;
         }
     }
 }
