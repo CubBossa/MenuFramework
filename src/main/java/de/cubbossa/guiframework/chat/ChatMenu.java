@@ -31,10 +31,9 @@ public abstract class ChatMenu<T> implements ComponentLike {
     }
 
     public ChatMenu<T> addSub(ChatMenu<?> menu) {
-        if (menu.equals(this)) {
-            return this;
+        if (!menu.equals(this)) {
+            subMenus.add(menu);
         }
-        subMenus.add(menu);
         return this;
     }
 

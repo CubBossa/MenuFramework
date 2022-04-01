@@ -3,10 +3,7 @@ package de.cubbossa.guiframework.scoreboard;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
-import java.util.UUID;
+import java.util.*;
 
 public class CustomScoreboardHandler {
 
@@ -20,7 +17,20 @@ public class CustomScoreboardHandler {
 		scoreboards = new HashMap<>();
 	}
 
-	public void registerScoreboard(Player player, CustomScoreboard scoreboard) {
+	/**
+	 * Closes all opened Scoreboards without opening the underlying scoreboard from stack. Use this before
+	 * disabling the plugin to remove unexpected behaviour.
+	 */
+	public void closeAllScoreboards() {
+		scoreboards.values().forEach(customScoreboards -> {
+			if (!customScoreboards.isEmpty()) {
+				customScoreboards.peek().hide(customScoreboards.peek().getViewers());
+			}
+		});
+		scoreboards.clear();
+	}
+
+	protected void registerScoreboard(Player player, CustomScoreboard scoreboard) {
 		Stack<CustomScoreboard> stack = scoreboards.computeIfAbsent(player.getUniqueId(), k -> new Stack<>());
 		if (!stack.isEmpty() && stack.peek().equals(scoreboard)) {
 			return;
@@ -28,7 +38,7 @@ public class CustomScoreboardHandler {
 		stack.push(scoreboard);
 	}
 
-	public void unregisterScoreboard(Player player, CustomScoreboard scoreboard) {
+	protected void unregisterScoreboard(Player player, CustomScoreboard scoreboard) {
 		Stack<CustomScoreboard> stack = scoreboards.get(player.getUniqueId());
 		if (stack != null) {
 			stack.remove(scoreboard);
