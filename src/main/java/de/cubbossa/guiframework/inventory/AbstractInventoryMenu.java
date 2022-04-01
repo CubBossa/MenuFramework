@@ -5,7 +5,6 @@ import de.cubbossa.guiframework.inventory.context.AnimationContext;
 import de.cubbossa.guiframework.inventory.context.ClickContext;
 import de.cubbossa.guiframework.inventory.context.CloseContext;
 import de.cubbossa.guiframework.inventory.context.ContextConsumer;
-import de.cubbossa.guiframework.inventory.pagination.DynamicMenuProcessor;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
@@ -21,6 +20,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -35,6 +36,7 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
 
     protected final SortedMap<Integer, ItemStack> itemStacks;
     protected final SortedMap<Integer, Map<T, ContextConsumer<C>>> clickHandler;
+    protected final SortedMap<Integer, Consumer<Player>> soundPlayer;
 
     protected final List<DynamicMenuProcessor<T, C>> dynamicProcessors;
     protected final SortedMap<Integer, ItemStack> dynamicItemStacks;
@@ -57,6 +59,7 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
 
         this.itemStacks = new TreeMap<>();
         this.clickHandler = new TreeMap<>();
+        this.soundPlayer = new TreeMap<>();
 
         this.dynamicProcessors = new ArrayList<>();
         this.dynamicItemStacks = new TreeMap<>();
@@ -161,6 +164,9 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
             //execute and catch exceptions so users can't dupe itemstacks.
             try {
                 clickHandler.accept(context);
+                if (soundPlayer.containsKey(clickedSlot)) {
+                    soundPlayer.get(clickedSlot).accept(context.getPlayer());
+                }
             } catch (Exception exc) {
                 context.setCancelled(true);
                 GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error while handling GUI interaction of player " + player.getName(), exc);
@@ -241,7 +247,9 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
         if (button.stack != null) {
             setItem(button.stack, slots);
         }
-        //TODO sound
+        for (int slot : slots) {
+            soundPlayer.put(slot, player -> player.playSound(player.getLocation(), button.sound, button.volume, button.pitch));
+        }
         if (!button.clickHandler.isEmpty()) {
             setClickHandler(button.clickHandler);
         }
@@ -340,11 +348,11 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
         return Integer.max((Integer.max(itemStacks.isEmpty() ? 0 : itemStacks.firstKey(), clickHandler.isEmpty() ? 0 : clickHandler.firstKey()) - 1) / slotsPerPage + 1, currentPage);
     }
 
-    public Animation playAnimation(int slot, int ticks, ContextConsumer<AnimationContext> itemUpdater) {
+    public Animation playAnimation(int slot, int ticks, Function<AnimationContext, ItemStack> itemUpdater) {
         return playAnimation(slot, -1, ticks, itemUpdater);
     }
 
-    public Animation playAnimation(int slot, int intervals, int ticks, ContextConsumer<AnimationContext> itemUpdater) {
+    public Animation playAnimation(int slot, int intervals, int ticks, Function<AnimationContext, ItemStack> itemUpdater) {
         Animation animation = new Animation(slot, intervals, ticks, itemUpdater);
 
         Collection<Animation> animations = this.animations.get(slot);
@@ -374,20 +382,20 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
         private final int slot;
         private int intervals = -1;
         private final int ticks;
-        private final ContextConsumer<AnimationContext> itemUpdater;
+        private final Function<AnimationContext, ItemStack> itemUpdater;
 
         private BukkitTask task;
 
-        public Animation(int slot, int ticks, ContextConsumer<AnimationContext> itemUpdater) {
+        public Animation(int slot, int ticks, Function<AnimationContext, ItemStack> itemUpdater) {
             this.slot = slot;
             this.ticks = ticks;
             this.itemUpdater = itemUpdater;
         }
 
-        public Animation(int slot, int ticks, int milliseconds, ContextConsumer<AnimationContext> itemUpdater) {
+        public Animation(int slot, int intervals, int ticks, Function<AnimationContext, ItemStack> itemUpdater) {
             this.slot = slot;
-            this.intervals = ticks;
-            this.ticks = milliseconds;
+            this.intervals = intervals;
+            this.ticks = ticks;
             this.itemUpdater = itemUpdater;
         }
 
@@ -398,7 +406,8 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
                 if (intervals == -1 || interval.get() < intervals) {
                     if (item != null) {
                         try {
-                            itemUpdater.accept(new AnimationContext(slot, intervals, item));
+                            setItem(itemUpdater.apply(new AnimationContext(slot, intervals, item, Bukkit.getCurrentTick(), Bukkit.getCurrentTick() % 20)), slot);
+                            refresh(slot);
                         } catch (Throwable t) {
                             GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error occured while playing animation in inventory menu", t);
                         }

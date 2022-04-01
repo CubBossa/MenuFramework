@@ -129,11 +129,8 @@ public class TestCommand implements CommandExecutor {
                 exampleMenu.open(player);
                 break;
             case "3.2":
-                exampleMenu.playAnimation(0, 10, animationContext -> {
-                    exampleMenu.setItem(new ItemStack(Material.values()[(int) (System.currentTimeMillis() % Material.values().length)]));
-                    exampleMenu.refresh(0);
-                    //TODO nervig, lieber mit function
-                });
+                exampleMenu.playAnimation(0, 10, animationContext ->
+                        new ItemStack(Material.values()[(int) (System.currentTimeMillis() % Material.values().length)]));
                 break;
         }
         return false;

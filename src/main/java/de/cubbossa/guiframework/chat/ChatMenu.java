@@ -57,7 +57,7 @@ public abstract class ChatMenu<T> implements ComponentLike {
     public abstract Component toComponent(T message);
 
     public List<Component> toComponents() {
-        return toComponents(-1, 0, Integer.MAX_VALUE);
+        return toComponents(-1, 0, 1024);
     }
 
     public List<Component> toComponents(int page, int menusPerPage) {
@@ -66,11 +66,9 @@ public abstract class ChatMenu<T> implements ComponentLike {
 
     public List<Component> toComponents(int indentation, int page, int menusPerPage) {
 
-        //TODO arrayoutofbounds
-
         List<Component> components = Lists.newArrayList();
         components.add(indentation(indentation).append(toComponent(message)));
-        subMenus.forEach(subMenu -> components.addAll(subMenu.toComponents(indentation + 1, 0, Integer.MAX_VALUE)));
+        subMenus.forEach(subMenu -> components.addAll(subMenu.toComponents(indentation + 1, 0, 1024)));
         return components.subList(Integer.min(page * menusPerPage, components.size() - 1), Integer.min(page * menusPerPage + menusPerPage, components.size()));
     }
 
@@ -85,7 +83,7 @@ public abstract class ChatMenu<T> implements ComponentLike {
     }
 
     public void send(Player player) {
-        toComponents(0, Integer.MAX_VALUE).forEach(player::sendMessage);
+        toComponents(0, 1024).forEach(player::sendMessage);
     }
 
     public void send(Player player, int page, int linesPerPage) {

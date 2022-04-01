@@ -1,6 +1,5 @@
-package de.cubbossa.guiframework.inventory.pagination;
+package de.cubbossa.guiframework.inventory;
 
-import de.cubbossa.guiframework.inventory.AbstractInventoryMenu;
 import de.cubbossa.guiframework.inventory.context.ClickContext;
 import de.cubbossa.guiframework.inventory.context.ContextConsumer;
 import org.bukkit.inventory.ItemStack;

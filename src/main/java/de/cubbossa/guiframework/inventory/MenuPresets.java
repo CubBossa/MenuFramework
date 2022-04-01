@@ -2,7 +2,6 @@ package de.cubbossa.guiframework.inventory;
 
 import de.cubbossa.guiframework.inventory.context.ClickContext;
 import de.cubbossa.guiframework.inventory.context.ContextConsumer;
-import de.cubbossa.guiframework.inventory.pagination.DynamicMenuProcessor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
