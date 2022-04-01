@@ -1,5 +1,6 @@
 package de.cubbossa.guiframework.test;
 
+import com.destroystokyo.paper.MaterialSetTag;
 import com.destroystokyo.paper.MaterialTags;
 import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.chat.ComponentMenu;
@@ -61,21 +62,20 @@ public class TestCommand implements CommandExecutor {
     InventoryMenu exampleMenu = new InventoryMenu(4, Component.text("Example Inventory"));
 
     public TestCommand() {
-        exampleMenu.loadPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 4));
-        exampleMenu.loadPreset(MenuPresets.paginationRow(4, 0, 1, false, ClickType.LEFT));
+        exampleMenu.loadPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 3));
+        exampleMenu.loadPreset(MenuPresets.paginationRow(3, 0, 1, false, ClickType.LEFT));
         int i = 0;
-        for (Material material : MaterialTags.ARROWS.getValues()) {
+        for (Material material : MaterialTags.BEDS.getValues()) {
             exampleMenu.setButton(exampleMenu.buttonBuilder()
                             .withItemStack(material)
-                            .withSound(Sound.ENTITY_EVOKER_PREPARE_WOLOLO, 0, 2, 0, 2)
-                            .withClickHandler(clickContext -> clickContext.getPlayer().getInventory().addItem(new ItemStack(material))),
+                            .withSound(Sound.ENTITY_EVOKER_PREPARE_WOLOLO, 0f, 2f, .5f, 2f)
+                            .withClickHandler(clickContext -> clickContext.getPlayer().getInventory().addItem(new ItemStack(material)), ClickType.RIGHT),
                     i++);
-            if (i / 9 % 4 == 0) {
+            if (i / 9 % 4 == 3) {
                 i += 9;
             }
         }
     }
-
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {

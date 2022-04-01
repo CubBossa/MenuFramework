@@ -122,9 +122,9 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
 
         if (inventory == null) {
             inventory = createInventory(currentPage);
-            //GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Could not open inventory for " + viewer.getName() + ", inventory is null.");
-            //return;
         }
+        clearContent();
+
         if (viewer.isSleeping()) {
             viewer.wakeup(true);
         }
@@ -134,7 +134,7 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
         }
 
         for (int slot : getSlots()) {
-            ItemStack item = dynamicItemStacks.getOrDefault(slot, itemStacks.get(slot));
+            ItemStack item = dynamicItemStacks.getOrDefault(slot, itemStacks.get(currentPage * slotsPerPage + slot));
             if (item == null) {
                 continue;
             }
@@ -157,16 +157,19 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
             return true;
         }
 
-        ContextConsumer<C> clickHandler = getClickHandlerOrFallback(clickedSlot, action);
-        clickHandler = dynamicClickHandler.getOrDefault(clickedSlot, new HashMap<>()).getOrDefault(action, clickHandler);
+        int actualSlot = currentPage * slotsPerPage + clickedSlot;
+        if (soundPlayer.containsKey(actualSlot)) {
+            soundPlayer.get(actualSlot).accept(context.getPlayer());
+        }
 
+        ContextConsumer<C> clickHandler = dynamicClickHandler.getOrDefault(clickedSlot, new HashMap<>()).get(action);
+        if (clickHandler == null) {
+            clickHandler = getClickHandlerOrFallback(clickedSlot, action);
+        }
         if (clickHandler != null) {
             //execute and catch exceptions so users can't dupe itemstacks.
             try {
                 clickHandler.accept(context);
-                if (soundPlayer.containsKey(clickedSlot)) {
-                    soundPlayer.get(clickedSlot).accept(context.getPlayer());
-                }
             } catch (Exception exc) {
                 context.setCancelled(true);
                 GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error while handling GUI interaction of player " + player.getName(), exc);
@@ -176,16 +179,21 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
     }
 
     public void close(Player viewer) {
-        if (viewer.getOpenInventory().getTopInventory().equals(this.inventory)) {
+        /*if (viewer.getOpenInventory().getTopInventory().equals(this.inventory)) {
             viewer.closeInventory();
-        }
+        }*/
         if (this.viewer.remove(viewer.getUniqueId()) == null) {
             return;
         }
-        try {
-            closeHandler.accept(new CloseContext(viewer, currentPage));
-        } catch (Exception exc) {
-            GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error occured while closing gui for " + viewer.getName(), exc);
+        if (closeHandler != null) {
+            try {
+                closeHandler.accept(new CloseContext(viewer, currentPage));
+            } catch (Exception exc) {
+                GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error occured while closing gui for " + viewer.getName(), exc);
+            }
+        }
+        if (this instanceof TopInventoryMenu topMenu && this.viewer.size() == 0) {
+            InventoryHandler.getInstance().unregisterTopMenuListener(topMenu);
         }
     }
 
@@ -221,7 +229,7 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
     }
 
     public ContextConsumer<C> getClickHandlerOrFallback(int slot, T action) {
-        return clickHandler.getOrDefault(slot, new HashMap<>()).getOrDefault(action, defaultClickHandler.get(action));
+        return clickHandler.getOrDefault(currentPage * slotsPerPage + slot, new HashMap<>()).getOrDefault(action, defaultClickHandler.get(action));
     }
 
     public void clearContent() {
@@ -359,8 +367,8 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
         if (animations == null) {
             animations = new HashSet<>();
         }
-        animation.play();
         animations.add(animation);
+        animation.play();
         return animation;
     }
 
@@ -400,7 +408,7 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
         }
 
         public void play() {
-            final ItemStack item = itemStacks.get(slot);
+            final ItemStack item = itemStacks.getOrDefault(slot, new ItemStack(Material.AIR));
             AtomicInteger interval = new AtomicInteger(0);
             task = Bukkit.getScheduler().runTaskTimer(GUIHandler.getInstance().getPlugin(), () -> {
                 if (intervals == -1 || interval.get() < intervals) {

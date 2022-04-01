@@ -3,6 +3,7 @@ package de.cubbossa.guiframework.inventory;
 import de.cubbossa.guiframework.inventory.listener.InventoryListener;
 import lombok.Getter;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -52,6 +53,9 @@ public class InventoryHandler {
         }
         stack.push(menu);
         navigation.put(player.getUniqueId(), stack);
+        if (menu instanceof TopInventoryMenu topMenu && topMenu.getViewer().size() == 1) {
+            inventoryListener.register(topMenu);
+        }
     }
 
     public <T> TopInventoryMenu<T> getCurrentTopMenu(Player player) {
@@ -80,9 +84,12 @@ public class InventoryHandler {
         if (menuStack.isEmpty()) {
             return;
         }
-        openTopInventories.remove(player.getUniqueId());
-
+        AbstractInventoryMenu<?, ?> oldMenu = openTopInventories.remove(player.getUniqueId());
         menuStack.peek().open(player);
+    }
+
+    public void unregisterTopMenuListener(TopInventoryMenu<ClickType> topMenu) {
+        inventoryListener.unregister(topMenu);
     }
 
     public void closeCurrentBottomMenu(Collection<Player> players) {
