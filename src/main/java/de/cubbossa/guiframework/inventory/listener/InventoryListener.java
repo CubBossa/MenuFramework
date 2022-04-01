@@ -1,6 +1,7 @@
 package de.cubbossa.guiframework.inventory.listener;
 
 import de.cubbossa.guiframework.inventory.TopInventoryMenu;
+import de.cubbossa.guiframework.inventory.context.ClickContext;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -30,7 +31,7 @@ public class InventoryListener implements Listener {
 				return;
 			}
 			if (event.getWhoClicked() instanceof Player player) {
-				event.setCancelled(menu.handleInteract(player, event.getSlot(), event.getClick()));
+				event.setCancelled(menu.handleInteract(player, event.getSlot(), event.getClick(), new ClickContext(player, event.getSlot(), true)));
 			}
 		});
 	}
@@ -46,7 +47,8 @@ public class InventoryListener implements Listener {
 					return;
 				}
 				ClickType type = event.getType() == DragType.EVEN ? ClickType.LEFT : ClickType.RIGHT;
-				event.setCancelled(menu.handleInteract(player, event.getInventorySlots().stream().findAny().get(), type));
+				int slot = event.getInventorySlots().stream().findAny().get();
+				event.setCancelled(menu.handleInteract(player, slot, type, new ClickContext(player, slot, true)));
 			}
 		});
 	}

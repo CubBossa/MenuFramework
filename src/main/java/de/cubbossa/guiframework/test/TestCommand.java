@@ -1,17 +1,14 @@
 package de.cubbossa.guiframework.test;
 
 import com.destroystokyo.paper.MaterialTags;
+import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.chat.ComponentMenu;
-import de.cubbossa.guiframework.chat.ItemMenu;
 import de.cubbossa.guiframework.chat.TextMenu;
-import de.cubbossa.guiframework.inventory.AbstractInventoryMenu;
 import de.cubbossa.guiframework.inventory.MenuPresets;
-import de.cubbossa.guiframework.inventory.context.ClickContext;
 import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
 import de.cubbossa.guiframework.scoreboard.CustomScoreboard;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.util.HSVLike;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -24,7 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
-import java.util.UUID;
+import java.util.Objects;
 
 public class TestCommand implements CommandExecutor {
 
@@ -58,23 +55,12 @@ public class TestCommand implements CommandExecutor {
      */
 
     CustomScoreboard.Animation scoreboardAnimation = null;
+    CustomScoreboard scoreboard = new CustomScoreboard("test_scoreboard_1", Component.text("Nur ein Scoreboard"), 10);
+    CustomScoreboard higherBoard = new CustomScoreboard("test_scoreboard_2", Component.text("Noch eins"), 5);
 
-    @Override
-    public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-        Player player = (Player) commandSender;
+    InventoryMenu exampleMenu = new InventoryMenu(4, Component.text("Example Inventory"));
 
-        CustomScoreboard scoreboard = new CustomScoreboard("test_scoreboard", Component.text("Nur ein Scoreboard"), 10);
-        TextMenu online = new TextMenu("Spieler online:");
-        Bukkit.getOnlinePlayers().forEach(p -> online.addSub(new ComponentMenu(p.displayName())));
-        scoreboard.registerStaticEntry(3, online);
-        scoreboard.registerStaticEntry(7, online.asComponent());
-
-        CustomScoreboard higherBoard = new CustomScoreboard("test_scoreboard", Component.text("Noch eins"), 5);
-
-        TextMenu inventory = new TextMenu("Your Inventory:");
-        Arrays.stream(player.getInventory().getContents()).forEach(stack -> inventory.addSub(new ItemMenu(stack)));
-
-        InventoryMenu exampleMenu = new InventoryMenu(4, Component.text("Example Inventory"));
+    public TestCommand() {
         exampleMenu.loadPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 4));
         exampleMenu.loadPreset(MenuPresets.paginationRow(4, 0, 1, false, ClickType.LEFT));
         int i = 0;
@@ -84,8 +70,24 @@ public class TestCommand implements CommandExecutor {
                             .withSound(Sound.ENTITY_EVOKER_PREPARE_WOLOLO, 0, 2, 0, 2)
                             .withClickHandler(clickContext -> clickContext.getPlayer().getInventory().addItem(new ItemStack(material))),
                     i++);
-            if (i / 9 % 4 == 0) i += 9;
+            if (i / 9 % 4 == 0) {
+                i += 9;
+            }
         }
+    }
+
+
+    @Override
+    public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+        Player player = (Player) commandSender;
+
+        TextMenu online = new TextMenu("Spieler online:");
+        Bukkit.getOnlinePlayers().forEach(p -> online.addSub(new ComponentMenu(p.displayName())));
+        scoreboard.registerStaticEntry(3, online);
+        scoreboard.registerStaticEntry(7, online.asComponent());
+
+        TextMenu inventory = new TextMenu("Your Inventory:");
+        Arrays.stream(player.getInventory().getContents()).filter(Objects::nonNull).forEach(stack -> inventory.addSub(new TextMenu(stack.getAmount() + "x " + stack.getType().toString())));
 
         switch (strings[0]) {
             case "1.1":
@@ -101,14 +103,16 @@ public class TestCommand implements CommandExecutor {
                 higherBoard.hide(player);
                 break;
             case "1.5":
-                scoreboardAnimation = scoreboard.playAnimation(3, 10, () -> Component.text("Rainbow",
-                        TextColor.color(HSVLike.hsvLike(System.currentTimeMillis() % 100 / 100f, 1f, 1f))));
+                scoreboardAnimation = scoreboard.playAnimation(3, 200, 2, () -> {
+                    float val = (System.currentTimeMillis() % 1000) / 1000f;
+                    return Component.text("Rainbow", TextColor.color(1, val, 1 - val));
+                });
                 break;
             case "1.6":
                 scoreboardAnimation.stop();
                 break;
             case "1.7":
-                Bukkit.getScheduler().runTaskAsynchronously(null, () -> scoreboard.registerStaticEntry(9, Component.text("Asynchron")));
+                Bukkit.getScheduler().runTaskAsynchronously(GUIHandler.getInstance().getPlugin(), () -> scoreboard.registerStaticEntry(9, Component.text("Asynchron")));
                 break;
 
             case "2.1":
@@ -125,8 +129,9 @@ public class TestCommand implements CommandExecutor {
                 exampleMenu.open(player);
                 break;
             case "3.2":
-                exampleMenu.playAnimation(0, 100, animationContext -> {
+                exampleMenu.playAnimation(0, 10, animationContext -> {
                     exampleMenu.setItem(new ItemStack(Material.values()[(int) (System.currentTimeMillis() % Material.values().length)]));
+                    exampleMenu.refresh(0);
                     //TODO nervig, lieber mit function
                 });
                 break;

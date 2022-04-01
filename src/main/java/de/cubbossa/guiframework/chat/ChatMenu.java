@@ -66,6 +66,8 @@ public abstract class ChatMenu<T> implements ComponentLike {
 
     public List<Component> toComponents(int indentation, int page, int menusPerPage) {
 
+        //TODO arrayoutofbounds
+
         List<Component> components = Lists.newArrayList();
         components.add(indentation(indentation).append(toComponent(message)));
         subMenus.forEach(subMenu -> components.addAll(subMenu.toComponents(indentation + 1, 0, Integer.MAX_VALUE)));

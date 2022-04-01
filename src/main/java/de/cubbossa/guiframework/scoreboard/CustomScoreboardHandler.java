@@ -22,6 +22,9 @@ public class CustomScoreboardHandler {
 
 	public void registerScoreboard(Player player, CustomScoreboard scoreboard) {
 		Stack<CustomScoreboard> stack = scoreboards.computeIfAbsent(player.getUniqueId(), k -> new Stack<>());
+		if (!stack.isEmpty() && stack.peek().equals(scoreboard)) {
+			return;
+		}
 		stack.push(scoreboard);
 	}
 

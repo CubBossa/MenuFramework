@@ -43,7 +43,7 @@ public class InventoryHandler {
 
         openInventories.put(player.getUniqueId(), menu);
         Stack<AbstractInventoryMenu<?, ?>> stack = navigation.getOrDefault(player.getUniqueId(), new Stack<>());
-        boolean prevOnStack = previous != stack.peek();
+        boolean prevOnStack = !stack.isEmpty() && previous != stack.peek();
         if (previous == null || !prevOnStack) {
             stack.clear();
             if (!prevOnStack) {

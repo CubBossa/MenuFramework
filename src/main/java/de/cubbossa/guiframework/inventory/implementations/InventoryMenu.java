@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.IntStream;
 
@@ -34,11 +35,11 @@ public class InventoryMenu extends TopInventoryMenu<ClickType> {
 	}
 
 	@Override
-	protected void openInventorySynchronized(Player viewer, AbstractInventoryMenu<?> previous) {
+	protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable AbstractInventoryMenu<?, ?> previous) {
 		if (this.getViewer().size() == 0) {
 			InventoryHandler.getInstance().getInventoryListener().register(this);
 		}
-		super.openInventorySynchronized(viewer, previous);
+		super.openInventorySynchronized(viewer, viewMode, previous);
 	}
 
 	@Override

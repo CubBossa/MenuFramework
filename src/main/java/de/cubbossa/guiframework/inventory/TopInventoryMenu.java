@@ -28,7 +28,6 @@ public abstract class TopInventoryMenu<T> extends AbstractInventoryMenu<T, Click
     private Component fallbackTitle;
     private final Map<Integer, Component> pageTitles;
 
-
     public TopInventoryMenu(Component title, int slotsPerPage) {
         super(slotsPerPage);
         this.fallbackTitle = title;
@@ -42,7 +41,7 @@ public abstract class TopInventoryMenu<T> extends AbstractInventoryMenu<T, Click
     }
 
     public Component getTitle(int page) {
-        return pageTitles.getOrDefault(currentPage, fallbackTitle);
+        return pageTitles.getOrDefault(page, fallbackTitle);
     }
 
     public void updateTitle(Component title) {

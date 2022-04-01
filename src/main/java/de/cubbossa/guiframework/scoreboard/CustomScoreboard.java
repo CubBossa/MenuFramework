@@ -228,11 +228,13 @@ public class CustomScoreboard {
 	public Animation playAnimation(int line, int intervals, int milliseconds, Supplier<Component> lineUpdater) {
 		Animation animation = new Animation(line, intervals, milliseconds, lineUpdater);
 
-		Collection<Animation> animations = this.animations.get(null);
+		Collection<Animation> animations = this.animations.get(line);
 		if (animations == null) {
 			animations = new HashSet<>();
 		}
 		animations.add(animation);
+		animation.play();
+
 		return animation;
 	}
 
@@ -269,14 +271,17 @@ public class CustomScoreboard {
 
 		public void play() {
 			AtomicInteger interval = new AtomicInteger(0);
+			registerDynamicEntry(line, lineUpdater);
 			task = Bukkit.getScheduler().runTaskTimer(GUIHandler.getInstance().getPlugin(), () -> {
 				if (intervals == -1 || interval.get() < intervals) {
 					try {
-						registerStaticEntry(line, lineUpdater.get());
+						updateLine(scoreboards.keySet(), line);
 					} catch (Throwable t) {
 						GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error occured while playing animation in scoreboard", t);
 					}
 					interval.addAndGet(1);
+				} else {
+					stop();
 				}
 			}, 0, milliseconds);
 		}

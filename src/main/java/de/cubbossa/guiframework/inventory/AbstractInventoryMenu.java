@@ -68,7 +68,6 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
         this.defaultCancelled = new HashMap<>();
 
         this.slotsPerPage = slotsPerPage;
-        this.inventory = createInventory(currentPage);
     }
 
     public abstract Inventory createInventory(int page);
@@ -119,8 +118,9 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
     protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable AbstractInventoryMenu<?, ?> previous) {
 
         if (inventory == null) {
-            GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Could not open inventory for " + viewer.getName() + ", inventory is null.");
-            return;
+            inventory = createInventory(currentPage);
+            //GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Could not open inventory for " + viewer.getName() + ", inventory is null.");
+            //return;
         }
         if (viewer.isSleeping()) {
             viewer.wakeup(true);
@@ -333,25 +333,27 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
     }
 
     public int getMinPage() {
-        return Integer.min((Integer.min(itemStacks.firstKey(), clickHandler.firstKey()) - 1) / slotsPerPage + 1, currentPage);
+        return Integer.min((Integer.min(itemStacks.isEmpty() ? 0 : itemStacks.firstKey(), clickHandler.isEmpty() ? 0 : clickHandler.firstKey()) - 1) / slotsPerPage + 1, currentPage);
     }
 
     public int getMaxPage() {
-        return Integer.max((Integer.max(itemStacks.lastKey(), clickHandler.lastKey()) - 1) / slotsPerPage + 1, currentPage);
+        return Integer.max((Integer.max(itemStacks.isEmpty() ? 0 : itemStacks.firstKey(), clickHandler.isEmpty() ? 0 : clickHandler.firstKey()) - 1) / slotsPerPage + 1, currentPage);
     }
 
-    public void playAnimation(int slot, int milliseconds, ContextConsumer<AnimationContext> itemUpdater) {
-        playAnimation(slot, -1, milliseconds, itemUpdater);
+    public Animation playAnimation(int slot, int ticks, ContextConsumer<AnimationContext> itemUpdater) {
+        return playAnimation(slot, -1, ticks, itemUpdater);
     }
 
-    public void playAnimation(int slot, int intervals, int milliseconds, ContextConsumer<AnimationContext> itemUpdater) {
-        Animation animation = new Animation(slot, intervals, milliseconds, itemUpdater);
+    public Animation playAnimation(int slot, int intervals, int ticks, ContextConsumer<AnimationContext> itemUpdater) {
+        Animation animation = new Animation(slot, intervals, ticks, itemUpdater);
 
-        Collection<Animation> animations = this.animations.get(null);
+        Collection<Animation> animations = this.animations.get(slot);
         if (animations == null) {
             animations = new HashSet<>();
         }
+        animation.play();
         animations.add(animation);
+        return animation;
     }
 
     public void stopAnimation(int... slots) {
@@ -371,21 +373,21 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
 
         private final int slot;
         private int intervals = -1;
-        private final int milliseconds;
+        private final int ticks;
         private final ContextConsumer<AnimationContext> itemUpdater;
 
         private BukkitTask task;
 
-        public Animation(int slot, int milliseconds, ContextConsumer<AnimationContext> itemUpdater) {
+        public Animation(int slot, int ticks, ContextConsumer<AnimationContext> itemUpdater) {
             this.slot = slot;
-            this.milliseconds = milliseconds;
+            this.ticks = ticks;
             this.itemUpdater = itemUpdater;
         }
 
-        public Animation(int slot, int intervals, int milliseconds, ContextConsumer<AnimationContext> itemUpdater) {
+        public Animation(int slot, int ticks, int milliseconds, ContextConsumer<AnimationContext> itemUpdater) {
             this.slot = slot;
-            this.intervals = intervals;
-            this.milliseconds = milliseconds;
+            this.intervals = ticks;
+            this.ticks = milliseconds;
             this.itemUpdater = itemUpdater;
         }
 
@@ -393,15 +395,19 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
             final ItemStack item = itemStacks.get(slot);
             AtomicInteger interval = new AtomicInteger(0);
             task = Bukkit.getScheduler().runTaskTimer(GUIHandler.getInstance().getPlugin(), () -> {
-                if ((intervals == -1 || interval.get() < intervals) && item != null) {
-                    try {
-                        itemUpdater.accept(new AnimationContext(slot, intervals, item));
-                    } catch (Throwable t) {
-                        GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error occured while playing animation in inventory menu", t);
+                if (intervals == -1 || interval.get() < intervals) {
+                    if (item != null) {
+                        try {
+                            itemUpdater.accept(new AnimationContext(slot, intervals, item));
+                        } catch (Throwable t) {
+                            GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error occured while playing animation in inventory menu", t);
+                        }
+                        interval.addAndGet(1);
                     }
-                    interval.addAndGet(1);
+                } else {
+                    stop();
                 }
-            }, 0, milliseconds);
+            }, 0, ticks);
         }
 
         public void stop() {
