@@ -7,6 +7,7 @@ import de.cubbossa.guiframework.chat.TextMenu;
 import de.cubbossa.guiframework.inventory.BottomInventoryMenu;
 import de.cubbossa.guiframework.inventory.MenuPresets;
 import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
+import de.cubbossa.guiframework.inventory.implementations.ListMenu;
 import de.cubbossa.guiframework.scoreboard.CustomScoreboard;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
@@ -18,6 +19,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -61,6 +63,8 @@ public class TestCommand implements CommandExecutor {
 
     InventoryMenu exampleMenu = new InventoryMenu(4, Component.text("Example Inventory"));
     BottomInventoryMenu<ClickType> bottomMenu = new BottomInventoryMenu<>(1);
+    ListMenu listMenu = new ListMenu(4, Component.text("Weapons"));
+    InventoryMenu craftingMenu = new InventoryMenu(InventoryType.WORKBENCH, Component.text("Cursed Crafting:"));
 
     public TestCommand() {
         exampleMenu.loadPreset(MenuPresets.fill(MenuPresets.FILLER_LIGHT));
@@ -82,6 +86,18 @@ public class TestCommand implements CommandExecutor {
 
         bottomMenu.loadPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 1));
         bottomMenu.loadPreset(MenuPresets.paginationRow(exampleMenu, 1, 0, 1, false, ClickType.LEFT, ClickType.RIGHT));
+
+        for (Material material : MaterialTags.ENCHANTABLE.getValues()) {
+            listMenu.addListEntry(listMenu.buttonBuilder().withItemStack(material));
+        }
+        for (Material material : MaterialTags.TERRACOTTA.getValues()) {
+            listMenu.addListEntry(listMenu.buttonBuilder().withItemStack(material));
+        }
+
+        Material[] planks = {Material.OAK_PLANKS, Material.SPRUCE_PLANKS, Material.BIRCH_PLANKS};
+        craftingMenu.setItem(new ItemStack(Material.OAK_PLANKS), 1, 4, 5, 7, 8, 9);
+        craftingMenu.playAnimation(1, 20, animationContext -> new ItemStack(planks[animationContext.getTicks() % planks.length]));
+        craftingMenu.setItem(new ItemStack(Material.SPRUCE_STAIRS), 0);
     }
 
     @Override
@@ -143,6 +159,11 @@ public class TestCommand implements CommandExecutor {
             case "4.1":
                 bottomMenu.open(player);
                 break;
+            case "5.1":
+                listMenu.open(player);
+                break;
+            case "5.2":
+                craftingMenu.open(player);
         }
         return false;
     }

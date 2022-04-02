@@ -254,7 +254,7 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
     public void refresh(int... slots) {
         for (int slot : slots) {
             int realIndex = currentPage * slotsPerPage + slot;
-            inventory.setItem(slot, itemStacks.get(realIndex));
+            inventory.setItem(slot, itemStacks.getOrDefault(realIndex, dynamicItemStacks.get(slot)));
         }
     }
 
@@ -273,6 +273,18 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
     public void setItem(ItemStack item, int... slots) {
         for (int slot : slots) {
             itemStacks.put(slot, item);
+        }
+    }
+
+    /**
+     * Populates the inventory with itemstacks that are rendered on each page, if no real item was found.
+     *
+     * @param item  the item to render
+     * @param slots the slots to render the item at (not paginated, only 0 to rows*cols)
+     */
+    public void setDynamicItem(ItemStack item, int... slots) {
+        for (int slot : slots) {
+            dynamicItemStacks.put(slot, item);
         }
     }
 
@@ -393,7 +405,7 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
             animations = new HashSet<>();
         }
         animations.add(animation);
-        animation.play();
+        animation.play(); //TODO exception wenn menü noch nicht geöffnet wurde
         return animation;
     }
 

@@ -1,6 +1,7 @@
 package de.cubbossa.guiframework.inventory;
 
 import de.cubbossa.guiframework.inventory.context.ClickContext;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -41,7 +42,6 @@ public class BottomInventoryMenu<T> extends AbstractInventoryMenu<T, ClickContex
 
     @Override
     public boolean isThisInventory(Inventory inventory, Player player) {
-        System.out.println(inventory + " <-> " + player.getInventory());
         return inventory.equals(player.getInventory());
     }
 
@@ -66,5 +66,13 @@ public class BottomInventoryMenu<T> extends AbstractInventoryMenu<T, ClickContex
         //TODO restore inventory;
     }
 
-
+    @Override
+    public void refresh(int... slots) {
+        for (int slot : slots) {
+            int realIndex = currentPage * slotsPerPage + slot;
+            viewer.keySet().stream().map(Bukkit::getPlayer).filter(Objects::nonNull).forEach(player -> {
+                player.getInventory().setItem(slot, itemStacks.getOrDefault(realIndex, dynamicItemStacks.get(slot)));
+            });
+        }
+    }
 }

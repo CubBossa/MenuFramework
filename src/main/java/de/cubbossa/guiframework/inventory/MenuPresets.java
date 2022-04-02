@@ -170,24 +170,33 @@ public class MenuPresets {
 
             boolean leftLimit = otherMenu.getCurrentPage() <= otherMenu.getMinPage();
             boolean rightLimit = otherMenu.getCurrentPage() >= otherMenu.getMaxPage();
-            if (leftLimit) {
-                if (!hideDisabled) {
-                    placeDynamicItem.accept(row * 9 + leftSlot, LEFT_DISABLED);
-                }
-            } else {
-                placeDynamicItem.accept(row * 9 + leftSlot, LEFT);
-                placeDynamicClickHandler.accept(row * 9 + leftSlot, populate(c -> otherMenu.openPreviousPage(c.getPlayer()), actions));
+            if (!leftLimit || hideDisabled) {
+                placeDynamicItem.accept(row * 9 + leftSlot, leftLimit ? LEFT_DISABLED : LEFT);
             }
-            if (rightLimit) {
-                if (!hideDisabled) {
-                    placeDynamicItem.accept(row * 9 + rightSlot, RIGHT_DISABLED);
+            placeDynamicClickHandler.accept(row * 9 + leftSlot, populate(c -> {
+                boolean currentLeftLimit = otherMenu.getCurrentPage() <= otherMenu.getMinPage();
+                boolean currentRightLimit = otherMenu.getCurrentPage() >= otherMenu.getMaxPage();
+                menu.setDynamicItem(currentLeftLimit ? LEFT_DISABLED : LEFT, row * 9 + leftSlot);
+                menu.setDynamicItem(currentRightLimit ? RIGHT_DISABLED : RIGHT, row * 9 + rightSlot);
+                menu.refresh(row * 9 + leftSlot, row * 9 + rightSlot);
+                if (!currentLeftLimit) {
+                    otherMenu.openPreviousPage(c.getPlayer());
                 }
-            } else {
-                placeDynamicItem.accept(row * 9 + rightSlot, RIGHT);
-                placeDynamicClickHandler.accept(row * 9 + rightSlot, populate(c -> otherMenu.openNextPage(c.getPlayer()), actions));
+            }, actions));
+            if (!rightLimit || !hideDisabled) {
+                placeDynamicItem.accept(row * 9 + rightSlot, rightLimit ? RIGHT_DISABLED : RIGHT);
             }
-            //TODO unteres menu neu laden wenn oberes menü seite wechselt
-            menu.refresh(row * 9 + leftSlot, row * 9 + rightSlot);
+            placeDynamicClickHandler.accept(row * 9 + rightSlot, populate(c -> {
+                //TODO chaos
+                boolean currentLeftLimit = otherMenu.getCurrentPage() <= otherMenu.getMinPage();
+                boolean currentRightLimit = otherMenu.getCurrentPage() >= otherMenu.getMaxPage();
+                menu.setDynamicItem(currentLeftLimit ? LEFT_DISABLED : LEFT, row * 9 + leftSlot);
+                menu.setDynamicItem(currentRightLimit ? RIGHT_DISABLED : RIGHT, row * 9 + rightSlot);
+                menu.refresh(row * 9 + leftSlot, row * 9 + rightSlot);
+                if (!currentRightLimit) {
+                    otherMenu.openNextPage(c.getPlayer());
+                }
+            }, actions));
         };
     }
 
