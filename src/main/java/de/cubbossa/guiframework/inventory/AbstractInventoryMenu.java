@@ -187,6 +187,11 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
         return context.isCancelled();
     }
 
+    /**
+     * Close this menu for a player.
+     *
+     * @param viewer the player to close this menu for
+     */
     public void close(Player viewer) {
 
         if (this.viewer.remove(viewer.getUniqueId()) == null) {
@@ -204,10 +209,18 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
         }
     }
 
+    /**
+     * Close this menu for a group of players.
+     *
+     * @param viewers the group of players to close this menu for.
+     */
     public void closeAll(Collection<Player> viewers) {
         viewers.forEach(this::close);
     }
 
+    /**
+     * Close all player views of this menu.
+     */
     public void closeAll() {
         closeAll(viewer.keySet().stream().map(Bukkit::getPlayer).collect(Collectors.toSet()));
     }
@@ -224,33 +237,56 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
         return menuProcessor;
     }
 
+    /**
+     * Unloads a certain menu processor / preset. The preset items will stay until their slot is updated.
+     *
+     * @param menuProcessor the preset to remove
+     */
     public void unloadPreset(DynamicMenuProcessor<T, C> menuProcessor) {
         dynamicProcessors.remove(menuProcessor);
     }
 
+    /**
+     * Removes all presets. The preset icons will stay in all open menus of this instance until the menu gets refreshed.
+     * Reopen them or call {@link #refresh(int...)} on the according or just all slots with {@link #getSlots()}
+     */
+    public void unloadAllPresets() {
+        dynamicProcessors.clear();
+    }
 
+    /**
+     * @return all slots that are part of this inventory.
+     */
     public abstract int[] getSlots();
 
+    /**
+     * @param slot the slot to get the itemstack from
+     * @return the itemstack of the menu at the given slot. This does not return the actual item in the inventory but the stored item instance.
+     */
     public ItemStack getItemStack(int slot) {
         return itemStacks.get(slot);
     }
 
-    public ContextConsumer<C> getClickHandlerOrFallback(int slot, T action) {
+    protected ContextConsumer<C> getClickHandlerOrFallback(int slot, T action) {
         return clickHandler.getOrDefault(currentPage * slotsPerPage + slot, new HashMap<>()).getOrDefault(action, defaultClickHandler.get(action));
     }
 
+    /**
+     * Clears all minecraft inventory slots. It does not clear the menu item map or any click handlers.
+     * After reopening or refreshing the menu, all items will be back.
+     */
     public void clearContent() {
         for (int slot : getSlots()) {
             inventory.setItem(slot, null);
         }
     }
 
-    public void placeContent() {
-        for (Map.Entry<Integer, ItemStack> entry : itemStacks.subMap(currentPage * slotsPerPage, currentPage * (slotsPerPage + 1)).entrySet()) {
-            inventory.setItem(entry.getKey(), entry.getValue());
-        }
-    }
-
+    /**
+     * Refreshes the itemstack at certain slots of this menu.
+     * This method needs to be called after all methods that insert items. {@link #setItem(ItemStack, int...)}
+     *
+     * @param slots the slots to refresh
+     */
     public void refresh(int... slots) {
         for (int slot : slots) {
             int realIndex = currentPage * slotsPerPage + slot;
@@ -258,6 +294,12 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
         }
     }
 
+    /**
+     * Sets an inventory icon, sound and click handler from a button builder
+     *
+     * @param button the button builder. Use {@link #buttonBuilder()} to get a new button builder instance
+     * @param slots  the absolute slots to apply the button builder on. {@code ((current_page * slots_per_page) + page_slot)}
+     */
     public void setButton(ButtonBuilder<T, C> button, int... slots) {
         if (button.stack != null) {
             setItem(button.stack, slots);
@@ -270,6 +312,13 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
         }
     }
 
+    /**
+     * Sets an inventory icon
+     *
+     * @param item  the item instance to insert into the inventory
+     * @param slots the slots to add the item at. Use slots larger than the slots on one page to place them on a different page.
+     *              {@code slot = (current_page * slots_per_page) + inventory_slot}
+     */
     public void setItem(ItemStack item, int... slots) {
         for (int slot : slots) {
             itemStacks.put(slot, item);
@@ -358,7 +407,6 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
         defaultClickHandler.remove(action);
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isThisInventory(Inventory inventory, Player player) {
         return this.inventory != null && this.inventory.equals(inventory);
     }
@@ -393,20 +441,26 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
         return Integer.max(maxPage, currentPage);
     }
 
-    public Animation playAnimation(int slot, int ticks, Function<AnimationContext, ItemStack> itemUpdater) {
-        return playAnimation(slot, -1, ticks, itemUpdater);
+    public Collection<Animation> playAnimation(int ticks, Function<AnimationContext, ItemStack> itemUpdater, int... slots) {
+        return playAnimation(-1, ticks, itemUpdater, slots);
     }
 
-    public Animation playAnimation(int slot, int intervals, int ticks, Function<AnimationContext, ItemStack> itemUpdater) {
-        Animation animation = new Animation(slot, intervals, ticks, itemUpdater);
+    public Collection<Animation> playAnimation(int intervals, int ticks, Function<AnimationContext, ItemStack> itemUpdater, int... slots) {
+        Collection<Animation> newAnimations = new HashSet<>();
+        for (int slot : slots) {
+            Animation animation = new Animation(slot, intervals, ticks, itemUpdater);
 
-        Collection<Animation> animations = this.animations.get(slot);
-        if (animations == null) {
-            animations = new HashSet<>();
+            Collection<Animation> animations = this.animations.get(slot);
+            if (animations == null) {
+                animations = new HashSet<>();
+            }
+            animations.add(animation);
+            newAnimations.add(animation);
+            if (inventory != null && viewer.size() > 0) {
+                animation.play();
+            }
         }
-        animations.add(animation);
-        animation.play(); //TODO exception wenn menü noch nicht geöffnet wurde
-        return animation;
+        return newAnimations;
     }
 
     public void stopAnimation(int... slots) {
