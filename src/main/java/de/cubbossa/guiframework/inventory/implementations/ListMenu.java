@@ -4,7 +4,11 @@ import de.cubbossa.guiframework.inventory.MenuPresets;
 import de.cubbossa.guiframework.inventory.context.ClickContext;
 import net.kyori.adventure.text.Component;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.inventory.ItemStack;
 
+import java.util.Collection;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 public class ListMenu extends InventoryMenu {
@@ -34,6 +38,21 @@ public class ListMenu extends InventoryMenu {
 	public void addListEntry(ButtonBuilder<ClickType, ClickContext> buttonBuilder) {
 		setButton(buttonBuilder, listIndex / listSlots.length * slotsPerPage + listSlots[listIndex % listSlots.length]);
 		listIndex++;
+	}
+
+	/**
+	 * Adds a collection as list entries to the list. This might be useful to display all online players e.g.
+	 *
+	 * @param collection   the collection of objects to add
+	 * @param itemProvider a function to display an object of the collection as itemstack
+	 * @param clickHandler a click handler to run when a list entry is clicked
+	 * @param actions      the actions that will trigger the click handler
+	 * @param <E>          the entry type of the collection
+	 */
+	public <E> void addListEntries(Collection<E> collection, Function<E, ItemStack> itemProvider, Consumer<E> clickHandler, ClickType... actions) {
+		collection.forEach(e -> addListEntry(buttonBuilder()
+				.withItemStack(itemProvider.apply(e))
+				.withClickHandler(clickContext -> clickHandler.accept(e), actions)));
 	}
 
 	/**
