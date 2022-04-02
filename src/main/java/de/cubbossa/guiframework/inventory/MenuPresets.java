@@ -186,6 +186,8 @@ public class MenuPresets {
                 placeDynamicItem.accept(row * 9 + rightSlot, RIGHT);
                 placeDynamicClickHandler.accept(row * 9 + rightSlot, populate(c -> otherMenu.openNextPage(c.getPlayer()), actions));
             }
+            //TODO unteres menu neu laden wenn oberes menü seite wechselt
+            menu.refresh(row * 9 + leftSlot, row * 9 + rightSlot);
         };
     }
 

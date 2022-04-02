@@ -78,9 +78,10 @@ public class TestCommand implements CommandExecutor {
             }
         }
         exampleMenu.setItem(new ItemStack(Material.STONE), -70, 60);
+        exampleMenu.updateTitle(Component.text("Seite 2"), 1);
 
         bottomMenu.loadPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 1));
-        bottomMenu.loadPreset(MenuPresets.paginationRow(1, 0, 1, false, ClickType.LEFT, ClickType.RIGHT));
+        bottomMenu.loadPreset(MenuPresets.paginationRow(exampleMenu, 1, 0, 1, false, ClickType.LEFT, ClickType.RIGHT));
     }
 
     @Override

@@ -162,7 +162,7 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
         if (Arrays.stream(getSlots()).noneMatch(value -> value == clickedSlot)) {
             return false;
         }
-        if (viewer.get(player.getUniqueId()).equals(ViewMode.VIEW)) {
+        if (viewer.containsKey(player.getUniqueId()) && viewer.get(player.getUniqueId()).equals(ViewMode.VIEW)) {
             return true;
         }
 
@@ -188,9 +188,7 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
     }
 
     public void close(Player viewer) {
-        /*if (viewer.getOpenInventory().getTopInventory().equals(this.inventory)) {
-            viewer.closeInventory();
-        }*/
+
         if (this.viewer.remove(viewer.getUniqueId()) == null) {
             return;
         }

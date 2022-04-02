@@ -1,5 +1,6 @@
 package de.cubbossa.guiframework.inventory;
 
+import de.cubbossa.guiframework.inventory.context.ClickContext;
 import de.cubbossa.guiframework.inventory.listener.InventoryListener;
 import lombok.Getter;
 import org.bukkit.entity.Player;
@@ -53,9 +54,8 @@ public class InventoryHandler {
         }
         stack.push(menu);
         navigation.put(player.getUniqueId(), stack);
-        if (menu instanceof TopInventoryMenu topMenu && topMenu.getViewer().size() == 1) {
-            inventoryListener.register(topMenu);
-        }
+        //TODO
+        inventoryListener.register((AbstractInventoryMenu<ClickType, ClickContext>) menu);
     }
 
     public <T> TopInventoryMenu<T> getCurrentTopMenu(Player player) {

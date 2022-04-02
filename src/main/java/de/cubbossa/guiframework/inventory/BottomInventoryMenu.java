@@ -27,14 +27,12 @@ public class BottomInventoryMenu<T> extends AbstractInventoryMenu<T, ClickContex
 
 
     public BottomInventoryMenu() {
-        super(4 * 9);
-        this.rows = new int[]{0, 1, 2, 3};
-        this.inventoryStorage = new HashMap<>();
+        this(1, 2, 3);
     }
 
     @Override
     public Inventory createInventory(Player player, int page) {
-        return player.getOpenInventory().getBottomInventory();
+        return player.getInventory();
     }
 
     @Override
@@ -43,6 +41,7 @@ public class BottomInventoryMenu<T> extends AbstractInventoryMenu<T, ClickContex
 
     @Override
     public boolean isThisInventory(Inventory inventory, Player player) {
+        System.out.println(inventory + " <-> " + player.getInventory());
         return inventory.equals(player.getInventory());
     }
 
