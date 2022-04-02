@@ -1,6 +1,5 @@
 package de.cubbossa.guiframework.test;
 
-import com.destroystokyo.paper.MaterialSetTag;
 import com.destroystokyo.paper.MaterialTags;
 import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.chat.ComponentMenu;
@@ -62,6 +61,7 @@ public class TestCommand implements CommandExecutor {
     InventoryMenu exampleMenu = new InventoryMenu(4, Component.text("Example Inventory"));
 
     public TestCommand() {
+        exampleMenu.loadPreset(MenuPresets.fill(MenuPresets.FILLER_LIGHT));
         exampleMenu.loadPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 3));
         exampleMenu.loadPreset(MenuPresets.paginationRow(3, 0, 1, false, ClickType.LEFT));
         int i = 0;
@@ -75,6 +75,7 @@ public class TestCommand implements CommandExecutor {
                 i += 9;
             }
         }
+        exampleMenu.setItem(new ItemStack(Material.STONE), -70, 60);
     }
 
     @Override

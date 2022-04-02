@@ -128,13 +128,22 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
         if (viewer.isSleeping()) {
             viewer.wakeup(true);
         }
+        int minPage = getMinPage();
+        int maxPage = getMaxPage();
+        if (currentPage < minPage) {
+            currentPage = minPage;
+        } else if (currentPage > maxPage) {
+            currentPage = maxPage;
+        }
 
+        dynamicItemStacks.clear();
+        dynamicClickHandler.clear();
         for (DynamicMenuProcessor<T, C> processor : dynamicProcessors) {
             processor.placeDynamicEntries(this, dynamicItemStacks::put, dynamicClickHandler::put);
         }
 
         for (int slot : getSlots()) {
-            ItemStack item = dynamicItemStacks.getOrDefault(slot, itemStacks.get(currentPage * slotsPerPage + slot));
+            ItemStack item = itemStacks.getOrDefault(currentPage * slotsPerPage + slot, dynamicItemStacks.get(slot));
             if (item == null) {
                 continue;
             }
@@ -162,9 +171,9 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
             soundPlayer.get(actualSlot).accept(context.getPlayer());
         }
 
-        ContextConsumer<C> clickHandler = dynamicClickHandler.getOrDefault(clickedSlot, new HashMap<>()).get(action);
+        ContextConsumer<C> clickHandler = getClickHandlerOrFallback(clickedSlot, action);
         if (clickHandler == null) {
-            clickHandler = getClickHandlerOrFallback(clickedSlot, action);
+            clickHandler = dynamicClickHandler.getOrDefault(clickedSlot, new HashMap<>()).get(action);
         }
         if (clickHandler != null) {
             //execute and catch exceptions so users can't dupe itemstacks.
@@ -259,7 +268,7 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
             soundPlayer.put(slot, player -> player.playSound(player.getLocation(), button.sound, button.volume, button.pitch));
         }
         if (!button.clickHandler.isEmpty()) {
-            setClickHandler(button.clickHandler);
+            setClickHandler(button.clickHandler, slots);
         }
     }
 
@@ -349,11 +358,29 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
     }
 
     public int getMinPage() {
-        return Integer.min((Integer.min(itemStacks.isEmpty() ? 0 : itemStacks.firstKey(), clickHandler.isEmpty() ? 0 : clickHandler.firstKey()) - 1) / slotsPerPage + 1, currentPage);
+        int minPage = 0;
+        int smallestSlot = Integer.min(itemStacks.isEmpty() ? 0 : itemStacks.firstKey(), clickHandler.isEmpty() ? 0 : clickHandler.firstKey());
+        boolean negative = smallestSlot < 0;
+        while (negative && smallestSlot < -slotsPerPage || !negative && smallestSlot > slotsPerPage) {
+            if (negative) {
+                minPage--;
+                smallestSlot += slotsPerPage;
+            } else {
+                minPage++;
+                smallestSlot -= slotsPerPage;
+            }
+        }
+        return Integer.min(negative ? --minPage : minPage, currentPage);
     }
 
     public int getMaxPage() {
-        return Integer.max((Integer.max(itemStacks.isEmpty() ? 0 : itemStacks.firstKey(), clickHandler.isEmpty() ? 0 : clickHandler.firstKey()) - 1) / slotsPerPage + 1, currentPage);
+        int maxPage = 0;
+        int highestSlot = Integer.max(itemStacks.isEmpty() ? 0 : itemStacks.lastKey(), clickHandler.isEmpty() ? 0 : clickHandler.lastKey());
+        while (highestSlot > slotsPerPage) {
+            maxPage++;
+            highestSlot -= slotsPerPage;
+        }
+        return Integer.max(maxPage, currentPage);
     }
 
     public Animation playAnimation(int slot, int ticks, Function<AnimationContext, ItemStack> itemUpdater) {
@@ -443,20 +470,33 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
 
         private ItemStack stack;
         private Sound sound;
-        private float pitch;
-        private float volume;
+        private float pitch = 1f;
+        private float volume = .8f;
         private final Map<T, ContextConsumer<C>> clickHandler = new HashMap<>();
 
+        /**
+         * @param stack the icon itemstack
+         * @return the builder instance
+         */
         public ButtonBuilder<T, C> withItemStack(ItemStack stack) {
             this.stack = stack;
             return this;
         }
 
+        /**
+         * @param material the material of the icon
+         * @return the builder instance
+         */
         public ButtonBuilder<T, C> withItemStack(Material material) {
             this.stack = new ItemStack(material);
             return this;
         }
 
+        /**
+         * @param material the material of the icon
+         * @param name     the name component of the icon
+         * @return the builder instance
+         */
         public ButtonBuilder<T, C> withItemStack(Material material, Component name) {
             stack = new ItemStack(material);
             ItemMeta meta = stack.getItemMeta();
@@ -465,6 +505,12 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
             return this;
         }
 
+        /**
+         * @param material the material of the icon
+         * @param name     the name component of the icon
+         * @param lore     the lore of the icon
+         * @return the builder instance
+         */
         public ButtonBuilder<T, C> withItemStack(Material material, Component name, List<Component> lore) {
             stack = new ItemStack(material);
             ItemMeta meta = stack.getItemMeta();
@@ -474,11 +520,24 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
             return this;
         }
 
+        /**
+         * @param sound a {@link Sound} to play when clicked
+         * @return the builder instance
+         */
         public ButtonBuilder<T, C> withSound(Sound sound) {
             this.sound = sound;
             return this;
         }
 
+        /**
+         * Keep in mind that pitch only ranges from 0.5f to 2f.
+         * Volume has its maximum at 1, from then on it only increases in range (falloff distance)
+         *
+         * @param sound  a {@link Sound} to play when clicked
+         * @param volume the volume to play the sound with
+         * @param pitch  the pitch to play the sound with
+         * @return the builder instance
+         */
         public ButtonBuilder<T, C> withSound(Sound sound, float volume, float pitch) {
             this.sound = sound;
             this.volume = volume;
@@ -486,6 +545,17 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
             return this;
         }
 
+        /**
+         * Keep in mind that pitch only ranges from 0.5f to 2f.
+         * Volume has its maximum at 1, from then on it only increases in range (falloff distance)
+         *
+         * @param sound      a {@link Sound} to play when clicked
+         * @param volumeFrom the lower limit for the random volume
+         * @param volumeTo   the upper limit for the random volume
+         * @param pitchFrom  the lower limit for the random pitch
+         * @param pitchTo    the upper limit for the random pitch
+         * @return the builder instance
+         */
         public ButtonBuilder<T, C> withSound(Sound sound, float volumeFrom, float volumeTo, float pitchFrom, float pitchTo) {
             this.sound = sound;
             this.volume = (float) (volumeFrom + Math.random() * (volumeTo - volumeFrom));
@@ -493,6 +563,11 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
             return this;
         }
 
+        /**
+         * @param clickHandler a click handler to run
+         * @param actions      all actions to run the click handler for
+         * @return the builder instance
+         */
         public ButtonBuilder<T, C> withClickHandler(ContextConsumer<C> clickHandler, T... actions) {
             for (T action : actions) {
                 this.clickHandler.put(action, clickHandler);
@@ -500,6 +575,10 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
             return this;
         }
 
+        /**
+         * @param clickHandler a map of click handlers for each action
+         * @return the builder instance
+         */
         public ButtonBuilder<T, C> withClickHandler(Map<T, ContextConsumer<C>> clickHandler) {
             this.clickHandler.putAll(clickHandler);
             return this;
