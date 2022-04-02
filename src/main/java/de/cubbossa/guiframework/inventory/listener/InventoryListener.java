@@ -31,10 +31,10 @@ public class InventoryListener implements Listener {
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent event) {
 		menus.forEach(menu -> {
-			if (!menu.isThisInventory(event.getInventory())) {
-				return;
-			}
 			if (event.getWhoClicked() instanceof Player player) {
+				if (!menu.isThisInventory(event.getInventory(), player)) {
+					return;
+				}
 				event.setCancelled(menu.handleInteract(player, event.getSlot(), event.getClick(), new ClickContext(player, event.getSlot(), true)));
 			}
 		});
@@ -43,10 +43,10 @@ public class InventoryListener implements Listener {
 	@EventHandler
 	public void onInventoryDrag(InventoryDragEvent event) {
 		menus.forEach(menu -> {
-			if (!menu.isThisInventory(event.getInventory())) {
-				return;
-			}
 			if (event.getWhoClicked() instanceof Player player) {
+				if (!menu.isThisInventory(event.getInventory(), player)) {
+					return;
+				}
 				if (event.getInventorySlots().size() > 1) {
 					return;
 				}
@@ -60,10 +60,10 @@ public class InventoryListener implements Listener {
 	@EventHandler
 	public void onInventoryClose(InventoryCloseEvent event) {
 		menus.forEach(menu -> {
-			if (!menu.isThisInventory(event.getInventory())) {
-				return;
-			}
 			if (event.getPlayer() instanceof Player player) {
+				if (!menu.isThisInventory(event.getInventory(), player)) {
+					return;
+				}
 				menu.close(player);
 			}
 		});

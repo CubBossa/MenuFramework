@@ -1,8 +1,8 @@
 package de.cubbossa.guiframework.inventory.implementations;
 
 import de.cubbossa.guiframework.inventory.AbstractInventoryMenu;
-import de.cubbossa.guiframework.inventory.TopInventoryMenu;
 import de.cubbossa.guiframework.inventory.InventoryHandler;
+import de.cubbossa.guiframework.inventory.TopInventoryMenu;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -51,7 +51,7 @@ public class InventoryMenu extends TopInventoryMenu<ClickType> {
 	}
 
 	@Override
-	public Inventory createInventory(int page) {
+	public Inventory createInventory(Player player, int page) {
 		return inventoryType == InventoryType.CHEST ?
 				Bukkit.createInventory(null, rows * 9, getTitle(page)) :
 				Bukkit.createInventory(null, inventoryType, getTitle(page));

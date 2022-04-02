@@ -8,7 +8,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
+import java.util.UUID;
 
 @Getter
 public abstract class TopInventoryMenu<T> extends AbstractInventoryMenu<T, ClickContext> {
@@ -51,11 +54,19 @@ public abstract class TopInventoryMenu<T> extends AbstractInventoryMenu<T, Click
     private void updateCurrentInventoryTitle(Component title) {
         GUIHandler.getInstance().callSynchronized(() -> {
             Inventory old = inventory;
-            this.inventory = createInventory(currentPage);
-            this.inventory.setContents(old.getContents());
-            for (Player viewer : viewer.keySet().stream().map(Bukkit::getPlayer).toList()) {
-                viewer.openInventory(this.inventory);
+            Optional<UUID> anyPlayer = viewer.keySet().stream().findAny();
+            if (anyPlayer.isPresent()) {
+                this.inventory = createInventory(Bukkit.getPlayer(anyPlayer.get()), currentPage);
+                this.inventory.setContents(old.getContents());
+                for (Player viewer : viewer.keySet().stream().map(Bukkit::getPlayer).toList()) {
+                    viewer.openInventory(this.inventory);
+                }
             }
         });
+    }
+
+    @Override
+    protected void openInventory(Player player, Inventory inventory) {
+        player.openInventory(inventory);
     }
 }

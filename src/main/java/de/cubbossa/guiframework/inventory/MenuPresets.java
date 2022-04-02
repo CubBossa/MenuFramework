@@ -149,6 +149,47 @@ public class MenuPresets {
     }
 
     /**
+     * Places a next page and a previous page icon at each page that allows to turn pages for a DIFFERENT menu that is
+     * currently open. This of course makes most sense when combining a top inventory menu and a bottom inventory menu.
+     * The bottom inventory menu could be used to navigate through the top inventory menu of someone else, implementing
+     * an administrators view.
+     *
+     * @param otherMenu    the menu to turn pages for
+     * @param row          the row to place both icons at (0 to 5)
+     * @param leftSlot     the slot for the previous page icon (0 to 8)
+     * @param rightSlot    the slot for the next page icon (0 to 8)
+     * @param hideDisabled if the previous and next page buttons should be invisible if no previous or next page exists.
+     *                     Otherwise, {@link #LEFT_DISABLED} and {@link #RIGHT_DISABLED} will be rendered.
+     * @param actions      the actions to run the clickhandlers with.
+     * @param <T>          the Action type
+     * @param <C>          the ClickContext type
+     * @return an instance of the {@link DynamicMenuProcessor} to register it on a menu.
+     */
+    public static <T, C extends ClickContext> DynamicMenuProcessor<T, C> paginationRow(AbstractInventoryMenu<T, C> otherMenu, int row, int leftSlot, int rightSlot, boolean hideDisabled, T... actions) {
+        return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
+
+            boolean leftLimit = otherMenu.getCurrentPage() <= otherMenu.getMinPage();
+            boolean rightLimit = otherMenu.getCurrentPage() >= otherMenu.getMaxPage();
+            if (leftLimit) {
+                if (!hideDisabled) {
+                    placeDynamicItem.accept(row * 9 + leftSlot, LEFT_DISABLED);
+                }
+            } else {
+                placeDynamicItem.accept(row * 9 + leftSlot, LEFT);
+                placeDynamicClickHandler.accept(row * 9 + leftSlot, populate(c -> otherMenu.openPreviousPage(c.getPlayer()), actions));
+            }
+            if (rightLimit) {
+                if (!hideDisabled) {
+                    placeDynamicItem.accept(row * 9 + rightSlot, RIGHT_DISABLED);
+                }
+            } else {
+                placeDynamicItem.accept(row * 9 + rightSlot, RIGHT);
+                placeDynamicClickHandler.accept(row * 9 + rightSlot, populate(c -> otherMenu.openNextPage(c.getPlayer()), actions));
+            }
+        };
+    }
+
+    /**
      * Places a next page and a previous page icon at each page in a column.
      *
      * @param column       the column to place both icons at (0 to 8)

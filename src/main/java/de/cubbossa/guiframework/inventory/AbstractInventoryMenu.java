@@ -73,7 +73,9 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
         this.slotsPerPage = slotsPerPage;
     }
 
-    public abstract Inventory createInventory(int page);
+    protected abstract Inventory createInventory(Player player, int page);
+
+    protected abstract void openInventory(Player player, Inventory inventory);
 
     public void open(Player viewer) {
         open(viewer, ViewMode.MODIFY);
@@ -121,7 +123,7 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
     protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable AbstractInventoryMenu<?, ?> previous) {
 
         if (inventory == null) {
-            inventory = createInventory(currentPage);
+            inventory = createInventory(viewer, currentPage);
         }
         clearContent();
 
@@ -150,9 +152,7 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
             inventory.setItem(slot, item.clone());
         }
 
-        if (viewer.openInventory(inventory) == null) {
-            return;
-        }
+        openInventory(viewer, inventory);
         this.viewer.put(viewer.getUniqueId(), viewMode);
         InventoryHandler.getInstance().registerInventory(viewer, this, previous);
     }
@@ -349,7 +349,7 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean isThisInventory(Inventory inventory) {
+    public boolean isThisInventory(Inventory inventory, Player player) {
         return this.inventory != null && this.inventory.equals(inventory);
     }
 

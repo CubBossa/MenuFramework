@@ -4,6 +4,7 @@ import com.destroystokyo.paper.MaterialTags;
 import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.chat.ComponentMenu;
 import de.cubbossa.guiframework.chat.TextMenu;
+import de.cubbossa.guiframework.inventory.BottomInventoryMenu;
 import de.cubbossa.guiframework.inventory.MenuPresets;
 import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
 import de.cubbossa.guiframework.scoreboard.CustomScoreboard;
@@ -59,6 +60,7 @@ public class TestCommand implements CommandExecutor {
     CustomScoreboard higherBoard = new CustomScoreboard("test_scoreboard_2", Component.text("Noch eins"), 5);
 
     InventoryMenu exampleMenu = new InventoryMenu(4, Component.text("Example Inventory"));
+    BottomInventoryMenu<ClickType> bottomMenu = new BottomInventoryMenu<>(1);
 
     public TestCommand() {
         exampleMenu.loadPreset(MenuPresets.fill(MenuPresets.FILLER_LIGHT));
@@ -76,6 +78,9 @@ public class TestCommand implements CommandExecutor {
             }
         }
         exampleMenu.setItem(new ItemStack(Material.STONE), -70, 60);
+
+        bottomMenu.loadPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 1));
+        bottomMenu.loadPreset(MenuPresets.paginationRow(1, 0, 1, false, ClickType.LEFT, ClickType.RIGHT));
     }
 
     @Override
@@ -132,6 +137,10 @@ public class TestCommand implements CommandExecutor {
             case "3.2":
                 exampleMenu.playAnimation(0, 10, animationContext ->
                         new ItemStack(Material.values()[(int) (System.currentTimeMillis() % Material.values().length)]));
+                break;
+
+            case "4.1":
+                bottomMenu.open(player);
                 break;
         }
         return false;
