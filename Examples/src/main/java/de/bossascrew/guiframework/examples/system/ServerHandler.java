@@ -1,6 +1,7 @@
 package de.bossascrew.guiframework.examples.system;
 
 import lombok.Getter;
+import org.bukkit.entity.Player;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -17,6 +18,22 @@ public class ServerHandler {
 
     public NetworkPlayer getPlayer(UUID uuid) {
         return null;
+    }
+
+    public boolean canConnect(Player player, String serverName) {
+        return true;
+    }
+
+    public void connect(Player player, String serverName) {
+
+    }
+
+    public boolean canConnect(Player player, NetworkServer server) {
+        return true;
+    }
+
+    public void connect(Player player, NetworkServer server) {
+
     }
 
     public enum ServerType {

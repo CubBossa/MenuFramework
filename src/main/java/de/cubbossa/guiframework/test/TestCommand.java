@@ -106,8 +106,8 @@ public class TestCommand implements CommandExecutor {
 
         TextMenu online = new TextMenu("Spieler online:");
         Bukkit.getOnlinePlayers().forEach(p -> online.addSub(new ComponentMenu(p.displayName())));
-        scoreboard.registerStaticEntry(3, online);
-        scoreboard.registerStaticEntry(7, online.asComponent());
+        scoreboard.setLine(3, online);
+        scoreboard.setLine(7, online.asComponent());
 
         TextMenu inventory = new TextMenu("Your Inventory:");
         Arrays.stream(player.getInventory().getContents()).filter(Objects::nonNull).forEach(stack -> inventory.addSub(new TextMenu(stack.getAmount() + "x " + stack.getType().toString())));
@@ -135,7 +135,7 @@ public class TestCommand implements CommandExecutor {
                 scoreboardAnimation.stop();
                 break;
             case "1.7":
-                Bukkit.getScheduler().runTaskAsynchronously(GUIHandler.getInstance().getPlugin(), () -> scoreboard.registerStaticEntry(9, Component.text("Asynchron")));
+                Bukkit.getScheduler().runTaskAsynchronously(GUIHandler.getInstance().getPlugin(), () -> scoreboard.setLine(9, Component.text("Asynchron")));
                 break;
 
             case "2.1":
