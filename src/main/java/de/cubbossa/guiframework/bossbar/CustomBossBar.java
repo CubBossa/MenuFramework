@@ -50,10 +50,10 @@ public abstract class CustomBossBar {
         private int intervals = 100;
         private int ticks = 20;
 
-        private double progress;
-        private BarColor color;
-        private BarStyle style;
-        private String text;
+        private double progress = .5;
+        private BarColor color = BarColor.RED;
+        private BarStyle style = BarStyle.SOLID;
+        private String text = "Unnamed";
 
         private Function<Integer, BarColor> colorAnimation;
         private Function<Integer, BarStyle> segmentAnimation;
@@ -130,7 +130,7 @@ public abstract class CustomBossBar {
                 @Override
                 protected void playAnimation() {
                     AtomicInteger currentTick = new AtomicInteger(0);
-                    Bukkit.getScheduler().runTaskTimer(GUIHandler.getInstance().getPlugin(), () -> {
+                    Bukkit.getScheduler().runTaskTimerAsynchronously(GUIHandler.getInstance().getPlugin(), () -> {
                         int tick = currentTick.get();
                         if(textAnimation != null) {
                             getBossBar().setTitle(textAnimation.apply(tick));

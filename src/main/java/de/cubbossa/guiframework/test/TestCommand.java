@@ -2,6 +2,7 @@ package de.cubbossa.guiframework.test;
 
 import com.destroystokyo.paper.MaterialTags;
 import de.cubbossa.guiframework.GUIHandler;
+import de.cubbossa.guiframework.bossbar.CustomBossBar;
 import de.cubbossa.guiframework.chat.ComponentMenu;
 import de.cubbossa.guiframework.chat.TextMenu;
 import de.cubbossa.guiframework.inventory.BottomInventoryMenu;
@@ -14,6 +15,8 @@ import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -65,6 +68,19 @@ public class TestCommand implements CommandExecutor {
     BottomInventoryMenu<ClickType> bottomMenu = new BottomInventoryMenu<>(1);
     ListMenu listMenu = new ListMenu(4, Component.text("Weapons"));
     InventoryMenu craftingMenu = new InventoryMenu(InventoryType.WORKBENCH, Component.text("Cursed Crafting:"));
+
+    CustomBossBar customBossBar = CustomBossBar.Builder.builder("lobby")
+            .withText("Welcome to Example Empire!")
+            .withSegments(BarStyle.SOLID)
+            .withAnimationIntervals(300)
+            .withAnimationTicks(1)
+            .withColorAnimation(integer -> switch (integer / 100) {
+                case 0 -> BarColor.RED;
+                case 1 -> BarColor.GREEN;
+                default -> BarColor.BLUE;
+            })
+            .withProgressAnimation(integer -> Math.sin(Math.PI * 2 / 100 * integer) / 2.5 + .5)
+            .build();
 
     public TestCommand() {
         exampleMenu.loadPreset(MenuPresets.fill(MenuPresets.FILLER_LIGHT));
@@ -164,6 +180,9 @@ public class TestCommand implements CommandExecutor {
                 break;
             case "5.2":
                 craftingMenu.open(player);
+
+            case "6.1":
+                customBossBar.show(player);
         }
         return false;
     }
