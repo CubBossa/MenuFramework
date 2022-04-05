@@ -8,6 +8,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class LobbyMain extends JavaPlugin {
 
+    private BossBarModule bossBarModule;
+
     @Override
     public void onEnable() {
         // Required for menus and scoreboards
@@ -30,8 +32,13 @@ public class LobbyMain extends JavaPlugin {
         new ScoreboardModule(this);
 
         // Displays a custom boss bar
-        new BossBarModule();
+        bossBarModule = new BossBarModule();
 
         //TODO hotbar of course
+    }
+
+    @Override
+    public void onDisable() {
+        bossBarModule.hideAll();
     }
 }

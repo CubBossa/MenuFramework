@@ -34,6 +34,14 @@ public abstract class CustomBossBar {
         }
     }
 
+    public void hideAll() {
+        if(this.bossBar != null) {
+            for(Player player : bossBar.getPlayers()) {
+                hide(player);
+            }
+         }
+    }
+
     protected KeyedBossBar getBossBar() {
         return bossBar;
     }

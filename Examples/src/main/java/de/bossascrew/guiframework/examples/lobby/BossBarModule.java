@@ -8,6 +8,7 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 public class BossBarModule implements Listener {
 
@@ -15,13 +16,13 @@ public class BossBarModule implements Listener {
             .withText("Welcome to Example Empire!")
             .withSegments(BarStyle.SOLID)
             .withAnimationIntervals(300)
-            .withAnimationTicks(2)
-            .withColorAnimation(integer -> switch (integer / 3) {
+            .withAnimationTicks(1)
+            .withColorAnimation(integer -> switch (integer / 100) {
                 case 0 -> BarColor.RED;
                 case 1 -> BarColor.GREEN;
                 default -> BarColor.BLUE;
             })
-            .withProgressAnimation(integer -> Math.sin(Math.PI * 2 / 100 * integer) / 2 + .5)
+            .withProgressAnimation(integer -> Math.sin(Math.PI * 2 / 100 * integer) / 2.5 + .5)
             .build();
 
 
@@ -29,8 +30,17 @@ public class BossBarModule implements Listener {
         Bukkit.getPluginManager().registerEvents(this, GUIHandler.getInstance().getPlugin());
     }
 
+    public void hideAll() {
+        customBossBar.hideAll();
+    }
+
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         customBossBar.show(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        customBossBar.hide(event.getPlayer());
     }
 }
