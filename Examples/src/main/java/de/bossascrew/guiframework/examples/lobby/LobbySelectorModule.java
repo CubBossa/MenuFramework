@@ -41,8 +41,8 @@ public class LobbySelectorModule implements CommandExecutor {
                 return stack;
             }, slot);
             lobbyMenu.setClickHandler(ClickType.LEFT, clickContext -> {
-                if(ServerHandler.getInstance().canConnect(clickContext.getPlayer())) {
-                    ServerHandler.getInstance().connect(clickContext.getPlayer());
+                if(ServerHandler.getInstance().canConnect(clickContext.getPlayer(), lobby)) {
+                    ServerHandler.getInstance().connect(clickContext.getPlayer(), lobby);
                 } else {
                     clickContext.getPlayer().playSound(clickContext.getPlayer().getLocation(), Sound.ENTITY_VILLAGER_NO, .8f, 1f);
                 }
