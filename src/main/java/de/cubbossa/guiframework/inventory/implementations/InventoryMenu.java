@@ -2,6 +2,7 @@ package de.cubbossa.guiframework.inventory.implementations;
 
 import de.cubbossa.guiframework.inventory.AbstractInventoryMenu;
 import de.cubbossa.guiframework.inventory.InventoryHandler;
+import de.cubbossa.guiframework.inventory.ItemStackMenu;
 import de.cubbossa.guiframework.inventory.TopInventoryMenu;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
@@ -35,7 +36,7 @@ public class InventoryMenu extends TopInventoryMenu<ClickType> {
 	}
 
 	@Override
-	protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable AbstractInventoryMenu<?, ?> previous) {
+	protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable ItemStackMenu previous) {
 		if (this.getViewer().size() == 0) {
 			InventoryHandler.getInstance().getInventoryListener().register(this);
 		}

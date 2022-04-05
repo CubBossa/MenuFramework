@@ -1,10 +1,14 @@
 package de.cubbossa.guiframework.inventory.implementations;
 
+import com.google.common.base.Strings;
 import de.cubbossa.guiframework.inventory.context.ContextConsumer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.*;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.ShapelessRecipe;
 
 import java.util.List;
 
@@ -23,27 +27,32 @@ public class CraftMenu extends InventoryMenu {
      * @param ticks The tick count to wait before displaying the next recipe for this item
      */
     public CraftMenu(ItemStack stack, int ticks) {
-        super(InventoryType.CRAFTING, Component.text("Crafting"));
+        super(InventoryType.WORKBENCH, Component.text("Crafting"));
 
         List<Recipe> recipes = Bukkit.getRecipesFor(stack).stream()
                 .filter(recipe -> recipe instanceof ShapedRecipe || recipe instanceof ShapelessRecipe).toList();
-        animationMap = new ItemStack[recipes.size()][9];
+        animationMap = new ItemStack[9][recipes.size()];
+
+        if (recipes.isEmpty()) {
+            return;
+        }
 
         int recipeIndex = 0;
         for (Recipe recipe : recipes) {
             if (recipe instanceof ShapedRecipe shapedRecipe) {
-
-                String combined = String.join("", shapedRecipe.getShape());
-                int slotIndex = 1;
-                for (char c : combined.toCharArray()) {
-                    animationMap[slotIndex][recipeIndex] = shapedRecipe.getIngredientMap().get(c);
-                    slotIndex++;
+                String combined = concatShape(shapedRecipe.getShape());
+                for (int slotIndex = 0; slotIndex < 9; slotIndex++) {
+                    if (combined.charAt(slotIndex) == ' ') {
+                        slotIndex++;
+                        continue;
+                    }
+                    animationMap[slotIndex++][recipeIndex] = shapedRecipe.getIngredientMap().get(combined.charAt(slotIndex));
                 }
 
             } else if (recipe instanceof ShapelessRecipe shapelessRecipe) {
                 int slotIndex = 0;
                 for (ItemStack s : shapelessRecipe.getIngredientList()) {
-                    animationMap[slotIndex][recipeIndex] = s;
+                    animationMap[slotIndex++][recipeIndex] = s;
                 }
             }
             recipeIndex++;
@@ -51,15 +60,25 @@ public class CraftMenu extends InventoryMenu {
         if (recipes.size() > 1) {
             for (int i = 0; i < 9; i++) {
                 int finalI = i;
-                playAnimation(ticks, animationContext -> animationMap[finalI][(animationContext.getTicks() / ticks) % recipes.size()], i + 1);
+                System.out.println("" + recipes.size());
+                setItem(animationMap[i][0], i + 1);
+                playAnimation(ticks, animationContext -> {
+                    return animationMap[finalI][(animationContext.getTicks() % ticks) % recipes.size()];
+                }, i + 1);
             }
         } else {
-            int slot = 1;
-            for (ItemStack i : animationMap[0]) {
-                setItem(i, slot);
-                slot++;
+            for (int slot = 1; slot < 10; slot++) {
+                setItem(animationMap[slot - 1][0], slot);
             }
         }
         setItem(stack, 0);
+    }
+
+    private String concatShape(String[] shape) {
+        StringBuilder combined = new StringBuilder();
+        for (String string : shape) {
+            combined.append(string).append(Strings.repeat(" ", 3 - string.length()));
+        }
+        return combined.toString();
     }
 }

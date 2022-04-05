@@ -55,7 +55,7 @@ public class BottomInventoryMenu<T> extends AbstractInventoryMenu<T, ClickContex
     }
 
     @Override
-    protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable AbstractInventoryMenu<?, ?> previous) {
+    protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable ItemStackMenu previous) {
         //TODO store inventory;
         super.openInventorySynchronized(viewer, viewMode, previous);
     }

@@ -42,6 +42,6 @@ public class Animations {
     }
 
     public static Function<Integer, Double> bounceProgress(int intervalSize, double from, double to) {
-        return integer -> Math.abs(Math.sin(Math.PI * 2 / intervalSize * integer)) * (to - from) + to + (to < from ? 1 : 0);
+        return integer -> Math.abs(Math.sin(Math.PI * 2 / intervalSize * integer)) * (to - from) + from + (to < from ? 1 : 0);
     }
 }

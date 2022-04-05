@@ -1,12 +1,16 @@
 package de.cubbossa.guiframework.test;
 
 import com.destroystokyo.paper.MaterialTags;
+import de.cubbossa.guiframework.Animations;
 import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.bossbar.CustomBossBar;
 import de.cubbossa.guiframework.chat.ComponentMenu;
 import de.cubbossa.guiframework.chat.TextMenu;
 import de.cubbossa.guiframework.inventory.BottomInventoryMenu;
+import de.cubbossa.guiframework.inventory.HotbarAction;
+import de.cubbossa.guiframework.inventory.HotbarMenu;
 import de.cubbossa.guiframework.inventory.MenuPresets;
+import de.cubbossa.guiframework.inventory.implementations.CraftMenu;
 import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.ListMenu;
 import de.cubbossa.guiframework.scoreboard.CustomScoreboard;
@@ -67,7 +71,7 @@ public class TestCommand implements CommandExecutor {
     InventoryMenu exampleMenu = new InventoryMenu(4, Component.text("Example Inventory"));
     BottomInventoryMenu<ClickType> bottomMenu = new BottomInventoryMenu<>(1);
     ListMenu listMenu = new ListMenu(4, Component.text("Weapons"));
-    InventoryMenu craftingMenu = new InventoryMenu(InventoryType.WORKBENCH, Component.text("Cursed Crafting:"));
+    InventoryMenu craftingMenu = new CraftMenu(new ItemStack(Material.DIAMOND_AXE), 10);
 
     CustomBossBar customBossBar = CustomBossBar.Builder.builder("lobby")
             .withText("Welcome to Example Empire!")
@@ -79,7 +83,7 @@ public class TestCommand implements CommandExecutor {
                 case 1 -> BarColor.GREEN;
                 default -> BarColor.BLUE;
             })
-            .withProgressAnimation(integer -> Math.sin(Math.PI * 2 / 100 * integer) / 2.5 + .5)
+            .withProgressAnimation(Animations.bounceProgress(100, 0, .9))
             .build();
 
     public TestCommand() {
@@ -109,11 +113,6 @@ public class TestCommand implements CommandExecutor {
         for (Material material : MaterialTags.TERRACOTTA.getValues()) {
             listMenu.addListEntry(listMenu.buttonBuilder().withItemStack(material));
         }
-
-        Material[] planks = {Material.OAK_PLANKS, Material.SPRUCE_PLANKS, Material.BIRCH_PLANKS};
-        craftingMenu.setItem(new ItemStack(Material.OAK_PLANKS), 1, 4, 5, 7, 8, 9);
-        craftingMenu.playAnimation(1, 20, animationContext -> new ItemStack(planks[animationContext.getTicks() % planks.length]));
-        craftingMenu.setItem(new ItemStack(Material.SPRUCE_STAIRS), 0);
     }
 
     @Override
@@ -180,9 +179,23 @@ public class TestCommand implements CommandExecutor {
                 break;
             case "5.2":
                 craftingMenu.open(player);
+                break;
+            case "5.3":
+                new CraftMenu(player.getInventory().getItemInMainHand(), 10).open(player);
 
             case "6.1":
                 customBossBar.show(player);
+                break;
+
+            case "7.1":
+                HotbarMenu hotbarMenu = new HotbarMenu(player);
+                hotbarMenu.setButton(hotbarMenu.buttonBuilder()
+                        .withClickHandler(clickContext -> clickContext.getPlayer().sendMessage("lol"), HotbarAction.LEFT_CLICK_AIR)
+                        .withItemStack(Material.DIAMOND)
+                        .withSound(Sound.ENTITY_VILLAGER_NO), 4);
+                hotbarMenu.setDefaultClickHandler(HotbarAction.DROP, clickContext -> hotbarMenu.close(clickContext.getPlayer()));
+                hotbarMenu.open(player);
+                break;
         }
         return false;
     }
