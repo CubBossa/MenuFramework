@@ -1,5 +1,6 @@
 package de.bossascrew.guiframework.examples.lobby;
 
+import de.cubbossa.guiframework.Animations;
 import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.bossbar.CustomBossBar;
 import org.bukkit.Bukkit;
@@ -22,7 +23,7 @@ public class BossBarModule implements Listener {
                 case 1 -> BarColor.GREEN;
                 default -> BarColor.BLUE;
             })
-            .withProgressAnimation(integer -> Math.sin(Math.PI * 2 / 100 * integer) / 2.5 + .5)
+            .withProgressAnimation(Animations.bounceProgress(150, 0, .9))
             .build();
 
 

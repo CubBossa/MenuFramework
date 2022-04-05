@@ -27,50 +27,28 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @Getter
-public abstract class AbstractInventoryMenu<T, C extends ClickContext> {
+abstract class AbstractInventoryMenu<T, C extends ClickContext> extends ItemStackMenu {
 
-    public enum ViewMode {
-        MODIFY,
-        VIEW
-    }
 
-    protected final SortedMap<Integer, ItemStack> itemStacks;
     protected final SortedMap<Integer, Map<T, ContextConsumer<C>>> clickHandler;
-    protected final SortedMap<Integer, Consumer<Player>> soundPlayer;
 
     protected final List<DynamicMenuProcessor<T, C>> dynamicProcessors;
-    protected final SortedMap<Integer, ItemStack> dynamicItemStacks;
     protected final SortedMap<Integer, Map<T, ContextConsumer<C>>> dynamicClickHandler;
 
     protected final Map<T, ContextConsumer<C>> defaultClickHandler;
+
     protected final Map<T, Boolean> defaultCancelled;
-    @Setter
-    protected ContextConsumer<CloseContext> closeHandler;
-
-    protected final Map<Integer, Collection<Animation>> animations;
-    protected final Map<UUID, ViewMode> viewer;
-
-    protected final int slotsPerPage;
-    protected int currentPage = 0;
-
-    protected Inventory inventory;
 
     public AbstractInventoryMenu(int slotsPerPage) {
 
-        this.itemStacks = new TreeMap<>();
         this.clickHandler = new TreeMap<>();
-        this.soundPlayer = new TreeMap<>();
 
         this.dynamicProcessors = new ArrayList<>();
-        this.dynamicItemStacks = new TreeMap<>();
         this.dynamicClickHandler = new TreeMap<>();
 
         this.defaultClickHandler = new HashMap<>();
-        this.animations = new TreeMap<>();
-        this.viewer = new HashMap<>();
-        this.defaultCancelled = new HashMap<>();
 
-        this.slotsPerPage = slotsPerPage;
+        this.defaultCancelled = new HashMap<>();
     }
 
     protected abstract Inventory createInventory(Player player, int page);

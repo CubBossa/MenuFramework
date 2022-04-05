@@ -1,9 +1,11 @@
 package de.cubbossa.guiframework.inventory.context;
 
+import de.cubbossa.guiframework.context.Context;
+
 import java.util.Objects;
 
 @FunctionalInterface
-public interface ContextConsumer<T> {
+public interface ContextConsumer<T extends Context> {
 
 	/**
 	 * Performs this operation on the given argument.
