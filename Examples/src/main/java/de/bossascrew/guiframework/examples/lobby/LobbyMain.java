@@ -2,8 +2,11 @@ package de.bossascrew.guiframework.examples.lobby;
 
 import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.inventory.InventoryHandler;
+import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
 import de.cubbossa.guiframework.scoreboard.CustomScoreboardHandler;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class LobbyMain extends JavaPlugin {
@@ -35,8 +38,6 @@ public class LobbyMain extends JavaPlugin {
 
         // Displays a custom boss bar
         bossBarModule = new BossBarModule();
-
-        //TODO hotbar of course
     }
 
     @Override

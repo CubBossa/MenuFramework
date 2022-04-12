@@ -38,19 +38,28 @@ public class HotbarModule implements Listener {
     }
 
     public void show(Player player) {
+        // One hotbar per player as players individual inventories are being used.
         HotbarMenu hotbar = new HotbarMenu(player);
 
         if(plugin.getCommand(GameSelectorModule.COMMAND) != null) {
             hotbar.setItemAndClickHandler(new ItemStack(Material.NETHER_STAR), HotbarAction.LEFT_CLICK_AIR, clickContext -> {
-                player.performCommand(GameSelectorModule.COMMAND);
+                clickContext.getPlayer().performCommand(GameSelectorModule.COMMAND);
             }, 4);
         }
         if(plugin.getCommand(LobbySelectorModule.COMMAND) != null) {
             hotbar.setItemAndClickHandler(new ItemStack(Material.EMERALD), HotbarAction.LEFT_CLICK_AIR, clickContext -> {
-                player.performCommand(LobbySelectorModule.COMMAND);
+                clickContext.getPlayer().performCommand(LobbySelectorModule.COMMAND);
             }, 7);
         }
 
+        // not exactly useful in a lobby hotbar but for tutorials sake:
+        hotbar.setDefaultClickHandler(HotbarAction.DROP, clickContext -> {
+            hotbar.close(clickContext.getPlayer());
+        });
+
+        // keep track of hotbars to close them once player quits. Not necessary but restores players original items if needed.
+        // You might want this useful for administrators to build in the lobby. Close the hotbar if they execute a build command
+        // and reopen it once they toggle the build mode off again.
         hotbars.put(player.getUniqueId(), hotbar);
         hotbar.open(player);
     }

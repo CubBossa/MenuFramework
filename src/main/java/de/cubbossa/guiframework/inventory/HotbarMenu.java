@@ -195,12 +195,16 @@ public class HotbarMenu extends ItemStackMenu {
         }
     }
 
-    public <C extends ClickContext> void setClickHandler(Map<HotbarAction<C>, ContextConsumer<C>> clickHandler, int... slots) {
+    public void setClickHandler(Map<HotbarAction<?>, ContextConsumer<?>> clickHandler, int... slots) {
         for (int slot : slots) {
             Map<HotbarAction<?>, ContextConsumer<?>> map = this.clickHandler.getOrDefault(slot, new HashMap<>());
             map.putAll(clickHandler);
             this.clickHandler.put(slot, map);
         }
+    }
+
+    public void setClickHandler(HotbarAction<?>[] actions, ContextConsumer<ClickContext> clickHandler, int... slots) {
+
     }
 
     public <C extends ClickContext> void setItemAndClickHandler(ItemStack item, HotbarAction<C> action, ContextConsumer<C> clickHandler, int... slots) {
@@ -299,7 +303,7 @@ public class HotbarMenu extends ItemStackMenu {
         private Sound sound;
         private float pitch = 1f;
         private float volume = .8f;
-        private final Map<T, ContextConsumer<C>> clickHandler = new HashMap<>();
+        private final Map<HotbarAction<?>, ContextConsumer<?>> clickHandler = new HashMap<>();
 
         /**
          * @param stack the icon itemstack
@@ -406,7 +410,7 @@ public class HotbarMenu extends ItemStackMenu {
          * @param clickHandler a map of click handlers for each action
          * @return the builder instance
          */
-        public ButtonBuilder<T, C> withClickHandler(Map<T, ContextConsumer<C>> clickHandler) {
+        public ButtonBuilder<T, C> withClickHandler(Map<HotbarAction<?>, ContextConsumer<?>> clickHandler) {
             this.clickHandler.putAll(clickHandler);
             return this;
         }
