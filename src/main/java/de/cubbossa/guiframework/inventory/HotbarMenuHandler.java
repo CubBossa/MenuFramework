@@ -1,10 +1,9 @@
 package de.cubbossa.guiframework.inventory;
 
-import de.cubbossa.guiframework.inventory.context.ClickContext;
 import de.cubbossa.guiframework.inventory.listener.HotbarListener;
 import lombok.Getter;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
+import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -16,6 +15,7 @@ public class HotbarMenuHandler {
 
     private Map<UUID, HotbarMenu> openHotbars;
     private Map<UUID, Stack<HotbarMenu>> navigationMap;
+    private Map<UUID, ItemStack[]> storedInventory;
 
     private final HotbarListener listener;
 
@@ -32,6 +32,11 @@ public class HotbarMenuHandler {
 
         openHotbars.put(player.getUniqueId(), menu);
         Stack<HotbarMenu> stack = navigationMap.getOrDefault(player.getUniqueId(), new Stack<>());
+
+        if(stack.isEmpty()) {
+            storedInventory.put(player.getUniqueId(), Arrays.copyOf(player.getInventory().getContents(), 9));
+        }
+
         boolean prevOnStack = !stack.isEmpty() && previous != stack.peek();
         if (previous == null || !prevOnStack) {
             stack.clear();
@@ -57,6 +62,9 @@ public class HotbarMenuHandler {
     public void closeCurrentHotbar(Player player) {
         Stack<HotbarMenu> menuStack = navigationMap.get(player.getUniqueId());
         if (menuStack.isEmpty()) {
+            for(int slot = 0; slot < 9; slot++) {
+                player.getInventory().setItem(slot, storedInventory.get(player.getUniqueId())[slot]);
+            }
             return;
         }
         openHotbars.remove(player.getUniqueId());

@@ -30,6 +30,8 @@ public class LobbyMain extends JavaPlugin {
         new CustomScoreboardHandler();
         // Displays player variables on a scoreboard
         new ScoreboardModule(this);
+        // Creates a Hotbar to run the commands for lobby and game selector
+        new HotbarModule(this);
 
         // Displays a custom boss bar
         bossBarModule = new BossBarModule();

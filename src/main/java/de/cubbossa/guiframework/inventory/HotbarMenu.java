@@ -128,6 +128,12 @@ public class HotbarMenu extends ItemStackMenu {
         return context.isCancelled();
     }
 
+    @Override
+    public void close(Player viewer) {
+        super.close(viewer);
+        HotbarMenuHandler.getInstance().unregisterHotbarMenuListener(this);
+        HotbarMenuHandler.getInstance().closeCurrentHotbar(viewer);
+    }
 
     /**
      * loads a dynamic preset that only exists as long as the current page is opened. This might be useful to

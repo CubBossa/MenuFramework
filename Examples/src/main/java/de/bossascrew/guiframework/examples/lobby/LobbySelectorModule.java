@@ -23,6 +23,7 @@ import java.util.Objects;
 
 public class LobbySelectorModule implements CommandExecutor {
 
+    public static final String COMMAND = "lobbypicker";
     private InventoryMenu lobbyMenu;
 
     public LobbySelectorModule(JavaPlugin plugin) {
@@ -49,7 +50,7 @@ public class LobbySelectorModule implements CommandExecutor {
             });
             slot++;
         }
-        Objects.requireNonNull(plugin.getCommand("lobbypicker")).setExecutor(this);
+        Objects.requireNonNull(plugin.getCommand(COMMAND)).setExecutor(this);
     }
 
     public void openInventory(Player player) {

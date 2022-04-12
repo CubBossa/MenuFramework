@@ -17,6 +17,8 @@ import java.util.Objects;
 
 public class GameSelectorModule implements CommandExecutor {
 
+    public static final String COMMAND = "teleport";
+
     InventoryMenu gameSelector;
 
     public GameSelectorModule(JavaPlugin plugin) {
@@ -40,7 +42,7 @@ public class GameSelectorModule implements CommandExecutor {
                         .withClickHandler(clickContext -> ServerHandler.getInstance().connect(clickContext.getPlayer(), "lobby_01")),
                 25);
 
-        Objects.requireNonNull(plugin.getCommand("teleport")).setExecutor(this);
+        Objects.requireNonNull(plugin.getCommand(COMMAND)).setExecutor(this);
     }
 
     @Override

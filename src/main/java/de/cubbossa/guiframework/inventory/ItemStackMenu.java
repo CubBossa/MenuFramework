@@ -128,9 +128,6 @@ public abstract class ItemStackMenu {
                 GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error occured while closing gui for " + viewer.getName(), exc);
             }
         }
-        if (this instanceof TopInventoryMenu topMenu && this.viewer.size() == 0) {
-            InventoryHandler.getInstance().unregisterTopMenuListener(topMenu);
-        }
     }
 
     /**

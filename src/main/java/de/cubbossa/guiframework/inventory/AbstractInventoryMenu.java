@@ -1,30 +1,20 @@
 package de.cubbossa.guiframework.inventory;
 
 import de.cubbossa.guiframework.GUIHandler;
-import de.cubbossa.guiframework.inventory.context.AnimationContext;
 import de.cubbossa.guiframework.inventory.context.ClickContext;
-import de.cubbossa.guiframework.inventory.context.CloseContext;
 import de.cubbossa.guiframework.inventory.context.ContextConsumer;
 import lombok.Getter;
-import lombok.Setter;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 public abstract class AbstractInventoryMenu<T, C extends ClickContext> extends ItemStackMenu {
 
@@ -117,7 +107,13 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> extends I
         return context.isCancelled();
     }
 
-
+    @Override
+    public void close(Player viewer) {
+        super.close(viewer);
+        if (this instanceof TopInventoryMenu topMenu && this.viewer.size() == 0) {
+            InventoryHandler.getInstance().unregisterTopMenuListener(topMenu);
+        }
+    }
 
     /**
      * loads a dynamic preset that only exists as long as the current page is opened. This might be useful to
