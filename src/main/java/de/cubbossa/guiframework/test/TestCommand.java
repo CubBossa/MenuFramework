@@ -6,10 +6,7 @@ import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.bossbar.CustomBossBar;
 import de.cubbossa.guiframework.chat.ComponentMenu;
 import de.cubbossa.guiframework.chat.TextMenu;
-import de.cubbossa.guiframework.inventory.BottomInventoryMenu;
-import de.cubbossa.guiframework.inventory.HotbarAction;
-import de.cubbossa.guiframework.inventory.HotbarMenu;
-import de.cubbossa.guiframework.inventory.MenuPresets;
+import de.cubbossa.guiframework.inventory.*;
 import de.cubbossa.guiframework.inventory.implementations.CraftMenu;
 import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.ListMenu;
@@ -26,7 +23,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -92,16 +88,16 @@ public class TestCommand implements CommandExecutor {
         exampleMenu.loadPreset(MenuPresets.paginationRow(3, 0, 1, false, ClickType.LEFT));
         int i = 0;
         for (Material material : MaterialTags.BEDS.getValues()) {
-            exampleMenu.setButton(exampleMenu.buttonBuilder()
-                            .withItemStack(material)
-                            .withSound(Sound.ENTITY_EVOKER_PREPARE_WOLOLO, 0f, 2f, .5f, 2f)
-                            .withClickHandler(clickContext -> clickContext.getPlayer().getInventory().addItem(new ItemStack(material)), ClickType.RIGHT),
-                    i++);
+            exampleMenu.setButton(i++, exampleMenu.buttonBuilder()
+                    .withItemStack(material)
+                    .withSound(Sound.ENTITY_EVOKER_PREPARE_WOLOLO, 0f, 2f, .5f, 2f)
+                    .withClickHandler(clickContext -> clickContext.getPlayer().getInventory().addItem(new ItemStack(material)), ClickType.RIGHT));
             if (i / 9 % 4 == 3) {
                 i += 9;
             }
         }
-        exampleMenu.setItem(new ItemStack(Material.STONE), -70, 60);
+        exampleMenu.setItem(60, new ItemStack(Material.STONE));
+        exampleMenu.setItem(-70, new ItemStack(Material.STONE));
         exampleMenu.updateTitle(Component.text("Seite 2"), 1);
 
         bottomMenu.loadPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 1));
@@ -189,11 +185,11 @@ public class TestCommand implements CommandExecutor {
 
             case "7.1":
                 HotbarMenu hotbarMenu = new HotbarMenu(player);
-                hotbarMenu.setButton(hotbarMenu.buttonBuilder()
-                        .withClickHandler(clickContext -> clickContext.getPlayer().sendMessage("lol"), HotbarAction.LEFT_CLICK_AIR)
+                hotbarMenu.setButton(4, ButtonBuilder.buttonBuilder()
+                        .withClickHandler(Action.Hotbar.LEFT_CLICK_AIR, clickContext -> clickContext.getPlayer().sendMessage("lol"))
                         .withItemStack(Material.DIAMOND)
-                        .withSound(Sound.ENTITY_VILLAGER_NO), 4);
-                hotbarMenu.setDefaultClickHandler(HotbarAction.DROP, clickContext -> hotbarMenu.close(clickContext.getPlayer()));
+                        .withSound(Sound.ENTITY_VILLAGER_NO));
+                hotbarMenu.setDefaultClickHandler(Action.Hotbar.DROP, clickContext -> hotbarMenu.close(clickContext.getPlayer()));
                 hotbarMenu.open(player);
                 break;
         }

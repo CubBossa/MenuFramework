@@ -18,7 +18,7 @@ public class CraftMenu extends InventoryMenu {
 
     /**
      * Creates an inventory with an animation that switches the crafting recipes for this itemstack.
-     * use {@link #setClickHandler(Object, ContextConsumer, int...)} to set ClickHandler for the
+     * use {@link #setClickHandler(int, Object, ContextConsumer)} to set ClickHandler for the
      * crafting slots. 0 = Result slot, 1 - 9 = Crafting Slots.
      * <p>
      * This renders only shaped and shapeless recipes but no furnace recipes.
@@ -60,18 +60,17 @@ public class CraftMenu extends InventoryMenu {
         if (recipes.size() > 1) {
             for (int i = 0; i < 9; i++) {
                 int finalI = i;
-                System.out.println("" + recipes.size());
-                setItem(animationMap[i][0], i + 1);
-                playAnimation(ticks, animationContext -> {
+                setItem(i + 1, animationMap[i][0]);
+                playAnimation(i + 1, ticks, animationContext -> {
                     return animationMap[finalI][(animationContext.getTicks() % ticks) % recipes.size()];
-                }, i + 1);
+                });
             }
         } else {
             for (int slot = 1; slot < 10; slot++) {
-                setItem(animationMap[slot - 1][0], slot);
+                setItem(slot, animationMap[slot - 1][0]);
             }
         }
-        setItem(stack, 0);
+        setItem(0, stack);
     }
 
     private String concatShape(String[] shape) {

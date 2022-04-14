@@ -36,7 +36,7 @@ public class ListMenu extends InventoryMenu {
 	 * @param buttonBuilder a button to insert.
 	 */
 	public void addListEntry(ButtonBuilder<ClickType, ClickContext> buttonBuilder) {
-		setButton(buttonBuilder, listIndex / listSlots.length * slotsPerPage + listSlots[listIndex % listSlots.length]);
+		setButton(listIndex / listSlots.length * slotsPerPage + listSlots[listIndex % listSlots.length], buttonBuilder);
 		listIndex++;
 	}
 

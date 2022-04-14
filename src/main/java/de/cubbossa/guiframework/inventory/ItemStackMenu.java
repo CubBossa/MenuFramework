@@ -167,14 +167,12 @@ public abstract class ItemStackMenu {
     /**
      * Sets an inventory icon
      *
-     * @param item  the item instance to insert into the inventory
-     * @param slots the slots to add the item at. Use slots larger than the slots on one page to place them on a different page.
-     *              {@code slot = (current_page * slots_per_page) + inventory_slot}
+     * @param item the item instance to insert into the inventory
+     * @param slot the slot to add the item at. Use slots larger than the slots on one page to place them on a different page.
+     *             {@code slot = (current_page * slots_per_page) + inventory_slot}
      */
-    public void setItem(ItemStack item, int... slots) {
-        for (int slot : slots) {
-            itemStacks.put(slot, item);
-        }
+    public void setItem(int slot, ItemStack item) {
+        itemStacks.put(slot, item);
     }
 
     public void removeItem(int... slots) {
@@ -187,18 +185,16 @@ public abstract class ItemStackMenu {
     /**
      * Populates the inventory with itemstacks that are rendered on each page, if no real item was found.
      *
-     * @param item  the item to render
-     * @param slots the slots to render the item at (not paginated, only 0 to rows*cols)
+     * @param slot the slots to render the item at (not paginated, only 0 to rows*cols)
+     * @param item the item to render
      */
-    public void setDynamicItem(ItemStack item, int... slots) {
-        for (int slot : slots) {
-            dynamicItemStacks.put(slot, item);
-        }
+    public void setDynamicItem(int slot, ItemStack item) {
+        dynamicItemStacks.put(slot, item);
     }
 
     /**
      * Refreshes the itemstack at certain slots of this menu.
-     * This method needs to be called after all methods that insert items. {@link #setItem(ItemStack, int...)}
+     * This method needs to be called after all methods that insert items. {@link #setItem(int, ItemStack)}
      *
      * @param slots the slots to refresh
      */
@@ -214,24 +210,22 @@ public abstract class ItemStackMenu {
     public abstract int getMaxPage();
 
 
-    public Collection<Animation> playAnimation(int ticks, Function<AnimationContext, ItemStack> itemUpdater, int... slots) {
-        return playAnimation(-1, ticks, itemUpdater, slots);
+    public Collection<Animation> playAnimation(int slot, int ticks, Function<AnimationContext, ItemStack> itemUpdater) {
+        return playAnimation(slot, -1, ticks, itemUpdater);
     }
 
-    public Collection<Animation> playAnimation(int intervals, int ticks, Function<AnimationContext, ItemStack> itemUpdater, int... slots) {
+    public Collection<Animation> playAnimation(int slot, int intervals, int ticks, Function<AnimationContext, ItemStack> itemUpdater) {
         Collection<Animation> newAnimations = new HashSet<>();
-        for (int slot : slots) {
-            Animation animation = new Animation(slot, intervals, ticks, itemUpdater);
+        Animation animation = new Animation(slot, intervals, ticks, itemUpdater);
 
-            Collection<Animation> animations = this.animations.get(slot);
-            if (animations == null) {
-                animations = new HashSet<>();
-            }
-            animations.add(animation);
-            newAnimations.add(animation);
-            if (inventory != null && viewer.size() > 0) {
-                animation.play();
-            }
+        Collection<Animation> animations = this.animations.get(slot);
+        if (animations == null) {
+            animations = new HashSet<>();
+        }
+        animations.add(animation);
+        newAnimations.add(animation);
+        if (inventory != null && viewer.size() > 0) {
+            animation.play();
         }
         return newAnimations;
     }
@@ -274,7 +268,7 @@ public abstract class ItemStackMenu {
                 if (intervals == -1 || interval.get() < intervals) {
                     if (item != null) {
                         try {
-                            setItem(itemUpdater.apply(new AnimationContext(slot, intervals, item, Bukkit.getCurrentTick(), Bukkit.getCurrentTick() % 20)), slot);
+                            setItem(slot, itemUpdater.apply(new AnimationContext(slot, intervals, item, Bukkit.getCurrentTick(), Bukkit.getCurrentTick() % 20)));
                             refresh(slot);
                         } catch (Throwable t) {
                             GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error occured while playing animation in inventory menu", t);

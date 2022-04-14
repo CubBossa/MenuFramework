@@ -1,6 +1,6 @@
 package de.bossascrew.guiframework.examples.lobby;
 
-import de.cubbossa.guiframework.inventory.HotbarAction;
+import de.cubbossa.guiframework.inventory.Action;
 import de.cubbossa.guiframework.inventory.HotbarMenu;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -42,18 +42,18 @@ public class HotbarModule implements Listener {
         HotbarMenu hotbar = new HotbarMenu(player);
 
         if(plugin.getCommand(GameSelectorModule.COMMAND) != null) {
-            hotbar.setItemAndClickHandler(new ItemStack(Material.NETHER_STAR), HotbarAction.LEFT_CLICK_AIR, clickContext -> {
+            hotbar.setItemAndClickHandler(4, new ItemStack(Material.NETHER_STAR), Action.Hotbar.LEFT_CLICK_AIR, clickContext -> {
                 clickContext.getPlayer().performCommand(GameSelectorModule.COMMAND);
-            }, 4);
+            });
         }
         if(plugin.getCommand(LobbySelectorModule.COMMAND) != null) {
-            hotbar.setItemAndClickHandler(new ItemStack(Material.EMERALD), HotbarAction.LEFT_CLICK_AIR, clickContext -> {
+            hotbar.setItemAndClickHandler(7, new ItemStack(Material.EMERALD), Action.Hotbar.LEFT_CLICK_AIR, clickContext -> {
                 clickContext.getPlayer().performCommand(LobbySelectorModule.COMMAND);
-            }, 7);
+            });
         }
 
         // not exactly useful in a lobby hotbar but for tutorials sake:
-        hotbar.setDefaultClickHandler(HotbarAction.DROP, clickContext -> {
+        hotbar.setDefaultClickHandler(Action.Hotbar.DROP, clickContext -> {
             hotbar.close(clickContext.getPlayer());
         });
 

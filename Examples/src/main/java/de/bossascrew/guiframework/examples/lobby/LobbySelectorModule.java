@@ -33,15 +33,15 @@ public class LobbySelectorModule implements CommandExecutor {
 
         int slot = 0;
         for(NetworkServer lobby : ServerHandler.getInstance().getServers(ServerHandler.ServerType.LOBBY)) {
-            lobbyMenu.playAnimation(20, animationContext -> {
+            lobbyMenu.playAnimation(slot, 20, animationContext -> {
                 ItemStack stack = new ItemStack(Material.EMERALD);
                 ItemMeta meta = stack.getItemMeta();
                 meta.displayName(Component.text(lobby.getName(), NamedTextColor.GREEN));
                 meta.lore(Lists.newArrayList(Component.text("Online: " + lobby.getOnlineCount(), NamedTextColor.GRAY)));
                 stack.setItemMeta(meta);
                 return stack;
-            }, slot);
-            lobbyMenu.setClickHandler(ClickType.LEFT, clickContext -> {
+            });
+            lobbyMenu.setClickHandler(slot, ClickType.LEFT, clickContext -> {
                 if(ServerHandler.getInstance().canConnect(clickContext.getPlayer(), lobby)) {
                     ServerHandler.getInstance().connect(clickContext.getPlayer(), lobby);
                 } else {

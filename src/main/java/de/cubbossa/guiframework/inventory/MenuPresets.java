@@ -40,7 +40,7 @@ public class MenuPresets {
      * @param page  the page to fill
      */
     public static void fill(AbstractInventoryMenu<?, ?> menu, ItemStack stack, int page) {
-        menu.setItem(stack, Arrays.stream(menu.getSlots()).map(operand -> operand + page * menu.getSlotsPerPage()).toArray());
+        Arrays.stream(menu.getSlots()).map(operand -> operand + page * menu.getSlotsPerPage()).forEach(value -> menu.setItem(value, stack));
     }
 
     /**
@@ -76,7 +76,7 @@ public class MenuPresets {
      */
     public static void fillRow(AbstractInventoryMenu<?, ?> menu, ItemStack stack, int line, int page) {
         int offset = page * menu.slotsPerPage + line * 9;
-        menu.setItem(stack, IntStream.range(offset, offset + 9).toArray());
+        IntStream.range(offset, offset + 9).forEach(value -> menu.setItem(value, stack));
     }
 
     /**
@@ -90,7 +90,8 @@ public class MenuPresets {
      */
     public static void fillColumn(AbstractInventoryMenu<?, ?> menu, ItemStack stack, int column, int page) {
         int offset = page * menu.slotsPerPage;
-        menu.setItem(stack, IntStream.range(offset, offset + menu.slotsPerPage).filter(value -> value % 9 == column).toArray());
+        IntStream.range(offset, offset + menu.slotsPerPage).filter(value -> value % 9 == column)
+                .forEach(value -> menu.setItem(value, stack));
     }
 
     /**
@@ -176,8 +177,8 @@ public class MenuPresets {
             placeDynamicClickHandler.accept(row * 9 + leftSlot, populate(c -> {
                 boolean currentLeftLimit = otherMenu.getCurrentPage() <= otherMenu.getMinPage();
                 boolean currentRightLimit = otherMenu.getCurrentPage() >= otherMenu.getMaxPage();
-                menu.setDynamicItem(currentLeftLimit ? LEFT_DISABLED : LEFT, row * 9 + leftSlot);
-                menu.setDynamicItem(currentRightLimit ? RIGHT_DISABLED : RIGHT, row * 9 + rightSlot);
+                menu.setDynamicItem(row * 9 + leftSlot, currentLeftLimit ? LEFT_DISABLED : LEFT);
+                menu.setDynamicItem(row * 9 + rightSlot, currentRightLimit ? RIGHT_DISABLED : RIGHT);
                 menu.refresh(row * 9 + leftSlot, row * 9 + rightSlot);
                 if (!currentLeftLimit) {
                     otherMenu.openPreviousPage(c.getPlayer());
@@ -190,8 +191,8 @@ public class MenuPresets {
                 //TODO chaos
                 boolean currentLeftLimit = otherMenu.getCurrentPage() <= otherMenu.getMinPage();
                 boolean currentRightLimit = otherMenu.getCurrentPage() >= otherMenu.getMaxPage();
-                menu.setDynamicItem(currentLeftLimit ? LEFT_DISABLED : LEFT, row * 9 + leftSlot);
-                menu.setDynamicItem(currentRightLimit ? RIGHT_DISABLED : RIGHT, row * 9 + rightSlot);
+                menu.setDynamicItem(row * 9 + leftSlot, currentLeftLimit ? LEFT_DISABLED : LEFT);
+                menu.setDynamicItem(row * 9 + rightSlot, currentRightLimit ? RIGHT_DISABLED : RIGHT);
                 menu.refresh(row * 9 + leftSlot, row * 9 + rightSlot);
                 if (!currentRightLimit) {
                     otherMenu.openNextPage(c.getPlayer());

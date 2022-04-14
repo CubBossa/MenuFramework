@@ -161,40 +161,34 @@ public abstract class AbstractInventoryMenu<T, C extends ClickContext> extends I
     /**
      * Sets an inventory icon, sound and click handler from a button builder
      *
+     * @param slot   the absolute slot to apply the button builder on. {@code ((current_page * slots_per_page) + page_slot)}
      * @param button the button builder. Use {@link #buttonBuilder()} to get a new button builder instance
-     * @param slots  the absolute slots to apply the button builder on. {@code ((current_page * slots_per_page) + page_slot)}
      */
-    public void setButton(ButtonBuilder<T, C> button, int... slots) {
+    public void setButton(int slot, ButtonBuilder<T, C> button) {
         if (button.stack != null) {
-            setItem(button.stack, slots);
+            setItem(slot, button.stack);
         }
-        for (int slot : slots) {
-            soundPlayer.put(slot, player -> player.playSound(player.getLocation(), button.sound, button.volume, button.pitch));
-        }
+        soundPlayer.put(slot, player -> player.playSound(player.getLocation(), button.sound, button.volume, button.pitch));
         if (!button.clickHandler.isEmpty()) {
-            setClickHandler(button.clickHandler, slots);
+            setClickHandler(slot, button.clickHandler);
         }
     }
 
-    public void setClickHandler(T action, ContextConsumer<C> clickHandler, int... slots) {
-        for (int slot : slots) {
-            Map<T, ContextConsumer<C>> map = this.clickHandler.getOrDefault(slot, new HashMap<>());
-            map.put(action, clickHandler);
-            this.clickHandler.put(slot, map);
-        }
+    public void setClickHandler(int slot, T action, ContextConsumer<C> clickHandler) {
+        Map<T, ContextConsumer<C>> map = this.clickHandler.getOrDefault(slot, new HashMap<>());
+        map.put(action, clickHandler);
+        this.clickHandler.put(slot, map);
     }
 
-    public void setClickHandler(Map<T, ContextConsumer<C>> clickHandler, int... slots) {
-        for (int slot : slots) {
-            Map<T, ContextConsumer<C>> map = this.clickHandler.getOrDefault(slot, new HashMap<>());
-            map.putAll(clickHandler);
-            this.clickHandler.put(slot, map);
-        }
+    public void setClickHandler(int slot, Map<T, ContextConsumer<C>> clickHandler) {
+        Map<T, ContextConsumer<C>> map = this.clickHandler.getOrDefault(slot, new HashMap<>());
+        map.putAll(clickHandler);
+        this.clickHandler.put(slot, map);
     }
 
-    public void setItemAndClickHandler(ItemStack item, T action, ContextConsumer<C> clickHandler, int... slots) {
-        setItem(item, slots);
-        setClickHandler(action, clickHandler, slots);
+    public void setItemAndClickHandler(int slot, ItemStack item, T action, ContextConsumer<C> clickHandler) {
+        setItem(slot, item);
+        setClickHandler(slot, action, clickHandler);
     }
 
     public void setDefaultClickHandler(T action, ContextConsumer<C> clickHandler) {

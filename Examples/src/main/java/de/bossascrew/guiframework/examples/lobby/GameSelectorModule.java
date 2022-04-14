@@ -25,22 +25,18 @@ public class GameSelectorModule implements CommandExecutor {
 
         gameSelector = new InventoryMenu(3, Component.text("Choose A Game"));
         gameSelector.loadPreset(MenuPresets.fill(MenuPresets.FILLER_LIGHT));
-        gameSelector.setButton(gameSelector.buttonBuilder()
+        gameSelector.setButton(4, gameSelector.buttonBuilder()
                         .withItemStack(Material.NETHERITE_SWORD, Component.text("Hierarchy", NamedTextColor.DARK_RED))
-                        .withClickHandler(clickContext -> ServerHandler.getInstance().connect(clickContext.getPlayer(), "hierachy_01")),
-                4);
-        gameSelector.setButton(gameSelector.buttonBuilder()
+                        .withClickHandler(clickContext -> ServerHandler.getInstance().connect(clickContext.getPlayer(), "hierachy_01")));
+        gameSelector.setButton(10, gameSelector.buttonBuilder()
                         .withItemStack(Material.GOLD_BLOCK, Component.text("Creative", NamedTextColor.GOLD))
-                        .withClickHandler(clickContext -> ServerHandler.getInstance().connect(clickContext.getPlayer(), "creative_01")),
-                10);
-        gameSelector.setButton(gameSelector.buttonBuilder()
+                        .withClickHandler(clickContext -> ServerHandler.getInstance().connect(clickContext.getPlayer(), "creative_01")));
+        gameSelector.setButton(16, gameSelector.buttonBuilder()
                         .withItemStack(Material.COBBLESTONE, Component.text("Skyblock", NamedTextColor.AQUA))
-                        .withClickHandler(clickContext -> ServerHandler.getInstance().connect(clickContext.getPlayer(), "skyblock_01")),
-                16);
-        gameSelector.setButton(gameSelector.buttonBuilder()
+                        .withClickHandler(clickContext -> ServerHandler.getInstance().connect(clickContext.getPlayer(), "skyblock_01")));
+        gameSelector.setButton(25, gameSelector.buttonBuilder()
                         .withItemStack(Material.EMERALD, Component.text("Lobby", NamedTextColor.GREEN))
-                        .withClickHandler(clickContext -> ServerHandler.getInstance().connect(clickContext.getPlayer(), "lobby_01")),
-                25);
+                        .withClickHandler(clickContext -> ServerHandler.getInstance().connect(clickContext.getPlayer(), "lobby_01")));
 
         Objects.requireNonNull(plugin.getCommand(COMMAND)).setExecutor(this);
     }
