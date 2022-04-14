@@ -3,6 +3,7 @@ package de.bossascrew.guiframework.examples.lobby;
 import com.google.common.collect.Lists;
 import de.bossascrew.guiframework.examples.system.NetworkServer;
 import de.bossascrew.guiframework.examples.system.ServerHandler;
+import de.cubbossa.guiframework.inventory.Action;
 import de.cubbossa.guiframework.inventory.MenuPresets;
 import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
 import net.kyori.adventure.text.Component;
@@ -13,7 +14,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -29,7 +29,7 @@ public class LobbySelectorModule implements CommandExecutor {
     public LobbySelectorModule(JavaPlugin plugin) {
         lobbyMenu = new InventoryMenu(4, Component.text("Choose a lobby"));
         lobbyMenu.loadPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 3));
-        lobbyMenu.loadPreset(MenuPresets.paginationRow(3, 0, 1, true, ClickType.LEFT, ClickType.RIGHT));
+        lobbyMenu.loadPreset(MenuPresets.paginationRow(3, 0, 1, true, Action.Inventory.LEFT, Action.Inventory.RIGHT));
 
         int slot = 0;
         for(NetworkServer lobby : ServerHandler.getInstance().getServers(ServerHandler.ServerType.LOBBY)) {
@@ -41,7 +41,7 @@ public class LobbySelectorModule implements CommandExecutor {
                 stack.setItemMeta(meta);
                 return stack;
             });
-            lobbyMenu.setClickHandler(slot, ClickType.LEFT, clickContext -> {
+            lobbyMenu.setClickHandler(slot, Action.Inventory.LEFT, clickContext -> {
                 if(ServerHandler.getInstance().canConnect(clickContext.getPlayer(), lobby)) {
                     ServerHandler.getInstance().connect(clickContext.getPlayer(), lobby);
                 } else {

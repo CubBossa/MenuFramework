@@ -1,15 +1,15 @@
 package de.cubbossa.guiframework.inventory;
 
-import de.cubbossa.guiframework.inventory.context.ClickContext;
 import de.cubbossa.guiframework.inventory.listener.InventoryListener;
 import lombok.Getter;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
 
 import javax.annotation.Nullable;
 import java.util.*;
 
 public class InventoryHandler {
+
+    //TODO allow dynamic registration of listeners
 
     @Getter
     private static InventoryHandler instance;
@@ -17,11 +17,11 @@ public class InventoryHandler {
     @Getter
     private final InventoryListener inventoryListener = new InventoryListener();
 
-    private final Map<UUID, AbstractInventoryMenu<?, ?>> openTopInventories;
-    private final Map<UUID, Stack<AbstractInventoryMenu<?, ?>>> navigationTopMap;
+    private final Map<UUID, AbstractInventoryMenu> openTopInventories;
+    private final Map<UUID, Stack<AbstractInventoryMenu>> navigationTopMap;
 
-    private final Map<UUID, AbstractInventoryMenu<?, ?>> openBottomInventories;
-    private final Map<UUID, Stack<AbstractInventoryMenu<?, ?>>> navigationBottomMap;
+    private final Map<UUID, AbstractInventoryMenu> openBottomInventories;
+    private final Map<UUID, Stack<AbstractInventoryMenu>> navigationBottomMap;
 
     public InventoryHandler() {
         instance = this;
@@ -33,18 +33,18 @@ public class InventoryHandler {
         this.navigationBottomMap = new HashMap<>();
     }
 
-    public void registerInventory(Player player, AbstractInventoryMenu<?, ?> menu, @Nullable AbstractInventoryMenu<?, ?> previous) {
+    public void registerInventory(Player player, AbstractInventoryMenu menu, @Nullable AbstractInventoryMenu previous) {
 
-        boolean top = menu instanceof TopInventoryMenu<?>;
-        if (!top && !(menu instanceof BottomInventoryMenu<?>)) {
+        boolean top = menu instanceof TopInventoryMenu;
+        if (!top && !(menu instanceof BottomInventoryMenu)) {
             return;
         }
 
-        Map<UUID, AbstractInventoryMenu<?, ?>> openInventories = top ? openTopInventories : openBottomInventories;
-        Map<UUID, Stack<AbstractInventoryMenu<?, ?>>> navigation = top ? navigationTopMap : navigationBottomMap;
+        Map<UUID, AbstractInventoryMenu> openInventories = top ? openTopInventories : openBottomInventories;
+        Map<UUID, Stack<AbstractInventoryMenu>> navigation = top ? navigationTopMap : navigationBottomMap;
 
         openInventories.put(player.getUniqueId(), menu);
-        Stack<AbstractInventoryMenu<?, ?>> stack = navigation.getOrDefault(player.getUniqueId(), new Stack<>());
+        Stack<AbstractInventoryMenu> stack = navigation.getOrDefault(player.getUniqueId(), new Stack<>());
         boolean prevOnStack = !stack.isEmpty() && previous != stack.peek();
         if (previous == null || !prevOnStack) {
             stack.clear();
@@ -54,23 +54,25 @@ public class InventoryHandler {
         }
         stack.push(menu);
         navigation.put(player.getUniqueId(), stack);
-        //TODO
-        inventoryListener.register((AbstractInventoryMenu<ClickType, ClickContext>) menu);
+
+        if(menu.getViewer().size() == 1) {
+            inventoryListener.register(menu);
+        }
     }
 
-    public <T> TopInventoryMenu<T> getCurrentTopMenu(Player player) {
-        return (TopInventoryMenu<T>) openTopInventories.get(player.getUniqueId());
+    public TopInventoryMenu getCurrentTopMenu(Player player) {
+        return (TopInventoryMenu) openTopInventories.get(player.getUniqueId());
     }
 
-    public <T> BottomInventoryMenu<T> getCurrentBottomMenu(Player player) {
-        return (BottomInventoryMenu<T>) openBottomInventories.get(player.getUniqueId());
+    public BottomInventoryMenu getCurrentBottomMenu(Player player) {
+        return (BottomInventoryMenu) openBottomInventories.get(player.getUniqueId());
     }
 
     public void closeAllMenus() {
-        for (AbstractInventoryMenu<?, ?> menu : openTopInventories.values()) {
+        for (AbstractInventoryMenu menu : openTopInventories.values()) {
             menu.closeAll();
         }
-        for (AbstractInventoryMenu<?, ?> menu : openBottomInventories.values()) {
+        for (AbstractInventoryMenu menu : openBottomInventories.values()) {
             menu.closeAll();
         }
     }
@@ -80,15 +82,15 @@ public class InventoryHandler {
     }
 
     public void closeCurrentTopMenu(Player player) {
-        Stack<AbstractInventoryMenu<?, ?>> menuStack = navigationTopMap.get(player.getUniqueId());
+        Stack<AbstractInventoryMenu> menuStack = navigationTopMap.get(player.getUniqueId());
         if (menuStack.isEmpty()) {
             return;
         }
-        AbstractInventoryMenu<?, ?> oldMenu = openTopInventories.remove(player.getUniqueId());
+        AbstractInventoryMenu oldMenu = openTopInventories.remove(player.getUniqueId());
         menuStack.peek().open(player);
     }
 
-    public void unregisterTopMenuListener(TopInventoryMenu<ClickType> topMenu) {
+    public void unregisterTopMenuListener(TopInventoryMenu topMenu) {
         inventoryListener.unregister(topMenu);
     }
 
@@ -97,7 +99,7 @@ public class InventoryHandler {
     }
 
     public void closeCurrentBottomMenu(Player player) {
-        Stack<AbstractInventoryMenu<?, ?>> menuStack = navigationBottomMap.get(player.getUniqueId());
+        Stack<AbstractInventoryMenu> menuStack = navigationBottomMap.get(player.getUniqueId());
         if (menuStack.isEmpty()) {
             return;
         }

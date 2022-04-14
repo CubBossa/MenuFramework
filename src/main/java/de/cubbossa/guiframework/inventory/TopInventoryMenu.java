@@ -1,7 +1,6 @@
 package de.cubbossa.guiframework.inventory;
 
 import de.cubbossa.guiframework.GUIHandler;
-import de.cubbossa.guiframework.inventory.context.ClickContext;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -14,7 +13,7 @@ import java.util.TreeMap;
 import java.util.UUID;
 
 @Getter
-public abstract class TopInventoryMenu<T> extends AbstractInventoryMenu<T, ClickContext> {
+public abstract class TopInventoryMenu extends AbstractInventoryMenu {
 
     private Component fallbackTitle;
     private final Map<Integer, Component> pageTitles;

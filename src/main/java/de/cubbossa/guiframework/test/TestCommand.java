@@ -22,7 +22,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -65,7 +64,7 @@ public class TestCommand implements CommandExecutor {
     CustomScoreboard higherBoard = new CustomScoreboard("test_scoreboard_2", Component.text("Noch eins"), 5);
 
     InventoryMenu exampleMenu = new InventoryMenu(4, Component.text("Example Inventory"));
-    BottomInventoryMenu<ClickType> bottomMenu = new BottomInventoryMenu<>(1);
+    BottomInventoryMenu bottomMenu = new BottomInventoryMenu(1);
     ListMenu listMenu = new ListMenu(4, Component.text("Weapons"));
     InventoryMenu craftingMenu = new CraftMenu(new ItemStack(Material.DIAMOND_AXE), 10);
 
@@ -85,13 +84,13 @@ public class TestCommand implements CommandExecutor {
     public TestCommand() {
         exampleMenu.loadPreset(MenuPresets.fill(MenuPresets.FILLER_LIGHT));
         exampleMenu.loadPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 3));
-        exampleMenu.loadPreset(MenuPresets.paginationRow(3, 0, 1, false, ClickType.LEFT));
+        exampleMenu.loadPreset(MenuPresets.paginationRow(3, 0, 1, false, Action.Inventory.LEFT));
         int i = 0;
         for (Material material : MaterialTags.BEDS.getValues()) {
-            exampleMenu.setButton(i++, exampleMenu.buttonBuilder()
+            exampleMenu.setButton(i++, ButtonBuilder.buttonBuilder()
                     .withItemStack(material)
                     .withSound(Sound.ENTITY_EVOKER_PREPARE_WOLOLO, 0f, 2f, .5f, 2f)
-                    .withClickHandler(clickContext -> clickContext.getPlayer().getInventory().addItem(new ItemStack(material)), ClickType.RIGHT));
+                    .withClickHandler(clickContext -> clickContext.getPlayer().getInventory().addItem(new ItemStack(material)), Action.Inventory.RIGHT));
             if (i / 9 % 4 == 3) {
                 i += 9;
             }
@@ -101,13 +100,13 @@ public class TestCommand implements CommandExecutor {
         exampleMenu.updateTitle(Component.text("Seite 2"), 1);
 
         bottomMenu.loadPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 1));
-        bottomMenu.loadPreset(MenuPresets.paginationRow(exampleMenu, 1, 0, 1, false, ClickType.LEFT, ClickType.RIGHT));
+        bottomMenu.loadPreset(MenuPresets.paginationRow(exampleMenu, 1, 0, 1, false, Action.Inventory.LEFT, Action.Inventory.RIGHT));
 
         for (Material material : MaterialTags.ENCHANTABLE.getValues()) {
-            listMenu.addListEntry(listMenu.buttonBuilder().withItemStack(material));
+            listMenu.addListEntry(ButtonBuilder.buttonBuilder().withItemStack(material));
         }
         for (Material material : MaterialTags.TERRACOTTA.getValues()) {
-            listMenu.addListEntry(listMenu.buttonBuilder().withItemStack(material));
+            listMenu.addListEntry(ButtonBuilder.buttonBuilder().withItemStack(material));
         }
     }
 

@@ -39,7 +39,7 @@ public class MenuPresets {
      * @param stack the itemstack to set on each slot
      * @param page  the page to fill
      */
-    public static void fill(AbstractInventoryMenu<?, ?> menu, ItemStack stack, int page) {
+    public static void fill(AbstractInventoryMenu menu, ItemStack stack, int page) {
         Arrays.stream(menu.getSlots()).map(operand -> operand + page * menu.getSlotsPerPage()).forEach(value -> menu.setItem(value, stack));
     }
 
@@ -50,7 +50,7 @@ public class MenuPresets {
      * @param menu the menu to fill
      * @param page the page to fill
      */
-    public static void fillDark(AbstractInventoryMenu<?, ?> menu, int page) {
+    public static void fillDark(AbstractInventoryMenu menu, int page) {
         fill(menu, FILLER_DARK, page);
     }
 
@@ -61,7 +61,7 @@ public class MenuPresets {
      * @param menu the menu to fill
      * @param page the page to fill
      */
-    public static void fillLight(AbstractInventoryMenu<?, ?> menu, int page) {
+    public static void fillLight(AbstractInventoryMenu menu, int page) {
         fill(menu, FILLER_LIGHT, page);
     }
 
@@ -74,7 +74,7 @@ public class MenuPresets {
      * @param line  the line to fill (0 to 5)
      * @param page  the page to fill the line on
      */
-    public static void fillRow(AbstractInventoryMenu<?, ?> menu, ItemStack stack, int line, int page) {
+    public static void fillRow(AbstractInventoryMenu menu, ItemStack stack, int line, int page) {
         int offset = page * menu.slotsPerPage + line * 9;
         IntStream.range(offset, offset + 9).forEach(value -> menu.setItem(value, stack));
     }
@@ -88,7 +88,7 @@ public class MenuPresets {
      * @param column the column to fill (0 to 8)
      * @param page   the page to fill the column on
      */
-    public static void fillColumn(AbstractInventoryMenu<?, ?> menu, ItemStack stack, int column, int page) {
+    public static void fillColumn(AbstractInventoryMenu menu, ItemStack stack, int column, int page) {
         int offset = page * menu.slotsPerPage;
         IntStream.range(offset, offset + menu.slotsPerPage).filter(value -> value % 9 == column)
                 .forEach(value -> menu.setItem(value, stack));
@@ -166,7 +166,7 @@ public class MenuPresets {
      * @param <C>          the ClickContext type
      * @return an instance of the {@link DynamicMenuProcessor} to register it on a menu.
      */
-    public static <T, C extends ClickContext> DynamicMenuProcessor<T, C> paginationRow(AbstractInventoryMenu<T, C> otherMenu, int row, int leftSlot, int rightSlot, boolean hideDisabled, T... actions) {
+    public static <T, C extends ClickContext> DynamicMenuProcessor<T, C> paginationRow(AbstractInventoryMenu otherMenu, int row, int leftSlot, int rightSlot, boolean hideDisabled, T... actions) {
         return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
 
             boolean leftLimit = otherMenu.getCurrentPage() <= otherMenu.getMinPage();

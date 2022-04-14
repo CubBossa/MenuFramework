@@ -1,6 +1,5 @@
 package de.cubbossa.guiframework.inventory;
 
-import de.cubbossa.guiframework.inventory.context.ClickContext;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -11,7 +10,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class BottomInventoryMenu<T> extends AbstractInventoryMenu<T, ClickContext> {
+public class BottomInventoryMenu extends AbstractInventoryMenu {
 
     private final int[] rows;
 

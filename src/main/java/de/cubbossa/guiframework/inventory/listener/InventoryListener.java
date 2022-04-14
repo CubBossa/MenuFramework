@@ -2,6 +2,7 @@ package de.cubbossa.guiframework.inventory.listener;
 
 import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.inventory.AbstractInventoryMenu;
+import de.cubbossa.guiframework.inventory.Action;
 import de.cubbossa.guiframework.inventory.TopInventoryMenu;
 import de.cubbossa.guiframework.inventory.context.ClickContext;
 import org.bukkit.Bukkit;
@@ -16,17 +17,17 @@ import java.util.Set;
 
 public class InventoryListener implements Listener {
 
-	private final Set<AbstractInventoryMenu<ClickType, ClickContext>> menus = new HashSet<>();
+	private final Set<AbstractInventoryMenu> menus = new HashSet<>();
 
 	public InventoryListener() {
 		Bukkit.getPluginManager().registerEvents(this, GUIHandler.getInstance().getPlugin());
 	}
 
-	public void register(AbstractInventoryMenu<ClickType, ClickContext> menu) {
+	public void register(AbstractInventoryMenu menu) {
 		menus.add(menu);
 	}
 
-	public void unregister(AbstractInventoryMenu<ClickType, ClickContext> menu) {
+	public void unregister(AbstractInventoryMenu menu) {
 		menus.remove(menu);
 	}
 
@@ -40,7 +41,7 @@ public class InventoryListener implements Listener {
 				if (!menu.isThisInventory(event.getClickedInventory(), player)) {
 					return;
 				}
-				event.setCancelled(menu.handleInteract(player, event.getSlot(), event.getClick(), new ClickContext(player, event.getSlot(), true)));
+				event.setCancelled(menu.handleInteract(Action.Inventory.fromClickType(event.getClick()), new ClickContext(player, event.getSlot(), true)));
 			}
 		});
 	}
@@ -60,14 +61,14 @@ public class InventoryListener implements Listener {
 				}
 				ClickType type = event.getType() == DragType.EVEN ? ClickType.LEFT : ClickType.RIGHT;
 				int slot = event.getInventorySlots().stream().findAny().get();
-				event.setCancelled(menu.handleInteract(player, slot, type, new ClickContext(player, slot, true)));
+				event.setCancelled(menu.handleInteract(Action.Inventory.fromClickType(type), new ClickContext(player, slot, true)));
 			}
 		});
 	}
 
 	@EventHandler
 	public void onInventoryClose(InventoryCloseEvent event) {
-		for (AbstractInventoryMenu<ClickType, ClickContext> menu : new HashSet<>(menus)) {
+		for (AbstractInventoryMenu menu : new HashSet<>(menus)) {
 			if (event.getPlayer() instanceof Player player) {
 				if (!menu.isThisInventory(event.getInventory(), player)) {
 					return;

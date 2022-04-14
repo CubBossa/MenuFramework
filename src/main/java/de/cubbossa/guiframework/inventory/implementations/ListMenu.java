@@ -1,9 +1,9 @@
 package de.cubbossa.guiframework.inventory.implementations;
 
+import de.cubbossa.guiframework.inventory.Action;
+import de.cubbossa.guiframework.inventory.ButtonBuilder;
 import de.cubbossa.guiframework.inventory.MenuPresets;
-import de.cubbossa.guiframework.inventory.context.ClickContext;
 import net.kyori.adventure.text.Component;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
@@ -26,7 +26,7 @@ public class ListMenu extends InventoryMenu {
 		this.listIndex = listslots[0];
 
 		this.loadPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, rows - 1));
-		this.loadPreset(MenuPresets.paginationRow(rows - 1, 0, 1, false, ClickType.RIGHT, ClickType.LEFT));
+		this.loadPreset(MenuPresets.paginationRow(rows - 1, 0, 1, false, Action.Inventory.RIGHT, Action.Inventory.LEFT));
 	}
 
 	/**
@@ -35,7 +35,7 @@ public class ListMenu extends InventoryMenu {
 	 *
 	 * @param buttonBuilder a button to insert.
 	 */
-	public void addListEntry(ButtonBuilder<ClickType, ClickContext> buttonBuilder) {
+	public void addListEntry(ButtonBuilder buttonBuilder) {
 		setButton(listIndex / listSlots.length * slotsPerPage + listSlots[listIndex % listSlots.length], buttonBuilder);
 		listIndex++;
 	}
@@ -49,8 +49,8 @@ public class ListMenu extends InventoryMenu {
 	 * @param actions      the actions that will trigger the click handler
 	 * @param <E>          the entry type of the collection
 	 */
-	public <E> void addListEntries(Collection<E> collection, Function<E, ItemStack> itemProvider, Consumer<E> clickHandler, ClickType... actions) {
-		collection.forEach(e -> addListEntry(buttonBuilder()
+	public <E> void addListEntries(Collection<E> collection, Function<E, ItemStack> itemProvider, Consumer<E> clickHandler, Action<?>... actions) {
+		collection.forEach(e -> addListEntry(ButtonBuilder.buttonBuilder()
 				.withItemStack(itemProvider.apply(e))
 				.withClickHandler(clickContext -> clickHandler.accept(e), actions)));
 	}
