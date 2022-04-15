@@ -35,7 +35,6 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
         if (inventory == null) {
             inventory = createInventory(viewer, currentPage);
         }
-        clearContent();
 
         if (viewer.isSleeping()) {
             viewer.wakeup(true);
@@ -62,10 +61,8 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
             }
             inventory.setItem(slot, item.clone());
         }
-
         openInventory(viewer, inventory);
         this.viewer.put(viewer.getUniqueId(), viewMode);
-        InventoryHandler.getInstance().registerInventory(viewer, this, (AbstractInventoryMenu) previous);
     }
 
     public <C extends TargetContext<?>> boolean handleInteract(Action<C> action, C context) {
@@ -85,7 +82,7 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
         }
 
         ContextConsumer<C> clickHandler = getClickHandlerOrFallback(slot, action);
-        if (clickHandler == null) {
+        if (clickHandler == null) { //TODO wrong order
             clickHandler = (ContextConsumer<C>) dynamicClickHandler.getOrDefault(context.getSlot(), new HashMap<>()).get(action);
         }
         if (clickHandler != null) {
@@ -98,14 +95,6 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
             }
         }
         return context.isCancelled();
-    }
-
-    @Override
-    public void close(Player viewer) {
-        super.close(viewer);
-        if (this instanceof TopInventoryMenu topMenu && this.viewer.size() == 0) {
-            InventoryHandler.getInstance().unregisterTopMenuListener(topMenu);
-        }
     }
 
     /**

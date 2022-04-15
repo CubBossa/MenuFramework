@@ -1,5 +1,6 @@
 package de.cubbossa.guiframework.inventory;
 
+import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.inventory.listener.HotbarListener;
 import lombok.Getter;
 import org.bukkit.entity.Player;
@@ -7,6 +8,8 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.stream.IntStream;
 
 public class HotbarMenuHandler {
 
@@ -24,6 +27,7 @@ public class HotbarMenuHandler {
 
         openHotbars = new HashMap<>();
         navigationMap = new HashMap<>();
+        storedInventory = new HashMap<>();
 
         listener = new HotbarListener();
     }
@@ -33,16 +37,14 @@ public class HotbarMenuHandler {
         openHotbars.put(player.getUniqueId(), menu);
         Stack<HotbarMenu> stack = navigationMap.getOrDefault(player.getUniqueId(), new Stack<>());
 
-        if(stack.isEmpty()) {
+        if (stack.isEmpty()) {
             storedInventory.put(player.getUniqueId(), Arrays.copyOf(player.getInventory().getContents(), 9));
+            IntStream.range(0, 9).forEach(value -> player.getInventory().setItem(value, null));
         }
 
-        boolean prevOnStack = !stack.isEmpty() && previous != stack.peek();
-        if (previous == null || !prevOnStack) {
+        if (!stack.isEmpty() && previous != null && previous != stack.peek()) {
             stack.clear();
-            if (!prevOnStack) {
-                stack.add(previous);
-            }
+            stack.push(previous);
         }
         stack.push(menu);
         navigationMap.put(player.getUniqueId(), stack);
@@ -61,13 +63,20 @@ public class HotbarMenuHandler {
 
     public void closeCurrentHotbar(Player player) {
         Stack<HotbarMenu> menuStack = navigationMap.get(player.getUniqueId());
-        if (menuStack.isEmpty()) {
-            for(int slot = 0; slot < 9; slot++) {
-                player.getInventory().setItem(slot, storedInventory.get(player.getUniqueId())[slot]);
-            }
+        if (menuStack == null) {
+            GUIHandler.getInstance().getLogger().log(Level.SEVERE, "No hotbar stack found for " + player.getName());
             return;
         }
+        menuStack.pop();
+        if (menuStack.isEmpty() || menuStack.peek() == null) {
+            ItemStack[] items = storedInventory.getOrDefault(player.getUniqueId(), new ItemStack[9]);
+            for (int slot = 0; slot < 9; slot++) {
+                player.getInventory().setItem(slot, items[slot]);
+            }
+        } else {
+            menuStack.peek().open(player);
+        }
+        System.out.println(menuStack.size());
         openHotbars.remove(player.getUniqueId());
-        menuStack.peek().open(player);
     }
 }
