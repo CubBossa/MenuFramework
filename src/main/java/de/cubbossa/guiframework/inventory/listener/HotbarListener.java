@@ -9,8 +9,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.inventory.InventoryPickupItemEvent;
+import org.bukkit.event.player.PlayerAttemptPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -38,7 +44,14 @@ public class HotbarListener implements Listener {
 			if (!menu.isThisInventory(player.getInventory(), player)) {
 				return;
 			}
-			event.setCancelled(menu.handleInteract(Action.Hotbar.DROP, new ClickContext(player, player.getInventory().getHeldItemSlot(), true)));
+			ClickContext clickContext = new ClickContext(player, player.getInventory().getHeldItemSlot(), true);
+			ItemStack stack = event.getItemDrop().getItemStack();
+			event.setCancelled(menu.handleInteract(Action.Hotbar.DROP, clickContext));
+			if (clickContext.isCancelled()) {
+				Bukkit.getScheduler().runTaskLater(GUIHandler.getInstance().getPlugin(), () -> {
+					player.getInventory().removeItem(stack);
+				}, 1);
+			}
 		});
 	}
 

@@ -60,7 +60,7 @@ public class CustomScoreboard {
      */
     public void show(Player player) {
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        Objective obj = scoreboard.registerNewObjective("GUI Framework " + GUIHandler.getInstance().getPlugin().getName(), identifier, title);
+        Objective obj = scoreboard.registerNewObjective("GUI Framework", identifier, title);
         scoreboards.put(player, obj);
 
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);

@@ -49,11 +49,12 @@ public class InventoryMenu extends TopInventoryMenu {
         this.slots = IntStream.range(0, rows * 9).toArray();
     }
 
-    @Override
-    protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable ItemStackMenu previous) {
-        super.openInventorySynchronized(viewer, viewMode, previous);
-        InventoryHandler.getInstance().registerInventory(viewer, this, (AbstractInventoryMenu) previous);
-    }
+	@Override
+	protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable ItemStackMenu previous) {
+		clearContent();
+		super.openInventorySynchronized(viewer, viewMode, previous);
+		InventoryHandler.getInstance().registerInventory(viewer, this, (AbstractInventoryMenu) previous);
+	}
 
     @Override
     public void close(Player viewer) {

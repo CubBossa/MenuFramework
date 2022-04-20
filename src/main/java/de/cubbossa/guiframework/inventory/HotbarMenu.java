@@ -1,7 +1,9 @@
 package de.cubbossa.guiframework.inventory;
 
+import de.tr7zw.changeme.nbtapi.NBTItem;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.IntStream;
@@ -32,8 +34,8 @@ public class HotbarMenu extends AbstractInventoryMenu {
 
     @Override
         protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable ItemStackMenu previous) {
-        super.openInventorySynchronized(viewer, viewMode, previous);
         HotbarMenuHandler.getInstance().registerInventory(viewer, this, (HotbarMenu) previous);
+        super.openInventorySynchronized(viewer, viewMode, previous);
     }
 
     @Override
@@ -45,5 +47,18 @@ public class HotbarMenu extends AbstractInventoryMenu {
 
     public boolean isThisInventory(Inventory inventory, Player player) {
         return this.inventory != null && this.inventory.equals(inventory);
+    }
+
+    @Override
+    public void clearContent() {
+        //Don't clear content so the HotbarMenuHandler can store the current player items
+    }
+
+    @Override
+    public void setItem(int slot, ItemStack item) {
+        //NBTItem i = new NBTItem(item);
+        //i.setBoolean("pickup-protection", true);
+        //super.setItem(slot, i.getItem());
+        super.setItem(slot, item); //TODO pickup protection
     }
 }
