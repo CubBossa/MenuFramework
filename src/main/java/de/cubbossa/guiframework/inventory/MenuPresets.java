@@ -403,12 +403,12 @@ public class MenuPresets {
         for (Recipe recipe : recipes) {
             if (recipe instanceof ShapedRecipe shapedRecipe) {
                 String combined = concatShape(shapedRecipe.getShape());
+                System.out.println(combined);
                 for (int slotIndex = 0; slotIndex < 9; slotIndex++) {
                     if (combined.charAt(slotIndex) == ' ') {
-                        slotIndex++;
                         continue;
                     }
-                    animationMap[slotIndex++][recipeIndex] = shapedRecipe.getIngredientMap().get(combined.charAt(slotIndex));
+                    animationMap[slotIndex][recipeIndex] = shapedRecipe.getIngredientMap().get(combined.charAt(slotIndex));
                 }
 
             } else if (recipe instanceof ShapelessRecipe shapelessRecipe) {
@@ -457,7 +457,7 @@ public class MenuPresets {
     private static String concatShape(String[] shape) {
         StringBuilder combined = new StringBuilder();
         for (String string : shape) {
-            combined.append(string).append(Strings.repeat(" ", 3 - string.length()));
+            combined.append(string).append(Strings.repeat(" ", string.length() < 3 ? 3 - string.length() : 0));
         }
         return combined.toString();
     }

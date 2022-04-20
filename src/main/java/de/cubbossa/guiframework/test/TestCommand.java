@@ -176,6 +176,7 @@ public class TestCommand implements CommandExecutor {
                 break;
             case "5.3":
                 MenuPresets.newCraftMenu(Component.text("Craft hand:"), player.getInventory().getItemInMainHand(), 10).open(player);
+                break;
 
             case "6.1":
                 customBossBar.show(player);
