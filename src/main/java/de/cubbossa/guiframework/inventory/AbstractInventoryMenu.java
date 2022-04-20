@@ -55,7 +55,7 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
         }
 
         for (int slot : getSlots()) {
-            ItemStack item = itemStacks.getOrDefault(currentPage * slotsPerPage + slot, dynamicItemStacks.get(slot));
+            ItemStack item = getItemStack(currentPage * slotsPerPage + slot);
             if (item == null) {
                 continue;
             }
@@ -81,10 +81,8 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
             soundPlayer.get(actualSlot).accept(context.getPlayer());
         }
 
-        ContextConsumer<C> clickHandler = (ContextConsumer<C>) dynamicClickHandler.getOrDefault(context.getSlot(), new HashMap<>()).get(action);
-        if (clickHandler == null) {
-            clickHandler = getClickHandlerOrFallback(slot, action);
-        }
+        ContextConsumer<C> clickHandler = (ContextConsumer<C>) getClickHandler(slot, action);
+
         if (clickHandler != null) {
             //execute and catch exceptions so users can't dupe itemstacks.
             try {
@@ -126,8 +124,18 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
         dynamicProcessors.clear();
     }
 
-    protected <C extends TargetContext<?>> ContextConsumer<C> getClickHandlerOrFallback(int slot, Action<C> action) {
-        return (ContextConsumer<C>) clickHandler.getOrDefault(currentPage * slotsPerPage + slot, new HashMap<>()).getOrDefault(action, defaultClickHandler.get(action));
+    @Override
+    public ItemStack getItemStack(int slot) {
+        ItemStack stack = super.getItemStack(slot);
+        return stack == null ? dynamicItemStacks.get(currentPage != 0 ? slot % (currentPage * slotsPerPage) : slot) : stack;
+    }
+
+    protected ContextConsumer<? extends TargetContext<?>> getClickHandler(int slot, Action<?> action) {
+        var result = dynamicClickHandler.getOrDefault(currentPage != 0 ? slot % (currentPage * slotsPerPage) : slot, new HashMap<>()).get(action);
+        if (result != null) {
+            return result;
+        }
+        return clickHandler.getOrDefault(currentPage * slotsPerPage + slot, new HashMap<>()).get(action);
     }
 
     /**

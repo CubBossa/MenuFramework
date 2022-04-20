@@ -35,9 +35,6 @@ public class ListMenu extends InventoryMenu {
         super(rows, title);
         this.listSlots = listSlots.length == 0 ? IntStream.range(0, (rows - 1) * 9).toArray() : listSlots;
         this.listElements = new ArrayList<>();
-
-        this.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, rows - 1));
-        this.addPreset(MenuPresets.paginationRow(rows - 1, 0, 1, false, Action.Inventory.RIGHT, Action.Inventory.LEFT));
     }
 
     private Pair<ItemStack, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> getElement(int slot) {
@@ -47,8 +44,11 @@ public class ListMenu extends InventoryMenu {
                 index = i;
             }
         }
-        return index == -1 ? null : listElements.get(index + currentPage * listSlots.length);
-
+        if (index == -1) {
+            return null;
+        }
+        int i = index + currentPage * listSlots.length;
+        return i >= listElements.size() ? null : listElements.get(i);
     }
 
     @Override
@@ -58,9 +58,9 @@ public class ListMenu extends InventoryMenu {
     }
 
     @Override
-    protected <C extends TargetContext<?>> ContextConsumer<C> getClickHandlerOrFallback(int slot, Action<C> action) {
+    protected ContextConsumer<? extends TargetContext<?>> getClickHandler(int slot, Action<?> action) {
         var element = getElement(slot);
-        return element == null ? super.getClickHandlerOrFallback(slot, action) : (ContextConsumer<C>) element.getRight().get(action);
+        return element == null ? super.getClickHandler(slot, action) : element.getRight().get(action);
     }
 
     @Override

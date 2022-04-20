@@ -178,6 +178,13 @@ public class TestCommand implements CommandExecutor {
                 MenuPresets.newCraftMenu(Component.text("Craft hand:"), player.getInventory().getItemInMainHand(), 10).open(player);
                 break;
 
+            case "5.4":
+                MenuPresets.newPlayerListMenu(Component.text("Online"), 3, Action.Inventory.LEFT, playerTargetContext -> {
+                    playerTargetContext.getTarget().getInventory().addItem(new ItemStack(Material.DIAMOND_AXE));
+                    playerTargetContext.getPlayer().closeInventory();
+                }).open(player);
+                break;
+
             case "6.1":
                 customBossBar.show(player);
                 break;
@@ -191,6 +198,7 @@ public class TestCommand implements CommandExecutor {
                 hotbarMenu.setDefaultClickHandler(Action.Hotbar.DROP, clickContext -> hotbarMenu.close(clickContext.getPlayer()));
                 hotbarMenu.open(player);
                 break;
+
         }
         return false;
     }

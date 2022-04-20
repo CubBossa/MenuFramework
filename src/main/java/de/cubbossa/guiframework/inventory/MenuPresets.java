@@ -316,12 +316,12 @@ public class MenuPresets {
      *
      * @param title        The title of the list menu
      * @param rows         The amount of rows of the list menu
-     * @param actions      The actions that trigger the clickhandler. Mind that middle click is used for duplicate and right click for deleting.
+     * @param action       The action that triggers the clickhandler. Mind that middle click is used for duplicate and right click for deleting.
      * @param clickHandler The click handler to run when an object icon is clicked.
      * @return The instance of the list menu
      */
-    public static ListMenu newPlayerListMenu(Component title, int rows, Collection<Action<? extends TargetContext<?>>> actions, ContextConsumer<TargetContext<Player>> clickHandler) {
-        return newListMenu(title, rows, PLAYER_LIST_SUPPLIER, actions, clickHandler, null);
+    public static ListMenu newPlayerListMenu(Component title, int rows, Action<? extends TargetContext<?>> action, ContextConsumer<TargetContext<Player>> clickHandler) {
+        return newListMenu(title, rows, PLAYER_LIST_SUPPLIER, action, clickHandler, null);
     }
 
     /**
@@ -332,14 +332,16 @@ public class MenuPresets {
      * @param title            The title of the list menu
      * @param rows             The amount of rows of the list menu
      * @param supplier         The supplier that defines how to display the provided type of objects
-     * @param actions          The actions that trigger the clickhandler. Mind that middle click is used for duplicate and right click for deleting.
+     * @param action           The action that triggers the clickhandler. Mind that middle click is used for duplicate and right click for deleting.
      * @param clickHandler     The click handler to run when an object icon is clicked.
      * @param createNewHandler The createNewHandler allows to add own functions to provide the arguments for the call of {@link ListMenuManagerSupplier#newElementFromMenu(Object[])}
      * @param <T>              The type of objects to display in the list menu as itemstacks
      * @return The instance of the list menu
      */
-    public static <T> ListMenu newListMenu(Component title, int rows, ListMenuSupplier<T> supplier, Collection<Action<? extends TargetContext<?>>> actions, ContextConsumer<TargetContext<T>> clickHandler, @Nullable Consumer<Consumer<Object[]>> createNewHandler) {
+    public static <T> ListMenu newListMenu(Component title, int rows, ListMenuSupplier<T> supplier, Action<? extends TargetContext<?>> action, ContextConsumer<TargetContext<T>> clickHandler, @Nullable Consumer<Consumer<Object[]>> createNewHandler) {
         ListMenu listMenu = new ListMenu(rows, title);
+        listMenu.addPreset(fill(FILLER_LIGHT));
+        listMenu.addPreset(fillRow(FILLER_DARK, rows - 1));
         listMenu.addPreset(paginationRow(rows - 1, 0, 1, false, Action.Inventory.LEFT));
 
         if (supplier instanceof ListMenuManagerSupplier<T> manager) {
@@ -347,7 +349,9 @@ public class MenuPresets {
             for (T object : supplier.getElements()) {
                 listMenu.addListEntry(ButtonBuilder.buttonBuilder()
                         .withItemStack(manager.getDisplayItem(object))
-                        .withClickHandler(c -> clickHandler.accept(new TargetContext<>(c.getPlayer(), c.getSlot(), c.isCancelled(), object)), actions.toArray(Action[]::new))
+                        .withClickHandler(action, c -> {
+                            clickHandler.accept(new TargetContext<>(c.getPlayer(), c.getSlot(), c.isCancelled(), object));
+                        })
                         .withClickHandler(Action.Inventory.MIDDLE, clickContext -> {
                             manager.duplicateElementFromMenu(object);
                             listMenu.refresh(listMenu.getListSlots());
@@ -369,7 +373,11 @@ public class MenuPresets {
         } else {
 
             for (T object : supplier.getElements()) {
-                listMenu.addListEntry(ButtonBuilder.buttonBuilder().withItemStack(supplier.getDisplayItem(object)));
+                listMenu.addListEntry(ButtonBuilder.buttonBuilder()
+                        .withItemStack(supplier.getDisplayItem(object))
+                        .withClickHandler(action, c -> {
+                            clickHandler.accept(new TargetContext<>(c.getPlayer(), c.getSlot(), c.isCancelled(), object));
+                        }));
             }
         }
         return listMenu;
@@ -403,7 +411,6 @@ public class MenuPresets {
         for (Recipe recipe : recipes) {
             if (recipe instanceof ShapedRecipe shapedRecipe) {
                 String combined = concatShape(shapedRecipe.getShape());
-                System.out.println(combined);
                 for (int slotIndex = 0; slotIndex < 9; slotIndex++) {
                     if (combined.charAt(slotIndex) == ' ') {
                         continue;

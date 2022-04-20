@@ -51,7 +51,7 @@ public class InventoryMenu extends TopInventoryMenu {
 
 	@Override
 	protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable ItemStackMenu previous) {
-		clearContent();
+		//clearContent(); //TODO inventar ist noch null
 		super.openInventorySynchronized(viewer, viewMode, previous);
 		InventoryHandler.getInstance().registerInventory(viewer, this, (AbstractInventoryMenu) previous);
 	}
