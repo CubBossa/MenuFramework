@@ -330,6 +330,7 @@ public class MenuPresets {
 
     /**
      * Creates a list menu with all Online Players. The implementation of refresh on join and disconnect needs to be implemented manually.
+     * To refresh the current page, call {@link ListMenu#refresh(int...)} for {@link ListMenu#getListSlots()}
      *
      * @param title        The title of the list menu
      * @param rows         The amount of rows of the list menu
@@ -344,6 +345,7 @@ public class MenuPresets {
     /**
      * Creates a list menu from a supplier and allows to delete, duplicate and create elements if the supplier derives from
      * {@link ListMenuManagerSupplier}.
+     * To refresh the current page after adding a new element, call {@link ListMenu#refresh(int...)} for {@link ListMenu#getListSlots()}
      *
      * @param title            The title of the list menu
      * @param rows             The amount of rows of the list menu
@@ -366,15 +368,18 @@ public class MenuPresets {
                         .withClickHandler(c -> clickHandler.accept(new TargetContext<>(c.getPlayer(), c.getSlot(), c.isCancelled(), object)), actions.toArray(Action[]::new))
                         .withClickHandler(Action.Inventory.MIDDLE, clickContext -> {
                             manager.duplicateElementFromMenu(object);
+                            listMenu.refresh(listMenu.getListSlots());
                         })
                         .withClickHandler(Action.Inventory.RIGHT, clickContext -> {
                             manager.deleteFromMenu(object);
+                            listMenu.refresh(listMenu.getListSlots());
                         }));
             }
 
             ContextConsumer<ClickContext> c;
             if (createNewHandler == null) {
                 c = clickContext -> manager.newElementFromMenu(new Object[0]);
+                listMenu.refresh(listMenu.getListSlots());
             } else {
                 c = clickContext -> createNewHandler.accept(manager::newElementFromMenu);
             }

@@ -3,13 +3,17 @@ package de.cubbossa.guiframework.inventory.implementations;
 import de.cubbossa.guiframework.inventory.Action;
 import de.cubbossa.guiframework.inventory.ButtonBuilder;
 import de.cubbossa.guiframework.inventory.MenuPresets;
+import de.cubbossa.guiframework.inventory.context.ContextConsumer;
+import de.cubbossa.guiframework.inventory.context.TargetContext;
+import de.cubbossa.guiframework.util.Pair;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Collection;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.IntStream;
 
 /**
  * A Chest Menu, that provides methods to add list entries without worrying about the last slot.
@@ -18,9 +22,7 @@ public class ListMenu extends InventoryMenu {
 
     @Getter
     private final int[] listSlots;
-    private int listIndex;
-
-    //TODO items und clickhandler manuell speichern, um refresh methode zu implementieren
+    private final List<Pair<ItemStack, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>>> listElements;
 
     /**
      * Creates a new chest list menu with the given count of rows
@@ -31,11 +33,39 @@ public class ListMenu extends InventoryMenu {
      */
     public ListMenu(int rows, Component title, int... listSlots) {
         super(rows, title);
-        this.listSlots = listSlots;
-        this.listIndex = listSlots.length == 0 ? 0 : listSlots[0];
+        this.listSlots = listSlots.length == 0 ? IntStream.range(0, (rows - 1) * 9).toArray() : listSlots;
+        this.listElements = new ArrayList<>();
 
         this.loadPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, rows - 1));
         this.loadPreset(MenuPresets.paginationRow(rows - 1, 0, 1, false, Action.Inventory.RIGHT, Action.Inventory.LEFT));
+    }
+
+    private Pair<ItemStack, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> getElement(int slot) {
+        int index = -1;
+        for (int i = 0; i < listSlots.length; i++) {
+            if (listSlots[i] == slot) {
+                index = i;
+            }
+        }
+        return index == -1 ? null : listElements.get(index + currentPage * listSlots.length);
+
+    }
+
+    @Override
+    public ItemStack getItemStack(int slot) {
+        var element = getElement(slot);
+        return element == null ? super.getItemStack(slot) : element.getLeft();
+    }
+
+    @Override
+    protected <C extends TargetContext<?>> ContextConsumer<C> getClickHandlerOrFallback(int slot, Action<C> action) {
+        var element = getElement(slot);
+        return element == null ? super.getClickHandlerOrFallback(slot, action) : (ContextConsumer<C>) element.getRight().get(action);
+    }
+
+    @Override
+    public int getMaxPage() {
+        return Integer.min(super.getMaxPage(), listElements.size() % listSlots.length);
     }
 
     /**
@@ -43,31 +73,33 @@ public class ListMenu extends InventoryMenu {
      * Afterwards, list entries can be overwritten by placing a normal button at the same slot.
      *
      * @param buttonBuilder a button to insert.
+     * @return the reference to the stored object Pair. Can be used to remove list elements
      */
-    public void addListEntry(ButtonBuilder buttonBuilder) {
-        setButton(getNextListSlot(), buttonBuilder);
-        listIndex++;
+    public Pair<ItemStack, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> addListEntry(ButtonBuilder buttonBuilder) {
+        var pair = new Pair<>(buttonBuilder.getStack(), buttonBuilder.getClickHandler());
+        listElements.add(pair);
+        return pair;
     }
 
     /**
-     * Adds a collection as list entries to the list. This might be useful to display all online players e.g.
-     *
-     * @param collection   the collection of objects to add
-     * @param itemProvider a function to display an object of the collection as itemstack
-     * @param clickHandler a click handler to run when a list entry is clicked
-     * @param actions      the actions that will trigger the click handler
-     * @param <E>          the entry type of the collection
+     * Removes the last element from the list
      */
-    public <E> void addListEntries(Collection<E> collection, Function<E, ItemStack> itemProvider, Consumer<E> clickHandler, Action<?>... actions) {
-        collection.forEach(e -> addListEntry(ButtonBuilder.buttonBuilder()
-                .withItemStack(itemProvider.apply(e))
-                .withClickHandler(clickContext -> clickHandler.accept(e), actions)));
+    public void popListEntry() {
+        listElements.remove(listElements.get(listElements.size() - 1));
     }
 
     /**
-     * @return the next free list slot
+     * Removes the element from this list
+     * @param entry The instance to remove - store it when calling {@link #addListEntry(ButtonBuilder)}
      */
-    public int getNextListSlot() {
-        return listSlots.length == 0 ? listIndex : listIndex / listSlots.length * slotsPerPage + listSlots[listIndex % listSlots.length];
+    public void removeListEntry(Pair<ItemStack, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> entry) {
+        listElements.remove(entry);
+    }
+
+    /**
+     * Clears all list entries
+     */
+    public void clearListEntries() {
+        listElements.clear();
     }
 }
