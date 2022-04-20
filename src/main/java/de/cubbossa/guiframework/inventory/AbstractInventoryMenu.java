@@ -15,7 +15,7 @@ import java.util.logging.Level;
 public abstract class AbstractInventoryMenu extends ItemStackMenu {
 
     protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> clickHandler;
-    protected final List<DynamicMenuProcessor<Action<?>, ? extends TargetContext<?>>> dynamicProcessors;
+    protected final List<DynamicMenuProcessor<? extends TargetContext<?>>> dynamicProcessors;
     protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> dynamicClickHandler;
     protected final Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> defaultClickHandler;
     protected final Map<Action<?>, Boolean> defaultCancelled;
@@ -104,9 +104,8 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
      * @param menuProcessor the instance of the processor. Use the BiConsumer parameters to add items and clickhandler
      *                      to a specific slot.
      */
-    public <C extends ClickContext> DynamicMenuProcessor<Action<C>, C> loadPreset(DynamicMenuProcessor<Action<C>, C> menuProcessor) {
-        DynamicMenuProcessor d = menuProcessor;
-        dynamicProcessors.add(d);
+    public DynamicMenuProcessor<? extends TargetContext<?>> addPreset(DynamicMenuProcessor<? extends TargetContext<?>> menuProcessor) {
+        dynamicProcessors.add(menuProcessor);
         return menuProcessor;
     }
 
@@ -115,7 +114,7 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
      *
      * @param menuProcessor the preset to remove
      */
-    public <C extends ClickContext> void unloadPreset(DynamicMenuProcessor<Action<C>, C> menuProcessor) {
+    public void removePreset(DynamicMenuProcessor<? extends TargetContext<?>> menuProcessor) {
         dynamicProcessors.remove(menuProcessor);
     }
 
@@ -123,7 +122,7 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
      * Removes all presets. The preset icons will stay in all open menus of this instance until the menu gets refreshed.
      * Reopen them or call {@link #refresh(int...)} on the according or just all slots with {@link #getSlots()}
      */
-    public void unloadAllPresets() {
+    public void removeAllPresets() {
         dynamicProcessors.clear();
     }
 

@@ -7,7 +7,6 @@ import de.cubbossa.guiframework.bossbar.CustomBossBar;
 import de.cubbossa.guiframework.chat.ComponentMenu;
 import de.cubbossa.guiframework.chat.TextMenu;
 import de.cubbossa.guiframework.inventory.*;
-import de.cubbossa.guiframework.inventory.implementations.CraftMenu;
 import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.ListMenu;
 import de.cubbossa.guiframework.scoreboard.CustomScoreboard;
@@ -66,7 +65,7 @@ public class TestCommand implements CommandExecutor {
     InventoryMenu exampleMenu = new InventoryMenu(4, Component.text("Example Inventory"));
     BottomInventoryMenu bottomMenu = new BottomInventoryMenu(1);
     ListMenu listMenu = new ListMenu(4, Component.text("Weapons"));
-    InventoryMenu craftingMenu = new CraftMenu(new ItemStack(Material.DIAMOND_AXE), 10);
+    InventoryMenu craftingMenu = MenuPresets.newCraftMenu(Component.text("Craft Axe:"), new ItemStack(Material.DIAMOND_AXE), 10);
 
     CustomBossBar customBossBar = CustomBossBar.Builder.builder("lobby")
             .withText("Welcome to Example Empire!")
@@ -82,9 +81,9 @@ public class TestCommand implements CommandExecutor {
             .build();
 
     public TestCommand() {
-        exampleMenu.loadPreset(MenuPresets.fill(MenuPresets.FILLER_LIGHT));
-        exampleMenu.loadPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 3));
-        exampleMenu.loadPreset(MenuPresets.paginationRow(3, 0, 1, false, Action.Inventory.LEFT));
+        exampleMenu.addPreset(MenuPresets.fill(MenuPresets.FILLER_LIGHT));
+        exampleMenu.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 3));
+        exampleMenu.addPreset(MenuPresets.paginationRow(3, 0, 1, false, Action.Inventory.LEFT));
         int i = 0;
         for (Material material : MaterialTags.BEDS.getValues()) {
             exampleMenu.setButton(i++, ButtonBuilder.buttonBuilder()
@@ -99,8 +98,8 @@ public class TestCommand implements CommandExecutor {
         exampleMenu.setItem(-70, new ItemStack(Material.STONE));
         exampleMenu.updateTitle(Component.text("Seite 2"), 1);
 
-        bottomMenu.loadPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 1));
-        bottomMenu.loadPreset(MenuPresets.paginationRow(exampleMenu, 1, 0, 1, false, Action.Inventory.LEFT, Action.Inventory.RIGHT));
+        bottomMenu.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 1));
+        bottomMenu.addPreset(MenuPresets.paginationRow(exampleMenu, 1, 0, 1, false, Action.Inventory.LEFT, Action.Inventory.RIGHT));
 
         for (Material material : MaterialTags.ENCHANTABLE.getValues()) {
             listMenu.addListEntry(ButtonBuilder.buttonBuilder().withItemStack(material));
@@ -176,7 +175,7 @@ public class TestCommand implements CommandExecutor {
                 craftingMenu.open(player);
                 break;
             case "5.3":
-                new CraftMenu(player.getInventory().getItemInMainHand(), 10).open(player);
+                MenuPresets.newCraftMenu(Component.text("Craft hand:"), player.getInventory().getItemInMainHand(), 10).open(player);
 
             case "6.1":
                 customBossBar.show(player);

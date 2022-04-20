@@ -28,8 +28,8 @@ public class LobbySelectorModule implements CommandExecutor {
 
     public LobbySelectorModule(JavaPlugin plugin) {
         lobbyMenu = new InventoryMenu(4, Component.text("Choose a lobby"));
-        lobbyMenu.loadPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 3));
-        lobbyMenu.loadPreset(MenuPresets.paginationRow(3, 0, 1, true, Action.Inventory.LEFT, Action.Inventory.RIGHT));
+        lobbyMenu.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 3));
+        lobbyMenu.addPreset(MenuPresets.paginationRow(3, 0, 1, true, Action.Inventory.LEFT, Action.Inventory.RIGHT));
 
         int slot = 0;
         for(NetworkServer lobby : ServerHandler.getInstance().getServers(ServerHandler.ServerType.LOBBY)) {

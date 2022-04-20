@@ -25,7 +25,7 @@ public class GameSelectorModule implements CommandExecutor {
     public GameSelectorModule(JavaPlugin plugin) {
 
         gameSelector = new InventoryMenu(3, Component.text("Choose A Game"));
-        gameSelector.loadPreset(MenuPresets.fill(MenuPresets.FILLER_LIGHT));
+        gameSelector.addPreset(MenuPresets.fill(MenuPresets.FILLER_LIGHT));
         gameSelector.setButton(4, ButtonBuilder.buttonBuilder()
                         .withItemStack(Material.NETHERITE_SWORD, Component.text("Hierarchy", NamedTextColor.DARK_RED))
                         .withClickHandler(clickContext -> ServerHandler.getInstance().connect(clickContext.getPlayer(), "hierachy_01")));

@@ -36,8 +36,8 @@ public class ListMenu extends InventoryMenu {
         this.listSlots = listSlots.length == 0 ? IntStream.range(0, (rows - 1) * 9).toArray() : listSlots;
         this.listElements = new ArrayList<>();
 
-        this.loadPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, rows - 1));
-        this.loadPreset(MenuPresets.paginationRow(rows - 1, 0, 1, false, Action.Inventory.RIGHT, Action.Inventory.LEFT));
+        this.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, rows - 1));
+        this.addPreset(MenuPresets.paginationRow(rows - 1, 0, 1, false, Action.Inventory.RIGHT, Action.Inventory.LEFT));
     }
 
     private Pair<ItemStack, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> getElement(int slot) {
