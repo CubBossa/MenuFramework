@@ -6,6 +6,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Optional;
@@ -67,5 +68,11 @@ public abstract class TopInventoryMenu extends AbstractInventoryMenu {
     @Override
     protected void openInventory(Player player, Inventory inventory) {
         player.openInventory(inventory);
+    }
+
+    @Override
+    protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable ItemStackMenu previous) {
+        super.openInventorySynchronized(viewer, viewMode, previous);
+        InventoryHandler.getInstance().registerInventory(viewer, this, (AbstractInventoryMenu) previous);
     }
 }

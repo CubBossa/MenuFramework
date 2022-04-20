@@ -98,9 +98,11 @@ public class TestCommand implements CommandExecutor {
         exampleMenu.setItem(-70, new ItemStack(Material.STONE));
         exampleMenu.updateTitle(Component.text("Seite 2"), 1);
 
-        bottomMenu.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 1));
-        bottomMenu.addPreset(MenuPresets.paginationRow(exampleMenu, 1, 0, 1, false, Action.Inventory.LEFT, Action.Inventory.RIGHT));
+        bottomMenu.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 0));
+        bottomMenu.addPreset(MenuPresets.paginationRow(exampleMenu, 0, 0, 1, false, Action.Inventory.LEFT, Action.Inventory.RIGHT));
 
+        listMenu.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 3));
+        listMenu.addPreset(MenuPresets.paginationRow(3, 0, 1, false, Action.Inventory.LEFT));
         for (Material material : MaterialTags.ENCHANTABLE.getValues()) {
             listMenu.addListEntry(ButtonBuilder.buttonBuilder().withItemStack(material));
         }

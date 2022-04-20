@@ -41,7 +41,7 @@ public class BottomInventoryMenu extends AbstractInventoryMenu {
 
     @Override
     public boolean isThisInventory(Inventory inventory, Player player) {
-        return inventory.equals(player.getInventory());
+        return inventory != null && inventory.equals(player.getInventory());
     }
 
     @Override
@@ -57,6 +57,7 @@ public class BottomInventoryMenu extends AbstractInventoryMenu {
     protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable ItemStackMenu previous) {
         //TODO store inventory;
         super.openInventorySynchronized(viewer, viewMode, previous);
+        InventoryHandler.getInstance().registerInventory(viewer, this, (AbstractInventoryMenu) previous);
     }
 
     @Override
@@ -70,7 +71,7 @@ public class BottomInventoryMenu extends AbstractInventoryMenu {
         for (int slot : slots) {
             int realIndex = currentPage * slotsPerPage + slot;
             viewer.keySet().stream().map(Bukkit::getPlayer).filter(Objects::nonNull).forEach(player -> {
-                player.getInventory().setItem(slot, itemStacks.getOrDefault(realIndex, dynamicItemStacks.get(slot)));
+                player.getInventory().setItem(slot, getItemStack(realIndex));
             });
         }
     }

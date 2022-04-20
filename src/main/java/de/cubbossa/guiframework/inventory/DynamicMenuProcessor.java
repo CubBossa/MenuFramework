@@ -13,7 +13,7 @@ import java.util.function.BiConsumer;
  */
 public interface DynamicMenuProcessor<C extends TargetContext<?>> {
 
-    void placeDynamicEntries(ItemStackMenu menu,
+    void placeDynamicEntries(AbstractInventoryMenu menu,
                              BiConsumer<Integer, ItemStack> placeDynamicItem,
                              BiConsumer<Integer, Map<Action<C>, ContextConsumer<C>>> placeDynamicClickHandler);
 }

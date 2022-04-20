@@ -190,34 +190,33 @@ public class MenuPresets {
      */
     public static <C extends TargetContext<?>> DynamicMenuProcessor<C> paginationRow(AbstractInventoryMenu otherMenu, int row, int leftSlot, int rightSlot, boolean hideDisabled, Action<C>... actions) {
         return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
+            int lSlot = row * 9 + leftSlot;
+            int rSlot = row * 9 + rightSlot;
 
+            // place next and previous items
             boolean leftLimit = otherMenu.getCurrentPage() <= otherMenu.getMinPage();
-            boolean rightLimit = otherMenu.getCurrentPage() >= otherMenu.getMaxPage();
-            if (!leftLimit || hideDisabled) {
-                placeDynamicItem.accept(row * 9 + leftSlot, leftLimit ? LEFT_DISABLED : LEFT);
+            if (!leftLimit || !hideDisabled) {
+                placeDynamicItem.accept(lSlot, leftLimit ? LEFT_DISABLED : LEFT);
             }
-            placeDynamicClickHandler.accept(row * 9 + leftSlot, populate(c -> {
-                boolean currentLeftLimit = otherMenu.getCurrentPage() <= otherMenu.getMinPage();
-                boolean currentRightLimit = otherMenu.getCurrentPage() >= otherMenu.getMaxPage();
-                menu.setDynamicItem(row * 9 + leftSlot, currentLeftLimit ? LEFT_DISABLED : LEFT);
-                menu.setDynamicItem(row * 9 + rightSlot, currentRightLimit ? RIGHT_DISABLED : RIGHT);
-                menu.refresh(row * 9 + leftSlot, row * 9 + rightSlot);
-                if (!currentLeftLimit) {
+            boolean rightLimit = otherMenu.getCurrentPage() >= otherMenu.getMaxPage();
+            if (!rightLimit || !hideDisabled) {
+                placeDynamicItem.accept(rSlot, rightLimit ? RIGHT_DISABLED : RIGHT);
+            }
+
+            // handle clicking
+            placeDynamicClickHandler.accept(lSlot, populate(c -> {
+                if (otherMenu.getCurrentPage() > otherMenu.getMinPage()) {
                     otherMenu.openPreviousPage(c.getPlayer());
+                    menu.refreshDynamicProviders();
+                    menu.refresh(menu.getSlots());
                 }
             }, actions));
-            if (!rightLimit || !hideDisabled) {
-                placeDynamicItem.accept(row * 9 + rightSlot, rightLimit ? RIGHT_DISABLED : RIGHT);
-            }
-            placeDynamicClickHandler.accept(row * 9 + rightSlot, populate(c -> {
-                //TODO chaos
-                boolean currentLeftLimit = otherMenu.getCurrentPage() <= otherMenu.getMinPage();
-                boolean currentRightLimit = otherMenu.getCurrentPage() >= otherMenu.getMaxPage();
-                menu.setDynamicItem(row * 9 + leftSlot, currentLeftLimit ? LEFT_DISABLED : LEFT);
-                menu.setDynamicItem(row * 9 + rightSlot, currentRightLimit ? RIGHT_DISABLED : RIGHT);
-                menu.refresh(row * 9 + leftSlot, row * 9 + rightSlot);
-                if (!currentRightLimit) {
+
+            placeDynamicClickHandler.accept(rSlot, populate(c -> {
+                if (otherMenu.getCurrentPage() < otherMenu.getMaxPage()) {
                     otherMenu.openNextPage(c.getPlayer());
+                    menu.refreshDynamicProviders();
+                    menu.refresh(menu.getSlots());
                 }
             }, actions));
         };

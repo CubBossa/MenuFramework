@@ -47,12 +47,7 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
             currentPage = maxPage;
         }
 
-        dynamicItemStacks.clear();
-        dynamicClickHandler.clear();
-        for (DynamicMenuProcessor processor : dynamicProcessors) {
-            processor.placeDynamicEntries(this, (integer, itemStack) -> dynamicItemStacks.put((Integer) integer, (ItemStack) itemStack),
-                    (key, value) -> dynamicClickHandler.put((Integer) key, (Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>) value));
-        }
+        refreshDynamicProviders();
 
         for (int slot : getSlots()) {
             ItemStack item = getItemStack(currentPage * slotsPerPage + slot);
@@ -63,6 +58,16 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
         }
         openInventory(viewer, inventory);
         this.viewer.put(viewer.getUniqueId(), viewMode);
+    }
+
+    public void refreshDynamicProviders() {
+        dynamicItemStacks.clear();
+        dynamicClickHandler.clear();
+        for (DynamicMenuProcessor processor : dynamicProcessors) {
+            processor.placeDynamicEntries(this,
+                    (integer, itemStack) -> dynamicItemStacks.put((Integer) integer, (ItemStack) itemStack),
+                    (key, value) -> dynamicClickHandler.put((Integer) key, (Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>) value));
+        }
     }
 
     public <C extends TargetContext<?>> boolean handleInteract(Action<C> action, C context) {
@@ -127,26 +132,22 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
     @Override
     public ItemStack getItemStack(int slot) {
         ItemStack stack = super.getItemStack(slot);
-        return stack == null ? dynamicItemStacks.get(currentPage != 0 ? slot % (currentPage * slotsPerPage) : slot) : stack;
+        if (stack != null) {
+            return stack;
+        }
+        int dynSlot = (slot + slotsPerPage) % slotsPerPage;
+        return dynamicItemStacks.get(dynSlot < 0 ? dynSlot + slotsPerPage : dynSlot);
     }
 
     protected ContextConsumer<? extends TargetContext<?>> getClickHandler(int slot, Action<?> action) {
-        var result = dynamicClickHandler.getOrDefault(currentPage != 0 ? slot % (currentPage * slotsPerPage) : slot, new HashMap<>()).get(action);
+        int i = slot % slotsPerPage;
+        var result = dynamicClickHandler.getOrDefault(i < 0 ? i + slotsPerPage : i, new HashMap<>()).get(action);
         if (result != null) {
             return result;
         }
         return clickHandler.getOrDefault(currentPage * slotsPerPage + slot, new HashMap<>()).get(action);
     }
 
-    /**
-     * Clears all minecraft inventory slots. It does not clear the menu item map or any click handlers.
-     * After reopening or refreshing the menu, all items will be back.
-     */
-    public void clearContent() {
-        for (int slot : getSlots()) {
-            inventory.setItem(slot, null);
-        }
-    }
 
     /**
      * Sets an inventory icon, sound and click handler from a button builder

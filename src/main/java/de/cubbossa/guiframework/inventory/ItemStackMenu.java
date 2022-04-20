@@ -203,7 +203,7 @@ public abstract class ItemStackMenu {
     public void refresh(int... slots) {
         for (int slot : slots) {
             int realIndex = currentPage * slotsPerPage + slot;
-            inventory.setItem(slot, itemStacks.getOrDefault(realIndex, dynamicItemStacks.get(slot)));
+            inventory.setItem(slot, getItemStack(realIndex));
         }
     }
 

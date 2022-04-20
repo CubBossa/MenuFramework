@@ -34,9 +34,6 @@ public class InventoryListener implements Listener {
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent event) {
 		menus.forEach(menu -> {
-			if (menu instanceof TopInventoryMenu && event.getClickedInventory() instanceof PlayerInventory) {
-				return;
-			}
 			if (event.getWhoClicked() instanceof Player player) {
 				if (!menu.isThisInventory(event.getClickedInventory(), player)) {
 					return;
@@ -49,9 +46,6 @@ public class InventoryListener implements Listener {
 	@EventHandler
 	public void onInventoryDrag(InventoryDragEvent event) {
 		menus.forEach(menu -> {
-			if (menu instanceof TopInventoryMenu && event.getInventory() instanceof PlayerInventory) {
-				return;
-			}
 			if (event.getWhoClicked() instanceof Player player) {
 				if (!menu.isThisInventory(event.getInventory(), player)) {
 					return;
