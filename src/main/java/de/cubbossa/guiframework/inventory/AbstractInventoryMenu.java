@@ -81,9 +81,9 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
             soundPlayer.get(actualSlot).accept(context.getPlayer());
         }
 
-        ContextConsumer<C> clickHandler = getClickHandlerOrFallback(slot, action);
-        if (clickHandler == null) { //TODO wrong order
-            clickHandler = (ContextConsumer<C>) dynamicClickHandler.getOrDefault(context.getSlot(), new HashMap<>()).get(action);
+        ContextConsumer<C> clickHandler = (ContextConsumer<C>) dynamicClickHandler.getOrDefault(context.getSlot(), new HashMap<>()).get(action);
+        if (clickHandler == null) {
+            clickHandler = getClickHandlerOrFallback(slot, action);
         }
         if (clickHandler != null) {
             //execute and catch exceptions so users can't dupe itemstacks.
