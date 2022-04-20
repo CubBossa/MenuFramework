@@ -1,6 +1,7 @@
 package de.cubbossa.guiframework.inventory.implementations;
 
 import com.google.common.base.Strings;
+import de.cubbossa.guiframework.inventory.Action;
 import de.cubbossa.guiframework.inventory.context.ContextConsumer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -12,13 +13,16 @@ import org.bukkit.inventory.ShapelessRecipe;
 
 import java.util.List;
 
+/**
+ * A Crafting Table Menu that animates between all recepies for a certain ItemStack
+ */
 public class CraftMenu extends InventoryMenu {
 
     private final ItemStack[][] animationMap;
 
     /**
      * Creates an inventory with an animation that switches the crafting recipes for this itemstack.
-     * use {@link #setClickHandler(int, Object, ContextConsumer)} to set ClickHandler for the
+     * use {@link #setClickHandler(int, Action, ContextConsumer)} to set ClickHandler for the
      * crafting slots. 0 = Result slot, 1 - 9 = Crafting Slots.
      * <p>
      * This renders only shaped and shapeless recipes but no furnace recipes.

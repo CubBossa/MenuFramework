@@ -1,5 +1,6 @@
 package de.cubbossa.guiframework.inventory;
 
+import com.google.common.base.Preconditions;
 import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.inventory.context.AnimationContext;
 import de.cubbossa.guiframework.inventory.context.CloseContext;
@@ -189,6 +190,7 @@ public abstract class ItemStackMenu {
      * @param item the item to render
      */
     public void setDynamicItem(int slot, ItemStack item) {
+        Preconditions.checkArgument(slotsPerPage <= slot ||slot < 0, "Slot must be on first page.");
         dynamicItemStacks.put(slot, item);
     }
 

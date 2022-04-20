@@ -129,6 +129,7 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
     public <C extends ClickContext> void unloadPreset(DynamicMenuProcessor<Action<C>, C> menuProcessor) {
         dynamicProcessors.remove(menuProcessor);
     }
+
     /**
      * Removes all presets. The preset icons will stay in all open menus of this instance until the menu gets refreshed.
      * Reopen them or call {@link #refresh(int...)} on the according or just all slots with {@link #getSlots()}
@@ -188,6 +189,12 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
 
     public <C extends ClickContext> void setDefaultClickHandler(Action<C> action, ContextConsumer<C> clickHandler) {
         defaultClickHandler.put(action, clickHandler);
+    }
+
+    public void setDynamicClickHandler(int slot, Action<?> action, ContextConsumer<ClickContext> clickHandler) {
+        Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> map = dynamicClickHandler.getOrDefault(slot, new HashMap<>());
+        map.put(action, clickHandler);
+        dynamicClickHandler.put(slot, map);
     }
 
     public void removeClickHandler(int... slots) {

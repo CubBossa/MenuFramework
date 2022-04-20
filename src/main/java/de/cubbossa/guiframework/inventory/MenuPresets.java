@@ -1,18 +1,23 @@
 package de.cubbossa.guiframework.inventory;
 
 import de.cubbossa.guiframework.inventory.context.ClickContext;
+import de.cubbossa.guiframework.inventory.context.CloseContext;
 import de.cubbossa.guiframework.inventory.context.ContextConsumer;
+import de.cubbossa.guiframework.inventory.context.TargetContext;
+import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
+import de.cubbossa.guiframework.inventory.implementations.ListMenu;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 @SuppressWarnings("unchecked")
@@ -30,6 +35,21 @@ public class MenuPresets {
     public static ItemStack DOWN_DISABLED = createItemStack(Material.MAP, Component.text("Down", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false), null);
     public static ItemStack RIGHT_DISABLED = createItemStack(Material.MAP, Component.text("Next", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false), null);
     public static ItemStack LEFT_DISABLED = createItemStack(Material.MAP, Component.text("Previous", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false), null);
+    public static ItemStack ACCEPT = createItemStack(Material.LIME_CONCRETE, Component.text("Accept", NamedTextColor.GREEN).decoration(TextDecoration.ITALIC, false), null);
+    public static ItemStack DECLINE = createItemStack(Material.RED_CONCRETE, Component.text("Decline", NamedTextColor.RED).decoration(TextDecoration.ITALIC, false), null);
+    public static ItemStack NEW = createItemStack(Material.EMERALD, Component.text("New", NamedTextColor.GREEN).decoration(TextDecoration.ITALIC, false), null);
+
+    public static ListMenuSupplier<Player> PLAYER_LIST_SUPPLIER = new ListMenuSupplier<>() {
+        @Override
+        public Collection<Player> getElements() {
+            return (Collection<Player>) Bukkit.getOnlinePlayers();
+        }
+
+        @Override
+        public ItemStack getDisplayItem(Player object) {
+            return createItemStack(Material.PLAYER_HEAD, object.displayName(), null);
+        }
+    };
 
     /**
      * Fills one page of an inventory menu with an itemstack
@@ -296,6 +316,82 @@ public class MenuPresets {
                     .forEach(value -> placeDynamicItem.accept(value, stack));
         };
     }
+
+    public static InventoryMenu newCraftMenu(Component title, ItemStack stack) {
+        return null; //TODO
+    }
+
+    private static <T, C extends ClickContext> DynamicMenuProcessor<T, C> newItem(int slot, ContextConsumer<C> newHandler) {
+        return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
+            placeDynamicItem.accept(slot, NEW);
+            placeDynamicClickHandler.accept(slot, populate(newHandler, (T) Action.Inventory.LEFT)); //TODO T zu actions
+        };
+    }
+
+    /**
+     * Creates a list menu with all Online Players. The implementation of refresh on join and disconnect needs to be implemented manually.
+     *
+     * @param title        The title of the list menu
+     * @param rows         The amount of rows of the list menu
+     * @param actions      The actions that trigger the clickhandler. Mind that middle click is used for duplicate and right click for deleting.
+     * @param clickHandler The click handler to run when an object icon is clicked.
+     * @return The instance of the list menu
+     */
+    public static ListMenu newPlayerListMenu(Component title, int rows, Collection<Action<? extends TargetContext<?>>> actions, ContextConsumer<TargetContext<Player>> clickHandler) {
+        return newListMenu(title, rows, PLAYER_LIST_SUPPLIER, actions, clickHandler, null);
+    }
+
+    /**
+     * Creates a list menu from a supplier and allows to delete, duplicate and create elements if the supplier derives from
+     * {@link ListMenuManagerSupplier}.
+     *
+     * @param title            The title of the list menu
+     * @param rows             The amount of rows of the list menu
+     * @param supplier         The supplier that defines how to display the provided type of objects
+     * @param actions          The actions that trigger the clickhandler. Mind that middle click is used for duplicate and right click for deleting.
+     * @param clickHandler     The click handler to run when an object icon is clicked.
+     * @param createNewHandler The createNewHandler allows to add own functions to provide the arguments for the call of {@link ListMenuManagerSupplier#newElementFromMenu(Object[])}
+     * @param <T>              The type of objects to display in the list menu as itemstacks
+     * @return The instance of the list menu
+     */
+    public static <T> ListMenu newListMenu(Component title, int rows, ListMenuSupplier<T> supplier, Collection<Action<? extends TargetContext<?>>> actions, ContextConsumer<TargetContext<T>> clickHandler, @Nullable Consumer<Consumer<Object[]>> createNewHandler) {
+        ListMenu listMenu = new ListMenu(rows, title);
+        listMenu.loadPreset(paginationRow(rows - 1, 0, 1, false, Action.Inventory.LEFT));
+
+        if (supplier instanceof ListMenuManagerSupplier<T> manager) {
+
+            for (T object : supplier.getElements()) {
+                listMenu.addListEntry(ButtonBuilder.buttonBuilder()
+                        .withItemStack(manager.getDisplayItem(object))
+                        .withClickHandler(c -> clickHandler.accept(new TargetContext<>(c.getPlayer(), c.getSlot(), c.isCancelled(), object)), actions.toArray(Action[]::new))
+                        .withClickHandler(Action.Inventory.MIDDLE, clickContext -> {
+                            manager.duplicateElementFromMenu(object);
+                        })
+                        .withClickHandler(Action.Inventory.RIGHT, clickContext -> {
+                            manager.deleteFromMenu(object);
+                        }));
+            }
+
+            ContextConsumer<ClickContext> c;
+            if (createNewHandler == null) {
+                c = clickContext -> manager.newElementFromMenu(new Object[0]);
+            } else {
+                c = clickContext -> createNewHandler.accept(manager::newElementFromMenu);
+            }
+            listMenu.loadPreset(newItem(rows * 9 - 1, c));
+        } else {
+
+            for (T object : supplier.getElements()) {
+                listMenu.addListEntry(ButtonBuilder.buttonBuilder().withItemStack(supplier.getDisplayItem(object)));
+            }
+        }
+        return listMenu;
+    }
+
+    public static InventoryMenu newConfirmMenu(Component title, ContextConsumer<ClickContext> accept, ContextConsumer<ClickContext> decline, ContextConsumer<CloseContext> closeHandler) {
+        return null; //TODO
+    }
+
 
     private static <T, C extends ClickContext> Map<T, ContextConsumer<C>> populate(ContextConsumer<C> contextConsumer, T... actions) {
         Map<T, ContextConsumer<C>> map = new HashMap<>();
