@@ -79,6 +79,6 @@ public abstract class TopInventoryMenu extends AbstractInventoryMenu {
     @Override
     protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable ItemStackMenu previous) {
         super.openInventorySynchronized(viewer, viewMode, previous);
-        InventoryHandler.getInstance().registerInventory(viewer, this, (AbstractInventoryMenu) previous);
+        InventoryHandler.getInstance().registerTopInventory(viewer, this, (TopInventoryMenu) previous);
     }
 }

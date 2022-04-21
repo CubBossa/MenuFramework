@@ -1,5 +1,6 @@
 package de.cubbossa.guiframework.inventory;
 
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -12,6 +13,7 @@ import java.util.stream.IntStream;
 
 public class BottomInventoryMenu extends AbstractInventoryMenu {
 
+    @Getter
     private final int[] rows;
 
     private final Map<UUID, ItemStack[]> inventoryStorage;
@@ -55,16 +57,14 @@ public class BottomInventoryMenu extends AbstractInventoryMenu {
 
     @Override
     protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable ItemStackMenu previous) {
-        //TODO store inventory;
+        InventoryHandler.getInstance().registerBottomInventory(viewer, this, (BottomInventoryMenu) previous);
         super.openInventorySynchronized(viewer, viewMode, previous);
-        InventoryHandler.getInstance().registerInventory(viewer, this, (AbstractInventoryMenu) previous);
     }
 
     @Override
     public void close(Player viewer) {
         super.close(viewer);
         InventoryHandler.getInstance().closeCurrentBottomMenu(viewer);
-        //TODO restore inventory;
     }
 
     @Override
