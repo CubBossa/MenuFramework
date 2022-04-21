@@ -126,7 +126,24 @@ public abstract class ItemStackMenu {
         openInventorySynchronized(viewer, ViewMode.MODIFY, previous);
     }
 
-    protected abstract void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable ItemStackMenu previous);
+    protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable ItemStackMenu previous) {
+
+        if (viewer.isSleeping()) {
+            viewer.wakeup(true);
+        }
+        render(viewer);
+        openInventory(viewer, inventory);
+
+        if (this.viewer.isEmpty()) {
+            animations.forEach((integer, animations1) -> {
+                int i = integer - currentPage * slotsPerPage;
+                if (i >= 0 && i < slotsPerPage) {
+                    animations1.forEach(Animation::play);
+                }
+            });
+        }
+        this.viewer.put(viewer.getUniqueId(), viewMode);
+    }
 
     public abstract void render(Player viewer);
 
@@ -139,6 +156,9 @@ public abstract class ItemStackMenu {
 
         if (this.viewer.remove(viewer.getUniqueId()) == null) {
             return;
+        }
+        if (this.viewer.size() == 0) {
+            animations.forEach((integer, animations1) -> animations1.forEach(Animation::stop));
         }
         if (closeHandler != null) {
             try {
@@ -272,24 +292,20 @@ public abstract class ItemStackMenu {
     public abstract int getMaxPage();
 
 
-    public Collection<Animation> playAnimation(int slot, int ticks, Function<AnimationContext, ItemStack> itemUpdater) {
+    public Animation playAnimation(int slot, int ticks, Function<AnimationContext, ItemStack> itemUpdater) {
         return playAnimation(slot, -1, ticks, itemUpdater);
     }
 
-    public Collection<Animation> playAnimation(int slot, int intervals, int ticks, Function<AnimationContext, ItemStack> itemUpdater) {
-        Collection<Animation> newAnimations = new HashSet<>();
+    public Animation playAnimation(int slot, int intervals, int ticks, Function<AnimationContext, ItemStack> itemUpdater) {
         Animation animation = new Animation(slot, intervals, ticks, itemUpdater);
 
-        Collection<Animation> animations = this.animations.get(slot);
-        if (animations == null) {
-            animations = new HashSet<>();
-        }
+        Collection<Animation> animations = this.animations.getOrDefault(slot, new HashSet<>());
         animations.add(animation);
-        newAnimations.add(animation);
+        this.animations.put(slot, animations);
         if (inventory != null && viewer.size() > 0) {
             animation.play();
         }
-        return newAnimations;
+        return animation;
     }
 
     public void stopAnimation(int... slots) {

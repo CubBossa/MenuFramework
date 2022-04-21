@@ -14,14 +14,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
-import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.ShapelessRecipe;
+import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
@@ -432,10 +430,11 @@ public class MenuPresets {
         }
         if (recipes.size() > 1) {
             for (int i = 0; i < 9; i++) {
+                AtomicInteger index = new AtomicInteger(0);
                 int finalI = i;
                 workbench.setItem(i + 1, animationMap[i][0]);
                 workbench.playAnimation(i + 1, animationSpeed, animationContext -> {
-                    return animationMap[finalI][(animationContext.getTicks() % animationSpeed) % recipes.size()];
+                    return animationMap[finalI][index.getAndAdd(1) % recipes.size()];
                 });
             }
         } else {
@@ -445,6 +444,41 @@ public class MenuPresets {
         }
 
         return workbench;
+    }
+
+    public static InventoryMenu newCookingMenu(Component title, ItemStack stack, int animationSpeed) {
+
+        int inputSlot = 0;
+        InventoryMenu furnace = new InventoryMenu(InventoryType.FURNACE, title);
+        furnace.setItem(1, new ItemStack(Material.COAL));
+        furnace.setItem(2, stack);
+
+        List<Recipe> recipes = Bukkit.getRecipesFor(stack).stream().filter(recipe -> recipe instanceof FurnaceRecipe).toList();
+        ItemStack[] animationMap = new ItemStack[recipes.size()];
+
+        // No recipes -> return empty crafting table view
+        if (recipes.isEmpty()) {
+            return furnace;
+        }
+
+        int recipeIndex = 0;
+        for (Recipe recipe : recipes) {
+            if (recipe instanceof FurnaceRecipe furnaceRecipe) {
+                animationMap[recipeIndex] = furnaceRecipe.getInput();
+            }
+            recipeIndex++;
+        }
+        if (recipes.size() > 1) {
+            AtomicInteger index = new AtomicInteger(0);
+            furnace.setItem(inputSlot, animationMap[0]);
+            furnace.playAnimation(inputSlot, animationSpeed, animationContext -> {
+                return animationMap[index.getAndAdd(1) % recipes.size()];
+            });
+        } else {
+            furnace.setItem(inputSlot, animationMap[0]);
+        }
+
+        return furnace;
     }
 
     /**
@@ -467,8 +501,9 @@ public class MenuPresets {
 
     private static String concatShape(String[] shape) {
         StringBuilder combined = new StringBuilder();
-        for (String string : shape) {
-            combined.append(string).append(Strings.repeat(" ", string.length() < 3 ? 3 - string.length() : 0));
+        for (int i = 0; i < 3; i++) {
+            String s = i < shape.length ? shape[i] : "   ";
+            combined.append(s).append(Strings.repeat(" ", s.length() < 3 ? 3 - s.length() : 0));
         }
         return combined.toString();
     }

@@ -182,8 +182,10 @@ public class TestCommand implements CommandExecutor {
             case "5.3":
                 MenuPresets.newCraftMenu(Component.text("Craft hand:"), player.getInventory().getItemInMainHand(), 10).open(player);
                 break;
-
             case "5.4":
+                MenuPresets.newCookingMenu(Component.text("Burn hand:"), player.getInventory().getItemInMainHand(), 10).open(player);
+                break;
+            case "5.5":
                 MenuPresets.newPlayerListMenu(Component.text("Online"), 3, Action.Inventory.LEFT, playerTargetContext -> {
                     playerTargetContext.getTarget().getInventory().addItem(new ItemStack(Material.DIAMOND_AXE));
                     playerTargetContext.getPlayer().closeInventory();

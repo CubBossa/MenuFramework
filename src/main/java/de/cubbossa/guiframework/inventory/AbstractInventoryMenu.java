@@ -28,17 +28,6 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
         this.defaultCancelled = new HashMap<>();
     }
 
-    protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable ItemStackMenu previous) {
-
-        if (viewer.isSleeping()) {
-            viewer.wakeup(true);
-        }
-        render(viewer);
-        openInventory(viewer, inventory);
-
-        this.viewer.put(viewer.getUniqueId(), viewMode);
-    }
-
     @Override
     public void render(Player viewer) {
 
