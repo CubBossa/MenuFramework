@@ -1,6 +1,5 @@
 package de.cubbossa.guiframework.inventory;
 
-import com.google.common.base.Preconditions;
 import de.cubbossa.guiframework.inventory.listener.InventoryListener;
 import lombok.Getter;
 import org.bukkit.entity.Player;
@@ -46,7 +45,6 @@ public class InventoryHandler {
 
         openInventories.put(player.getUniqueId(), menu);
         Stack<AbstractInventoryMenu> stack = navigation.getOrDefault(player.getUniqueId(), new Stack<>());
-        System.out.println("Opening with " + menu + " and " + previous);
         if (previous != null && (stack.isEmpty() || stack.peek() != previous)) {
             stack.clear();
             stack.push(previous);
@@ -58,10 +56,6 @@ public class InventoryHandler {
 
         if (menu.getViewer().size() == 1) {
             inventoryListener.register(menu);
-        }
-
-        for(ItemStackMenu m : stack) {
-            System.out.println(m);
         }
     }
 

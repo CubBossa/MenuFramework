@@ -76,7 +76,6 @@ public class HotbarMenuHandler {
         } else {
             menuStack.peek().open(player);
         }
-        System.out.println(menuStack.size());
         openHotbars.remove(player.getUniqueId());
     }
 }
