@@ -1,5 +1,6 @@
 package de.cubbossa.guiframework.inventory;
 
+import com.google.common.base.Preconditions;
 import de.cubbossa.guiframework.inventory.listener.InventoryListener;
 import lombok.Getter;
 import org.bukkit.entity.Player;
@@ -45,18 +46,22 @@ public class InventoryHandler {
 
         openInventories.put(player.getUniqueId(), menu);
         Stack<AbstractInventoryMenu> stack = navigation.getOrDefault(player.getUniqueId(), new Stack<>());
-        boolean prevOnStack = !stack.isEmpty() && previous != stack.peek();
-        if (previous == null || !prevOnStack) {
+        System.out.println("Opening with " + menu + " and " + previous);
+        if (previous != null && (stack.isEmpty() || stack.peek() != previous)) {
             stack.clear();
-            if (!prevOnStack) {
-                stack.add(previous);
-            }
+            stack.push(previous);
         }
-        stack.push(menu);
+        if (stack.isEmpty() || stack.peek() != menu) {
+            stack.push(menu);
+        }
         navigation.put(player.getUniqueId(), stack);
 
-        if(menu.getViewer().size() == 1) {
+        if (menu.getViewer().size() == 1) {
             inventoryListener.register(menu);
+        }
+
+        for(ItemStackMenu m : stack) {
+            System.out.println(m);
         }
     }
 
@@ -82,12 +87,14 @@ public class InventoryHandler {
     }
 
     public void closeCurrentTopMenu(Player player) {
+        openTopInventories.remove(player.getUniqueId());
         Stack<AbstractInventoryMenu> menuStack = navigationTopMap.get(player.getUniqueId());
-        if (menuStack.isEmpty()) {
-            return;
+        if (!menuStack.isEmpty()) {
+            menuStack.pop();
         }
-        AbstractInventoryMenu oldMenu = openTopInventories.remove(player.getUniqueId());
-        menuStack.peek().open(player);
+        if (!menuStack.isEmpty()) {
+            menuStack.peek().open(player);
+        }
     }
 
     public void unregisterTopMenuListener(TopInventoryMenu topMenu) {

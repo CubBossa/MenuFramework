@@ -96,6 +96,9 @@ public class TestCommand implements CommandExecutor {
         }
         exampleMenu.setItem(60, new ItemStack(Material.STONE));
         exampleMenu.setItem(-70, new ItemStack(Material.STONE));
+        exampleMenu.setClickHandler(60, Action.Inventory.LEFT, clickContext ->
+                exampleMenu.openSubMenu(clickContext.getPlayer(), listMenu,
+                        MenuPresets.back(listMenu.getRows() - 1, 8, false, Action.Inventory.LEFT)));
         exampleMenu.updateTitle(Component.text("Seite 2"), 1);
 
         bottomMenu.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 0));

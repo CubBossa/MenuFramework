@@ -31,6 +31,12 @@ public abstract class TopInventoryMenu extends AbstractInventoryMenu {
         super.openPage(player, page);
     }
 
+    @Override
+    public void close(Player viewer) {
+        super.close(viewer);
+        InventoryHandler.getInstance().closeCurrentTopMenu(viewer);
+    }
+
     public Component getTitle(int page) {
         return pageTitles.getOrDefault(page, fallbackTitle);
     }

@@ -63,6 +63,7 @@ public class BottomInventoryMenu extends AbstractInventoryMenu {
     @Override
     public void close(Player viewer) {
         super.close(viewer);
+        InventoryHandler.getInstance().closeCurrentBottomMenu(viewer);
         //TODO restore inventory;
     }
 

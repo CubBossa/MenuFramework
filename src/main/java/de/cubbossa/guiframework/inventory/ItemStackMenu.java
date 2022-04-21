@@ -5,6 +5,7 @@ import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.inventory.context.AnimationContext;
 import de.cubbossa.guiframework.inventory.context.CloseContext;
 import de.cubbossa.guiframework.inventory.context.ContextConsumer;
+import de.cubbossa.guiframework.inventory.context.TargetContext;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -34,6 +35,7 @@ public abstract class ItemStackMenu {
     protected final SortedMap<Integer, ItemStack> itemStacks;
     protected final SortedMap<Integer, Consumer<Player>> soundPlayer;
 
+    protected final List<DynamicMenuSupplier<? extends TargetContext<?>>> dynamicProcessors;
     protected final SortedMap<Integer, ItemStack> dynamicItemStacks;
 
     @Setter
@@ -52,6 +54,7 @@ public abstract class ItemStackMenu {
 
         this.itemStacks = new TreeMap<>();
         this.soundPlayer = new TreeMap<>();
+        this.dynamicProcessors = new ArrayList<>();
         this.dynamicItemStacks = new TreeMap<>();
         this.animations = new TreeMap<>();
         this.viewer = new HashMap<>();
@@ -87,10 +90,23 @@ public abstract class ItemStackMenu {
         viewers.forEach(player -> open(player, previous));
     }
 
-    public ItemStackMenu openSubMenu(Player player, Supplier<ItemStackMenu> menuSupplier) {
-        ItemStackMenu menu = menuSupplier.get();
+    public ItemStackMenu openSubMenu(Player player, ItemStackMenu menu) {
         menu.open(player, this);
         return menu;
+    }
+
+    public ItemStackMenu openSubMenu(Player player, Supplier<ItemStackMenu> menuSupplier) {
+        return openSubMenu(player, menuSupplier.get());
+    }
+
+    public ItemStackMenu openSubMenu(Player player, ItemStackMenu menu, DynamicMenuSupplier<?> backPreset) {
+        menu.addPreset(backPreset);
+        menu.open(player, this);
+        return menu;
+    }
+
+    public ItemStackMenu openSubMenu(Player player, Supplier<ItemStackMenu> menuSupplier, DynamicMenuSupplier<?> backPreset) {
+        return openSubMenu(player, menuSupplier.get(), backPreset);
     }
 
     public void openNextPage(Player player) {
@@ -103,7 +119,7 @@ public abstract class ItemStackMenu {
 
     public void openPage(Player player, int page) {
         currentPage = page;
-        open(player);
+        render(player);
     }
 
     protected void openInventorySynchronized(Player viewer, @Nullable ItemStackMenu previous) {
@@ -111,6 +127,8 @@ public abstract class ItemStackMenu {
     }
 
     protected abstract void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable ItemStackMenu previous);
+
+    public abstract void render(Player viewer);
 
     /**
      * Close this menu for a player.
@@ -147,6 +165,43 @@ public abstract class ItemStackMenu {
         closeAll(viewer.keySet().stream().map(Bukkit::getPlayer).collect(Collectors.toSet()));
     }
 
+    public void refreshDynamicItemSuppliers() {
+        dynamicItemStacks.clear();
+        for (DynamicMenuSupplier processor : dynamicProcessors) {
+            processor.placeDynamicEntries(this, (integer, itemStack) -> dynamicItemStacks.put((Integer) integer, (ItemStack) itemStack), (key, value) -> {
+            });
+        }
+    }
+
+    /**
+     * loads a dynamic preset that only exists as long as the current page is opened. This might be useful to
+     * implement pagination, as pagination may need to extend dynamically based on the page count.
+     *
+     * @param menuProcessor the instance of the processor. Use the BiConsumer parameters to add items and clickhandler
+     *                      to a specific slot.
+     */
+    public DynamicMenuSupplier<? extends TargetContext<?>> addPreset(DynamicMenuSupplier<? extends TargetContext<?>> menuProcessor) {
+        dynamicProcessors.add(menuProcessor);
+        return menuProcessor;
+    }
+
+    /**
+     * Unloads a certain menu processor / preset. The preset items will stay until their slot is updated.
+     *
+     * @param menuProcessor the preset to remove
+     */
+    public void removePreset(DynamicMenuSupplier<? extends TargetContext<?>> menuProcessor) {
+        dynamicProcessors.remove(menuProcessor);
+    }
+
+    /**
+     * Removes all presets. The preset icons will stay in all open menus of this instance until the menu gets refreshed.
+     * Reopen them or call {@link #refresh(int...)} on the according or just all slots with {@link #getSlots()}
+     */
+    public void removeAllPresets() {
+        dynamicProcessors.clear();
+    }
+
     /**
      * Clears all minecraft inventory slots. It does not clear the menu item map or any click handlers.
      * After reopening or refreshing the menu, all items will be back.
@@ -162,7 +217,12 @@ public abstract class ItemStackMenu {
      * @return the itemstack of the menu at the given slot. This does not return the actual item in the inventory but the stored item instance.
      */
     public ItemStack getItemStack(int slot) {
-        return itemStacks.get(slot);
+        ItemStack stack = itemStacks.get(slot);
+        if (stack != null) {
+            return stack;
+        }
+        int dynSlot = slot % slotsPerPage;
+        return dynamicItemStacks.get(dynSlot < 0 ? dynSlot + slotsPerPage : dynSlot);
     }
 
     /**

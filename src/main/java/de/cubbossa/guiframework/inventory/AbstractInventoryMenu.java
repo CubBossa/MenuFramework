@@ -15,7 +15,6 @@ import java.util.logging.Level;
 public abstract class AbstractInventoryMenu extends ItemStackMenu {
 
     protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> clickHandler;
-    protected final List<DynamicMenuProcessor<? extends TargetContext<?>>> dynamicProcessors;
     protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> dynamicClickHandler;
     protected final Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> defaultClickHandler;
     protected final Map<Action<?>, Boolean> defaultCancelled;
@@ -24,7 +23,6 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
         super(slotsPerPage);
 
         this.clickHandler = new TreeMap<>();
-        this.dynamicProcessors = new ArrayList<>();
         this.dynamicClickHandler = new TreeMap<>();
         this.defaultClickHandler = new HashMap<>();
         this.defaultCancelled = new HashMap<>();
@@ -32,13 +30,22 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
 
     protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable ItemStackMenu previous) {
 
+        if (viewer.isSleeping()) {
+            viewer.wakeup(true);
+        }
+        render(viewer);
+        openInventory(viewer, inventory);
+
+        this.viewer.put(viewer.getUniqueId(), viewMode);
+    }
+
+    @Override
+    public void render(Player viewer) {
+
         if (inventory == null) {
             inventory = createInventory(viewer, currentPage);
         }
 
-        if (viewer.isSleeping()) {
-            viewer.wakeup(true);
-        }
         int minPage = getMinPage();
         int maxPage = getMaxPage();
         if (currentPage < minPage) {
@@ -47,7 +54,7 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
             currentPage = maxPage;
         }
 
-        refreshDynamicProviders();
+        refreshDynamicItemSuppliers();
 
         for (int slot : getSlots()) {
             ItemStack item = getItemStack(currentPage * slotsPerPage + slot);
@@ -56,14 +63,13 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
             }
             inventory.setItem(slot, item.clone());
         }
-        openInventory(viewer, inventory);
-        this.viewer.put(viewer.getUniqueId(), viewMode);
     }
 
-    public void refreshDynamicProviders() {
+    @Override
+    public void refreshDynamicItemSuppliers() {
         dynamicItemStacks.clear();
         dynamicClickHandler.clear();
-        for (DynamicMenuProcessor processor : dynamicProcessors) {
+        for (DynamicMenuSupplier processor : dynamicProcessors) {
             processor.placeDynamicEntries(this,
                     (integer, itemStack) -> dynamicItemStacks.put((Integer) integer, (ItemStack) itemStack),
                     (key, value) -> dynamicClickHandler.put((Integer) key, (Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>) value));
@@ -98,45 +104,6 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
             }
         }
         return context.isCancelled();
-    }
-
-    /**
-     * loads a dynamic preset that only exists as long as the current page is opened. This might be useful to
-     * implement pagination, as pagination may need to extend dynamically based on the page count.
-     *
-     * @param menuProcessor the instance of the processor. Use the BiConsumer parameters to add items and clickhandler
-     *                      to a specific slot.
-     */
-    public DynamicMenuProcessor<? extends TargetContext<?>> addPreset(DynamicMenuProcessor<? extends TargetContext<?>> menuProcessor) {
-        dynamicProcessors.add(menuProcessor);
-        return menuProcessor;
-    }
-
-    /**
-     * Unloads a certain menu processor / preset. The preset items will stay until their slot is updated.
-     *
-     * @param menuProcessor the preset to remove
-     */
-    public void removePreset(DynamicMenuProcessor<? extends TargetContext<?>> menuProcessor) {
-        dynamicProcessors.remove(menuProcessor);
-    }
-
-    /**
-     * Removes all presets. The preset icons will stay in all open menus of this instance until the menu gets refreshed.
-     * Reopen them or call {@link #refresh(int...)} on the according or just all slots with {@link #getSlots()}
-     */
-    public void removeAllPresets() {
-        dynamicProcessors.clear();
-    }
-
-    @Override
-    public ItemStack getItemStack(int slot) {
-        ItemStack stack = super.getItemStack(slot);
-        if (stack != null) {
-            return stack;
-        }
-        int dynSlot = (slot + slotsPerPage) % slotsPerPage;
-        return dynamicItemStacks.get(dynSlot < 0 ? dynSlot + slotsPerPage : dynSlot);
     }
 
     protected ContextConsumer<? extends TargetContext<?>> getClickHandler(int slot, Action<?> action) {

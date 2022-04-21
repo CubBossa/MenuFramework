@@ -123,16 +123,21 @@ public class MenuPresets {
      * Places a back icon to close the current menu and open the parent menu if one was set.
      * The icon will be {@link #BACK} or {@link #BACK_DISABLED} if disabled.
      *
+     * @param row      the row to place the back icon at.
      * @param slot     the slot to place the back icon at.
      * @param disabled if the back icon should be displayed as disabled.
      * @param actions  all valid actions to run the back handler.
      * @param <C>      the ClickContext type
-     * @return an instance of the {@link DynamicMenuProcessor} to register it on a menu.
+     * @return an instance of the {@link DynamicMenuSupplier} to register it on a menu.
      */
-    public static <C extends TargetContext<?>> DynamicMenuProcessor<C> back(int slot, boolean disabled, Action<C>... actions) {
+    public static <C extends TargetContext<?>> DynamicMenuSupplier<C> back(int row, int slot, boolean disabled, Action<C>... actions) {
         return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
-            placeDynamicItem.accept(slot, disabled ? BACK_DISABLED : BACK);
-            placeDynamicClickHandler.accept(slot, populate(c -> menu.close(c.getPlayer()), actions));
+            placeDynamicItem.accept(row * 9 + slot, disabled ? BACK_DISABLED : BACK);
+            placeDynamicClickHandler.accept(row * 9 + slot, populate(c -> {
+                if (!disabled) {
+                    c.getPlayer().closeInventory();
+                }
+            }, actions));
         };
     }
 
@@ -146,9 +151,9 @@ public class MenuPresets {
      *                     Otherwise, {@link #LEFT_DISABLED} and {@link #RIGHT_DISABLED} will be rendered.
      * @param actions      the actions to run the clickhandlers with.
      * @param <C>          the ClickContext type
-     * @return an instance of the {@link DynamicMenuProcessor} to register it on a menu.
+     * @return an instance of the {@link DynamicMenuSupplier} to register it on a menu.
      */
-    public static <C extends ClickContext> DynamicMenuProcessor<C> paginationRow(int row, int leftSlot, int rightSlot, boolean hideDisabled, Action<C>... actions) {
+    public static <C extends ClickContext> DynamicMenuSupplier<C> paginationRow(int row, int leftSlot, int rightSlot, boolean hideDisabled, Action<C>... actions) {
         return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
 
             boolean leftLimit = menu.getCurrentPage() <= menu.getMinPage();
@@ -186,9 +191,9 @@ public class MenuPresets {
      *                     Otherwise, {@link #LEFT_DISABLED} and {@link #RIGHT_DISABLED} will be rendered.
      * @param actions      the actions to run the clickhandlers with.
      * @param <C>          the ClickContext type
-     * @return an instance of the {@link DynamicMenuProcessor} to register it on a menu.
+     * @return an instance of the {@link DynamicMenuSupplier} to register it on a menu.
      */
-    public static <C extends TargetContext<?>> DynamicMenuProcessor<C> paginationRow(AbstractInventoryMenu otherMenu, int row, int leftSlot, int rightSlot, boolean hideDisabled, Action<C>... actions) {
+    public static <C extends TargetContext<?>> DynamicMenuSupplier<C> paginationRow(AbstractInventoryMenu otherMenu, int row, int leftSlot, int rightSlot, boolean hideDisabled, Action<C>... actions) {
         return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
             int lSlot = row * 9 + leftSlot;
             int rSlot = row * 9 + rightSlot;
@@ -207,7 +212,7 @@ public class MenuPresets {
             placeDynamicClickHandler.accept(lSlot, populate(c -> {
                 if (otherMenu.getCurrentPage() > otherMenu.getMinPage()) {
                     otherMenu.openPreviousPage(c.getPlayer());
-                    menu.refreshDynamicProviders();
+                    menu.refreshDynamicItemSuppliers();
                     menu.refresh(menu.getSlots());
                 }
             }, actions));
@@ -215,7 +220,7 @@ public class MenuPresets {
             placeDynamicClickHandler.accept(rSlot, populate(c -> {
                 if (otherMenu.getCurrentPage() < otherMenu.getMaxPage()) {
                     otherMenu.openNextPage(c.getPlayer());
-                    menu.refreshDynamicProviders();
+                    menu.refreshDynamicItemSuppliers();
                     menu.refresh(menu.getSlots());
                 }
             }, actions));
@@ -232,9 +237,9 @@ public class MenuPresets {
      *                     Otherwise, {@link #UP_DISABLED} and {@link #DOWN_DISABLED} will be rendered.
      * @param actions      the actions to run the clickhandlers with.
      * @param <C>          the ClickContext type
-     * @return an instance of the {@link DynamicMenuProcessor} to register it on a menu.
+     * @return an instance of the {@link DynamicMenuSupplier} to register it on a menu.
      */
-    public static <C extends TargetContext<?>> DynamicMenuProcessor<C> paginationColumn(int column, int upSlot, int downSlot, boolean hideDisabled, Action<C>... actions) {
+    public static <C extends TargetContext<?>> DynamicMenuSupplier<C> paginationColumn(int column, int upSlot, int downSlot, boolean hideDisabled, Action<C>... actions) {
         return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
             boolean upperLimit = menu.getCurrentPage() == menu.getMinPage();
             boolean lowerLimit = menu.getCurrentPage() == menu.getMaxPage();
@@ -261,9 +266,9 @@ public class MenuPresets {
      * Fills a whole inventory with the given item.
      *
      * @param stack the item to place on each slot.
-     * @return an instance of the {@link DynamicMenuProcessor} to register it on a menu.
+     * @return an instance of the {@link DynamicMenuSupplier} to register it on a menu.
      */
-    public static DynamicMenuProcessor<? extends TargetContext<?>> fill(ItemStack stack) {
+    public static DynamicMenuSupplier<? extends TargetContext<?>> fill(ItemStack stack) {
         return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
             IntStream.range(0, menu.getSlotsPerPage()).forEach(value -> placeDynamicItem.accept(value, stack));
         };
@@ -274,9 +279,9 @@ public class MenuPresets {
      *
      * @param stack the item to place on each line slot.
      * @param line  the line to fill
-     * @return an instance of the {@link DynamicMenuProcessor} to register it on a menu.
+     * @return an instance of the {@link DynamicMenuSupplier} to register it on a menu.
      */
-    public static DynamicMenuProcessor<? extends TargetContext<?>> fillRow(ItemStack stack, int line) {
+    public static DynamicMenuSupplier fillRow(ItemStack stack, int line) {
         return (menu1, placeDynamicItem, placeDynamicClickHandler) -> {
             IntStream.range(line * 9, line * 9 + 9).forEach(value -> placeDynamicItem.accept(value, stack));
         };
@@ -287,9 +292,9 @@ public class MenuPresets {
      *
      * @param stack  the item to place on each column slot.
      * @param column the column to fill
-     * @return an instance of the {@link DynamicMenuProcessor} to register it on a menu.
+     * @return an instance of the {@link DynamicMenuSupplier} to register it on a menu.
      */
-    public static DynamicMenuProcessor<? extends TargetContext<?>> fillColumn(ItemStack stack, int column) {
+    public static DynamicMenuSupplier<? extends TargetContext<?>> fillColumn(ItemStack stack, int column) {
         return (menu1, placeDynamicItem, placeDynamicClickHandler) -> {
             IntStream.range(0, menu1.getSlotsPerPage()).filter(value -> value % 9 == column).forEach(value -> placeDynamicItem.accept(value, stack));
         };
@@ -299,9 +304,9 @@ public class MenuPresets {
      * Fills a whole inventory with a frame (outer ring of slots filled)
      *
      * @param stack the stack to place
-     * @return an instance of the {@link DynamicMenuProcessor} to register it on a menu.
+     * @return an instance of the {@link DynamicMenuSupplier} to register it on a menu.
      */
-    public static DynamicMenuProcessor<? extends TargetContext<?>> fillFrame(ItemStack stack) {
+    public static DynamicMenuSupplier<? extends TargetContext<?>> fillFrame(ItemStack stack) {
         return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
             IntStream.range(0, menu.getSlotsPerPage())
                     .filter(value -> value % 9 == 0 || value % 9 == 5 || value < 9 || value >= menu.slotsPerPage - 9)
@@ -486,7 +491,7 @@ public class MenuPresets {
         return stack;
     }
 
-    private static <C extends TargetContext<?>> DynamicMenuProcessor<C> newItem(int slot, ContextConsumer<C> newHandler) {
+    private static <C extends TargetContext<?>> DynamicMenuSupplier<C> newItem(int slot, ContextConsumer<C> newHandler) {
         return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
             placeDynamicItem.accept(slot, NEW);
             placeDynamicClickHandler.accept(slot, populate(newHandler, new Action[]{Action.Inventory.LEFT}));

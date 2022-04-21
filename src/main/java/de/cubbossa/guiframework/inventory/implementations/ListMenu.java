@@ -39,8 +39,9 @@ public class ListMenu extends InventoryMenu {
 
     private Pair<ItemStack, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> getElement(int slot) {
         int index = -1;
+        int pageSlot = slot % slotsPerPage;
         for (int i = 0; i < listSlots.length; i++) {
-            if (listSlots[i] == slot) {
+            if (listSlots[i] == pageSlot) {
                 index = i;
             }
         }
@@ -65,7 +66,7 @@ public class ListMenu extends InventoryMenu {
 
     @Override
     public int getMaxPage() {
-        return Integer.min(super.getMaxPage(), listElements.size() % listSlots.length);
+        return Integer.max(super.getMaxPage(), listElements.size() / listSlots.length);
     }
 
     /**
