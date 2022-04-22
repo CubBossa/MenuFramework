@@ -1,6 +1,8 @@
 package de.bossascrew.guiframework.examples.lobby;
 
 import de.cubbossa.guiframework.inventory.Action;
+import de.cubbossa.guiframework.inventory.MenuPresets;
+import de.cubbossa.guiframework.inventory.implementations.BottomInventoryMenu;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -10,6 +12,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.checkerframework.common.subtyping.qual.Bottom;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +20,7 @@ import java.util.UUID;
 
 public class HotbarModule implements Listener {
 
-    private Map<UUID, HotbarMenu> hotbars;
+    private Map<UUID, BottomInventoryMenu> hotbars;
     private JavaPlugin plugin;
 
     public HotbarModule(JavaPlugin plugin) {
@@ -38,7 +41,7 @@ public class HotbarModule implements Listener {
 
     public void show(Player player) {
         // One hotbar per player as players individual inventories are being used.
-        HotbarMenu hotbar = new HotbarMenu(player);
+        BottomInventoryMenu hotbar = MenuPresets.newHotbarMenu();
 
         if(plugin.getCommand(GameSelectorModule.COMMAND) != null) {
             hotbar.setItemAndClickHandler(4, new ItemStack(Material.NETHER_STAR), Action.LEFT_CLICK_AIR, clickContext -> {
@@ -64,7 +67,7 @@ public class HotbarModule implements Listener {
     }
 
     public void hide(Player player) {
-        HotbarMenu hotbar = hotbars.remove(player.getUniqueId());
+        BottomInventoryMenu hotbar = hotbars.remove(player.getUniqueId());
         if(hotbar != null) {
             hotbar.close(player);
         }

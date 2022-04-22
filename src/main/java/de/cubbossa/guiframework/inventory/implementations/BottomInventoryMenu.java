@@ -1,9 +1,6 @@
 package de.cubbossa.guiframework.inventory.implementations;
 
-import de.cubbossa.guiframework.inventory.AbstractInventoryMenu;
-import de.cubbossa.guiframework.inventory.InventoryHandler;
-import de.cubbossa.guiframework.inventory.ItemStackMenu;
-import de.cubbossa.guiframework.inventory.LayeredMenu;
+import de.cubbossa.guiframework.inventory.*;
 import de.cubbossa.guiframework.util.InventoryRow;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -16,7 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-public class BottomInventoryMenu extends AbstractInventoryMenu implements LayeredMenu {
+public class BottomInventoryMenu extends AbstractMenu implements LayeredMenu {
 
     @Getter
     private final int[] slots;
@@ -37,6 +34,7 @@ public class BottomInventoryMenu extends AbstractInventoryMenu implements Layere
         super(slots.length);
         this.slots = Arrays.stream(slots).filter(s -> s >= 0 && s < 9).distinct().sorted().toArray();
         this.slotMask = InventoryHandler.getMaskFromSlots(slots);
+        addPreset(MenuPresets.fill(MenuPresets.FILLER_LIGHT));
     }
 
     public BottomInventoryMenu() {
@@ -58,7 +56,7 @@ public class BottomInventoryMenu extends AbstractInventoryMenu implements Layere
     }
 
     @Override
-    protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable ItemStackMenu previous) {
+    protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable AbstractMenu previous) {
         InventoryHandler.getInstance().registerBottomInventory(viewer, this);
         super.openInventorySynchronized(viewer, viewMode, previous);
     }

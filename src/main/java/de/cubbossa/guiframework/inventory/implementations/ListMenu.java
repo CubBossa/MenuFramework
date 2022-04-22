@@ -59,7 +59,7 @@ public class ListMenu extends InventoryMenu {
     }
 
     @Override
-    protected ContextConsumer<? extends TargetContext<?>> getClickHandler(int slot, Action<?> action) {
+    public ContextConsumer<? extends TargetContext<?>> getClickHandler(int slot, Action<?> action) {
         var element = getElement(slot);
         return element == null ? super.getClickHandler(slot, action) : element.getRight().get(action);
     }

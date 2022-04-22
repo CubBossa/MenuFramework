@@ -1,9 +1,9 @@
 package de.cubbossa.guiframework.inventory.listener;
 
 import de.cubbossa.guiframework.GUIHandler;
-import de.cubbossa.guiframework.inventory.AbstractInventoryMenu;
 import de.cubbossa.guiframework.inventory.Action;
 import de.cubbossa.guiframework.inventory.InventoryHandler;
+import de.cubbossa.guiframework.inventory.AbstractMenu;
 import de.cubbossa.guiframework.inventory.TopInventoryMenu;
 import de.cubbossa.guiframework.inventory.context.ClickContext;
 import org.bukkit.Bukkit;
@@ -42,7 +42,7 @@ public class InventoryListener implements Listener {
 				event.setCancelled(menu.handleInteract(Action.fromClickType(event.getClick()), new ClickContext(player, event.getSlot(), true)));
 			});
 			if (event.getClickedInventory() != null && event.getClickedInventory().getType() == InventoryType.PLAYER) {
-				AbstractInventoryMenu menu = ((AbstractInventoryMenu) InventoryHandler.getInstance().getMenuAtSlot(player, event.getSlot()));
+				AbstractMenu menu = ((AbstractMenu) InventoryHandler.getInstance().getMenuAtSlot(player, event.getSlot()));
 				if (menu == null) {
 					return;
 				}
@@ -67,7 +67,7 @@ public class InventoryListener implements Listener {
 				event.setCancelled(menu.handleInteract(Action.fromClickType(type), new ClickContext(player, slot, true)));
 			});
 			if (event.getInventory().getType() == InventoryType.PLAYER && event.getInventorySlots().size() == 1) {
-				AbstractInventoryMenu menu = ((AbstractInventoryMenu) InventoryHandler.getInstance().getMenuAtSlot(player, slot));
+				AbstractMenu menu = ((AbstractMenu) InventoryHandler.getInstance().getMenuAtSlot(player, slot));
 				if (menu == null) {
 					return;
 				}
@@ -78,7 +78,7 @@ public class InventoryListener implements Listener {
 
 	@EventHandler
 	public void onInventoryClose(InventoryCloseEvent event) {
-		for (AbstractInventoryMenu menu : new HashSet<>(menus)) {
+		for (AbstractMenu menu : new HashSet<>(menus)) {
 			if (event.getPlayer() instanceof Player player) {
 				if (!menu.isThisInventory(event.getInventory(), player)) {
 					return;

@@ -63,14 +63,14 @@ public class InventoryHandler {
             if (stack.isEmpty()) {
                 continue;
             }
-            AbstractInventoryMenu open = stack.peek();
+            AbstractMenu open = stack.peek();
             stack.clear();
             open.closeAll();
         }
         for (Stack<LayeredMenu> stack : navigationBottomMap.values()) {
             while (stack.isEmpty()) {
                 LayeredMenu layered = stack.peek();
-                if (layered instanceof AbstractInventoryMenu menu) {
+                if (layered instanceof AbstractMenu menu) {
                     menu.closeAll();
                 }
             }

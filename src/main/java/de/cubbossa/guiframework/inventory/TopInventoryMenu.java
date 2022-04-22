@@ -14,7 +14,7 @@ import java.util.TreeMap;
 import java.util.UUID;
 
 @Getter
-public abstract class TopInventoryMenu extends AbstractInventoryMenu {
+public abstract class TopInventoryMenu extends AbstractMenu {
 
     private Component fallbackTitle;
     private final Map<Integer, Component> pageTitles;
@@ -77,7 +77,7 @@ public abstract class TopInventoryMenu extends AbstractInventoryMenu {
     }
 
     @Override
-    protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable ItemStackMenu previous) {
+    protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable AbstractMenu previous) {
         super.openInventorySynchronized(viewer, viewMode, previous);
         InventoryHandler.getInstance().registerTopInventory(viewer, this, (TopInventoryMenu) previous);
     }
