@@ -2,12 +2,15 @@ package de.cubbossa.guiframework.inventory;
 
 import de.cubbossa.guiframework.inventory.context.ContextConsumer;
 import de.cubbossa.guiframework.inventory.context.TargetContext;
+import de.cubbossa.guiframework.util.ItemStackUtils;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -64,11 +67,29 @@ public class ButtonBuilder {
      * @return the builder instance
      */
     public ButtonBuilder withItemStack(Material material, Component name, List<Component> lore) {
-        stack = new ItemStack(material);
-        ItemMeta meta = stack.getItemMeta();
-        meta.displayName(name);
-        meta.lore(lore);
-        stack.setItemMeta(meta);
+        stack = ItemStackUtils.createItemStack(material, name, lore);
+        return this;
+    }
+
+    /**
+     * Creates a player head item stack
+     *
+     * @param playerHeadOwner the skin to apply to the player head
+     * @return the builder instance
+     */
+    public ButtonBuilder withItemStack(Player playerHeadOwner) {
+        return withItemStack(playerHeadOwner, null);
+    }
+
+    /**
+     * Creates a player head item stack
+     *
+     * @param playerHeadOwner the skin to apply to the player head
+     * @param lore            the lore to add to the player head item
+     * @return the builder instance
+     */
+    public ButtonBuilder withItemStack(Player playerHeadOwner, @Nullable List<Component> lore) {
+        stack = ItemStackUtils.createCustomHead(playerHeadOwner, playerHeadOwner.displayName(), lore);
         return this;
     }
 

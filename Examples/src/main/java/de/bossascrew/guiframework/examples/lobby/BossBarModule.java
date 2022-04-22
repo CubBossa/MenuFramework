@@ -1,6 +1,6 @@
 package de.bossascrew.guiframework.examples.lobby;
 
-import de.cubbossa.guiframework.Animations;
+import de.cubbossa.guiframework.util.Animations;
 import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.bossbar.CustomBossBar;
 import org.bukkit.Bukkit;

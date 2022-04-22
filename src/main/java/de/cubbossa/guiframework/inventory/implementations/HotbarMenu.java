@@ -1,6 +1,8 @@
-package de.cubbossa.guiframework.inventory;
+package de.cubbossa.guiframework.inventory.implementations;
 
-import de.tr7zw.changeme.nbtapi.NBTItem;
+import de.cubbossa.guiframework.inventory.AbstractInventoryMenu;
+import de.cubbossa.guiframework.inventory.HotbarMenuHandler;
+import de.cubbossa.guiframework.inventory.ItemStackMenu;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;

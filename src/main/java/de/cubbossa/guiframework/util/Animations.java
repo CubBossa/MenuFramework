@@ -1,4 +1,4 @@
-package de.cubbossa.guiframework;
+package de.cubbossa.guiframework.util;
 
 import com.google.common.base.Strings;
 

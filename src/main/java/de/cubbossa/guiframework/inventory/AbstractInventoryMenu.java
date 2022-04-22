@@ -7,7 +7,6 @@ import de.cubbossa.guiframework.inventory.context.TargetContext;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -58,7 +57,7 @@ public abstract class AbstractInventoryMenu extends ItemStackMenu {
     public void refreshDynamicItemSuppliers() {
         dynamicItemStacks.clear();
         dynamicClickHandler.clear();
-        for (DynamicMenuSupplier processor : dynamicProcessors) {
+        for (MenuPreset processor : dynamicProcessors) {
             processor.placeDynamicEntries(this,
                     (integer, itemStack) -> dynamicItemStacks.put((Integer) integer, (ItemStack) itemStack),
                     (key, value) -> dynamicClickHandler.put((Integer) key, (Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>) value));

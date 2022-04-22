@@ -11,7 +11,7 @@ import java.util.function.BiConsumer;
  * Allows placing dynamic items and clickhandler that are not permanent.
  * This might be useful to implement pagination presets that depend on the current page.
  */
-public interface DynamicMenuSupplier<C extends TargetContext<?>> {
+public interface MenuPreset<C extends TargetContext<?>> {
 
     void placeDynamicEntries(ItemStackMenu menu,
                              BiConsumer<Integer, ItemStack> placeDynamicItem,

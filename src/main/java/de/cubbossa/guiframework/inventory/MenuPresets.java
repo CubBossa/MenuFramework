@@ -7,6 +7,7 @@ import de.cubbossa.guiframework.inventory.context.ContextConsumer;
 import de.cubbossa.guiframework.inventory.context.TargetContext;
 import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.ListMenu;
+import de.cubbossa.guiframework.util.ItemStackUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -15,7 +16,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.*;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -26,21 +26,21 @@ import java.util.stream.IntStream;
 @SuppressWarnings("unchecked")
 public class MenuPresets {
 
-    public static ItemStack FILLER_LIGHT = createItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE, Component.empty(), null);
-    public static ItemStack FILLER_DARK = createItemStack(Material.GRAY_STAINED_GLASS_PANE, Component.empty(), null);
-    public static ItemStack BACK = createItemStack(Material.SPRUCE_DOOR, Component.text("Back", NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false), null);
-    public static ItemStack BACK_DISABLED = createItemStack(Material.IRON_DOOR, Component.text("Back", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false), null);
-    public static ItemStack UP = createItemStack(Material.PAPER, Component.text("Up", NamedTextColor.WHITE, TextDecoration.UNDERLINED).decoration(TextDecoration.ITALIC, false), null);
-    public static ItemStack DOWN = createItemStack(Material.PAPER, Component.text("Down", NamedTextColor.WHITE, TextDecoration.UNDERLINED).decoration(TextDecoration.ITALIC, false), null);
-    public static ItemStack RIGHT = createItemStack(Material.PAPER, Component.text("Next", NamedTextColor.WHITE, TextDecoration.UNDERLINED).decoration(TextDecoration.ITALIC, false), null);
-    public static ItemStack LEFT = createItemStack(Material.PAPER, Component.text("Previous", NamedTextColor.WHITE, TextDecoration.UNDERLINED).decoration(TextDecoration.ITALIC, false), null);
-    public static ItemStack UP_DISABLED = createItemStack(Material.MAP, Component.text("Up", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false), null);
-    public static ItemStack DOWN_DISABLED = createItemStack(Material.MAP, Component.text("Down", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false), null);
-    public static ItemStack RIGHT_DISABLED = createItemStack(Material.MAP, Component.text("Next", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false), null);
-    public static ItemStack LEFT_DISABLED = createItemStack(Material.MAP, Component.text("Previous", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false), null);
-    public static ItemStack ACCEPT = createItemStack(Material.LIME_CONCRETE, Component.text("Accept", NamedTextColor.GREEN).decoration(TextDecoration.ITALIC, false), null);
-    public static ItemStack DECLINE = createItemStack(Material.RED_CONCRETE, Component.text("Decline", NamedTextColor.RED).decoration(TextDecoration.ITALIC, false), null);
-    public static ItemStack NEW = createItemStack(Material.EMERALD, Component.text("New", NamedTextColor.GREEN).decoration(TextDecoration.ITALIC, false), null);
+    public static ItemStack FILLER_LIGHT = ItemStackUtils.createItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE, Component.empty(), null);
+    public static ItemStack FILLER_DARK = ItemStackUtils.createItemStack(Material.GRAY_STAINED_GLASS_PANE, Component.empty(), null);
+    public static ItemStack BACK = ItemStackUtils.createItemStack(Material.SPRUCE_DOOR, Component.text("Back", NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false), null);
+    public static ItemStack BACK_DISABLED = ItemStackUtils.createItemStack(Material.IRON_DOOR, Component.text("Back", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false), null);
+    public static ItemStack UP = ItemStackUtils.createItemStack(Material.PAPER, Component.text("Up", NamedTextColor.WHITE, TextDecoration.UNDERLINED).decoration(TextDecoration.ITALIC, false), null);
+    public static ItemStack DOWN = ItemStackUtils.createItemStack(Material.PAPER, Component.text("Down", NamedTextColor.WHITE, TextDecoration.UNDERLINED).decoration(TextDecoration.ITALIC, false), null);
+    public static ItemStack RIGHT = ItemStackUtils.createItemStack(Material.PAPER, Component.text("Next", NamedTextColor.WHITE, TextDecoration.UNDERLINED).decoration(TextDecoration.ITALIC, false), null);
+    public static ItemStack LEFT = ItemStackUtils.createItemStack(Material.PAPER, Component.text("Previous", NamedTextColor.WHITE, TextDecoration.UNDERLINED).decoration(TextDecoration.ITALIC, false), null);
+    public static ItemStack UP_DISABLED = ItemStackUtils.createItemStack(Material.MAP, Component.text("Up", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false), null);
+    public static ItemStack DOWN_DISABLED = ItemStackUtils.createItemStack(Material.MAP, Component.text("Down", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false), null);
+    public static ItemStack RIGHT_DISABLED = ItemStackUtils.createItemStack(Material.MAP, Component.text("Next", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false), null);
+    public static ItemStack LEFT_DISABLED = ItemStackUtils.createItemStack(Material.MAP, Component.text("Previous", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false), null);
+    public static ItemStack ACCEPT = ItemStackUtils.createItemStack(Material.LIME_CONCRETE, Component.text("Accept", NamedTextColor.GREEN).decoration(TextDecoration.ITALIC, false), null);
+    public static ItemStack DECLINE = ItemStackUtils.createItemStack(Material.RED_CONCRETE, Component.text("Decline", NamedTextColor.RED).decoration(TextDecoration.ITALIC, false), null);
+    public static ItemStack NEW = ItemStackUtils.createItemStack(Material.EMERALD, Component.text("New", NamedTextColor.GREEN).decoration(TextDecoration.ITALIC, false), null);
 
     public static ListMenuSupplier<Player> PLAYER_LIST_SUPPLIER = new ListMenuSupplier<>() {
         @Override
@@ -50,7 +50,7 @@ public class MenuPresets {
 
         @Override
         public ItemStack getDisplayItem(Player object) {
-            return createItemStack(Material.PLAYER_HEAD, object.displayName(), null);
+            return ItemStackUtils.createCustomHead(object, object.displayName(), null);
         }
     };
 
@@ -126,9 +126,9 @@ public class MenuPresets {
      * @param disabled if the back icon should be displayed as disabled.
      * @param actions  all valid actions to run the back handler.
      * @param <C>      the ClickContext type
-     * @return an instance of the {@link DynamicMenuSupplier} to register it on a menu.
+     * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static <C extends TargetContext<?>> DynamicMenuSupplier<C> back(int row, int slot, boolean disabled, Action<C>... actions) {
+    public static <C extends TargetContext<?>> MenuPreset<C> back(int row, int slot, boolean disabled, Action<C>... actions) {
         return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
             placeDynamicItem.accept(row * 9 + slot, disabled ? BACK_DISABLED : BACK);
             placeDynamicClickHandler.accept(row * 9 + slot, populate(c -> {
@@ -149,9 +149,9 @@ public class MenuPresets {
      *                     Otherwise, {@link #LEFT_DISABLED} and {@link #RIGHT_DISABLED} will be rendered.
      * @param actions      the actions to run the clickhandlers with.
      * @param <C>          the ClickContext type
-     * @return an instance of the {@link DynamicMenuSupplier} to register it on a menu.
+     * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static <C extends ClickContext> DynamicMenuSupplier<C> paginationRow(int row, int leftSlot, int rightSlot, boolean hideDisabled, Action<C>... actions) {
+    public static <C extends ClickContext> MenuPreset<C> paginationRow(int row, int leftSlot, int rightSlot, boolean hideDisabled, Action<C>... actions) {
         return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
 
             boolean leftLimit = menu.getCurrentPage() <= menu.getMinPage();
@@ -189,9 +189,9 @@ public class MenuPresets {
      *                     Otherwise, {@link #LEFT_DISABLED} and {@link #RIGHT_DISABLED} will be rendered.
      * @param actions      the actions to run the clickhandlers with.
      * @param <C>          the ClickContext type
-     * @return an instance of the {@link DynamicMenuSupplier} to register it on a menu.
+     * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static <C extends TargetContext<?>> DynamicMenuSupplier<C> paginationRow(AbstractInventoryMenu otherMenu, int row, int leftSlot, int rightSlot, boolean hideDisabled, Action<C>... actions) {
+    public static <C extends TargetContext<?>> MenuPreset<C> paginationRow(AbstractInventoryMenu otherMenu, int row, int leftSlot, int rightSlot, boolean hideDisabled, Action<C>... actions) {
         return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
             int lSlot = row * 9 + leftSlot;
             int rSlot = row * 9 + rightSlot;
@@ -235,9 +235,9 @@ public class MenuPresets {
      *                     Otherwise, {@link #UP_DISABLED} and {@link #DOWN_DISABLED} will be rendered.
      * @param actions      the actions to run the clickhandlers with.
      * @param <C>          the ClickContext type
-     * @return an instance of the {@link DynamicMenuSupplier} to register it on a menu.
+     * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static <C extends TargetContext<?>> DynamicMenuSupplier<C> paginationColumn(int column, int upSlot, int downSlot, boolean hideDisabled, Action<C>... actions) {
+    public static <C extends TargetContext<?>> MenuPreset<C> paginationColumn(int column, int upSlot, int downSlot, boolean hideDisabled, Action<C>... actions) {
         return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
             boolean upperLimit = menu.getCurrentPage() == menu.getMinPage();
             boolean lowerLimit = menu.getCurrentPage() == menu.getMaxPage();
@@ -264,9 +264,9 @@ public class MenuPresets {
      * Fills a whole inventory with the given item.
      *
      * @param stack the item to place on each slot.
-     * @return an instance of the {@link DynamicMenuSupplier} to register it on a menu.
+     * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static DynamicMenuSupplier<? extends TargetContext<?>> fill(ItemStack stack) {
+    public static MenuPreset<? extends TargetContext<?>> fill(ItemStack stack) {
         return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
             IntStream.range(0, menu.getSlotsPerPage()).forEach(value -> placeDynamicItem.accept(value, stack));
         };
@@ -277,9 +277,9 @@ public class MenuPresets {
      *
      * @param stack the item to place on each line slot.
      * @param line  the line to fill
-     * @return an instance of the {@link DynamicMenuSupplier} to register it on a menu.
+     * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static DynamicMenuSupplier fillRow(ItemStack stack, int line) {
+    public static MenuPreset fillRow(ItemStack stack, int line) {
         return (menu1, placeDynamicItem, placeDynamicClickHandler) -> {
             IntStream.range(line * 9, line * 9 + 9).forEach(value -> placeDynamicItem.accept(value, stack));
         };
@@ -290,9 +290,9 @@ public class MenuPresets {
      *
      * @param stack  the item to place on each column slot.
      * @param column the column to fill
-     * @return an instance of the {@link DynamicMenuSupplier} to register it on a menu.
+     * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static DynamicMenuSupplier<? extends TargetContext<?>> fillColumn(ItemStack stack, int column) {
+    public static MenuPreset<? extends TargetContext<?>> fillColumn(ItemStack stack, int column) {
         return (menu1, placeDynamicItem, placeDynamicClickHandler) -> {
             IntStream.range(0, menu1.getSlotsPerPage()).filter(value -> value % 9 == column).forEach(value -> placeDynamicItem.accept(value, stack));
         };
@@ -302,9 +302,9 @@ public class MenuPresets {
      * Fills a whole inventory with a frame (outer ring of slots filled)
      *
      * @param stack the stack to place
-     * @return an instance of the {@link DynamicMenuSupplier} to register it on a menu.
+     * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static DynamicMenuSupplier<? extends TargetContext<?>> fillFrame(ItemStack stack) {
+    public static MenuPreset<? extends TargetContext<?>> fillFrame(ItemStack stack) {
         return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
             IntStream.range(0, menu.getSlotsPerPage())
                     .filter(value -> value % 9 == 0 || value % 9 == 5 || value < 9 || value >= menu.slotsPerPage - 9)
@@ -446,6 +446,16 @@ public class MenuPresets {
         return workbench;
     }
 
+    /**
+     * Creates an inventory with an animation that switches the cooking recipes for this itemstack.
+     * use {@link InventoryMenu#setClickHandler(int, Action, ContextConsumer)} to set ClickHandler for the
+     * crafting slots. 0 = input slot, 1 = fuel, 2 = result slot.
+     *
+     * @param title          The title of the furnace menu
+     * @param stack          The item to display all cooking recipes for
+     * @param animationSpeed The amount of ticks to wait before displaying the next recipe if the stack has multiple cooking recipes
+     * @return The instance of the menu
+     */
     public static InventoryMenu newCookingMenu(Component title, ItemStack stack, int animationSpeed) {
 
         int inputSlot = 0;
@@ -517,16 +527,7 @@ public class MenuPresets {
         return map;
     }
 
-    private static ItemStack createItemStack(Material type, Component name, List<Component> lore) {
-        ItemStack stack = new ItemStack(type);
-        ItemMeta meta = stack.getItemMeta();
-        meta.displayName(name);
-        meta.lore(lore);
-        stack.setItemMeta(meta);
-        return stack;
-    }
-
-    private static <C extends TargetContext<?>> DynamicMenuSupplier<C> newItem(int slot, ContextConsumer<C> newHandler) {
+    private static <C extends TargetContext<?>> MenuPreset<C> newItem(int slot, ContextConsumer<C> newHandler) {
         return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
             placeDynamicItem.accept(slot, NEW);
             placeDynamicClickHandler.accept(slot, populate(newHandler, new Action[]{Action.Inventory.LEFT}));

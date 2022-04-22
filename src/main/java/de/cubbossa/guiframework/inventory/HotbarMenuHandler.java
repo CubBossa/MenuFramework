@@ -1,6 +1,7 @@
 package de.cubbossa.guiframework.inventory;
 
 import de.cubbossa.guiframework.GUIHandler;
+import de.cubbossa.guiframework.inventory.implementations.HotbarMenu;
 import de.cubbossa.guiframework.inventory.listener.HotbarListener;
 import lombok.Getter;
 import org.bukkit.entity.Player;
@@ -12,6 +13,8 @@ import java.util.logging.Level;
 import java.util.stream.IntStream;
 
 public class HotbarMenuHandler {
+
+    //TODO why though -> move to inventory handler
 
     @Getter
     private static HotbarMenuHandler instance;

@@ -1,12 +1,14 @@
 package de.cubbossa.guiframework.test;
 
 import com.destroystokyo.paper.MaterialTags;
-import de.cubbossa.guiframework.Animations;
+import de.cubbossa.guiframework.util.Animations;
 import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.bossbar.CustomBossBar;
 import de.cubbossa.guiframework.chat.ComponentMenu;
 import de.cubbossa.guiframework.chat.TextMenu;
 import de.cubbossa.guiframework.inventory.*;
+import de.cubbossa.guiframework.inventory.implementations.BottomInventoryMenu;
+import de.cubbossa.guiframework.inventory.implementations.HotbarMenu;
 import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.ListMenu;
 import de.cubbossa.guiframework.scoreboard.CustomScoreboard;

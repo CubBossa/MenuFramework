@@ -2,21 +2,16 @@ package de.cubbossa.guiframework.inventory.listener;
 
 import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.inventory.Action;
-import de.cubbossa.guiframework.inventory.HotbarMenu;
+import de.cubbossa.guiframework.inventory.implementations.HotbarMenu;
 import de.cubbossa.guiframework.inventory.context.ClickContext;
 import de.cubbossa.guiframework.inventory.context.TargetContext;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.inventory.InventoryPickupItemEvent;
-import org.bukkit.event.player.PlayerAttemptPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 
 import java.util.HashSet;
 import java.util.Set;

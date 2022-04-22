@@ -1,7 +1,7 @@
 package de.bossascrew.guiframework.examples.lobby;
 
 import de.cubbossa.guiframework.inventory.Action;
-import de.cubbossa.guiframework.inventory.HotbarMenu;
+import de.cubbossa.guiframework.inventory.implementations.HotbarMenu;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

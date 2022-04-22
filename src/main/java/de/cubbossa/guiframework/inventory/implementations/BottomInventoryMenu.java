@@ -1,5 +1,8 @@
-package de.cubbossa.guiframework.inventory;
+package de.cubbossa.guiframework.inventory.implementations;
 
+import de.cubbossa.guiframework.inventory.AbstractInventoryMenu;
+import de.cubbossa.guiframework.inventory.InventoryHandler;
+import de.cubbossa.guiframework.inventory.ItemStackMenu;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

@@ -35,7 +35,7 @@ public abstract class ItemStackMenu {
     protected final SortedMap<Integer, ItemStack> itemStacks;
     protected final SortedMap<Integer, Consumer<Player>> soundPlayer;
 
-    protected final List<DynamicMenuSupplier<? extends TargetContext<?>>> dynamicProcessors;
+    protected final List<MenuPreset<? extends TargetContext<?>>> dynamicProcessors;
     protected final SortedMap<Integer, ItemStack> dynamicItemStacks;
 
     @Setter
@@ -99,13 +99,13 @@ public abstract class ItemStackMenu {
         return openSubMenu(player, menuSupplier.get());
     }
 
-    public ItemStackMenu openSubMenu(Player player, ItemStackMenu menu, DynamicMenuSupplier<?> backPreset) {
+    public ItemStackMenu openSubMenu(Player player, ItemStackMenu menu, MenuPreset<?> backPreset) {
         menu.addPreset(backPreset);
         menu.open(player, this);
         return menu;
     }
 
-    public ItemStackMenu openSubMenu(Player player, Supplier<ItemStackMenu> menuSupplier, DynamicMenuSupplier<?> backPreset) {
+    public ItemStackMenu openSubMenu(Player player, Supplier<ItemStackMenu> menuSupplier, MenuPreset<?> backPreset) {
         return openSubMenu(player, menuSupplier.get(), backPreset);
     }
 
@@ -187,8 +187,8 @@ public abstract class ItemStackMenu {
 
     public void refreshDynamicItemSuppliers() {
         dynamicItemStacks.clear();
-        for (DynamicMenuSupplier processor : dynamicProcessors) {
-            processor.placeDynamicEntries(this, (integer, itemStack) -> dynamicItemStacks.put((Integer) integer, (ItemStack) itemStack), (key, value) -> {
+        for (MenuPreset menuPreset : dynamicProcessors) {
+            menuPreset.placeDynamicEntries(this, (integer, itemStack) -> dynamicItemStacks.put((Integer) integer, (ItemStack) itemStack), (key, value) -> {
             });
         }
     }
@@ -197,21 +197,21 @@ public abstract class ItemStackMenu {
      * loads a dynamic preset that only exists as long as the current page is opened. This might be useful to
      * implement pagination, as pagination may need to extend dynamically based on the page count.
      *
-     * @param menuProcessor the instance of the processor. Use the BiConsumer parameters to add items and clickhandler
+     * @param menuPreset the instance of the processor. Use the BiConsumer parameters to add items and clickhandler
      *                      to a specific slot.
      */
-    public DynamicMenuSupplier<? extends TargetContext<?>> addPreset(DynamicMenuSupplier<? extends TargetContext<?>> menuProcessor) {
-        dynamicProcessors.add(menuProcessor);
-        return menuProcessor;
+    public MenuPreset<? extends TargetContext<?>> addPreset(MenuPreset<? extends TargetContext<?>> menuPreset) {
+        dynamicProcessors.add(menuPreset);
+        return menuPreset;
     }
 
     /**
      * Unloads a certain menu processor / preset. The preset items will stay until their slot is updated.
      *
-     * @param menuProcessor the preset to remove
+     * @param menuPreset the preset to remove
      */
-    public void removePreset(DynamicMenuSupplier<? extends TargetContext<?>> menuProcessor) {
-        dynamicProcessors.remove(menuProcessor);
+    public void removePreset(MenuPreset<? extends TargetContext<?>> menuPreset) {
+        dynamicProcessors.remove(menuPreset);
     }
 
     /**
