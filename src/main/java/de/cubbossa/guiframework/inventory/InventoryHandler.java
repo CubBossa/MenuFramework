@@ -109,7 +109,7 @@ public class InventoryHandler {
         long storeItemsMask = (maskBelowMenus ^ INVENTORY_MASK) & menu.getSlotMask();
         // Save all required slots
         ItemStack[] inventory = coveredInventories.getOrDefault(player.getUniqueId(), new ItemStack[9 * 4]);
-        for (int slot : getSlotsFromMask(storeItemsMask)) {
+        for (int slot : LayeredMenu.getSlotsFromMask(storeItemsMask)) {
             inventory[slot] = player.getInventory().getItem(slot);
         }
         coveredInventories.put(player.getUniqueId(), inventory);
@@ -171,7 +171,7 @@ public class InventoryHandler {
         }
         //Restore player inventory with remaining slots
         ItemStack[] inventory = coveredInventories.getOrDefault(player.getUniqueId(), new ItemStack[9 * 4]);
-        for (int slot : getSlotsFromMask(uncoveredMenuSlots)) {
+        for (int slot : LayeredMenu.getSlotsFromMask(uncoveredMenuSlots)) {
             player.getInventory().setItem(slot, inventory[slot]);
         }
 
@@ -190,23 +190,5 @@ public class InventoryHandler {
             }
         }
         return null;
-    }
-
-    public static int[] getSlotsFromMask(long mask) {
-        List<Integer> slots = new ArrayList<>();
-        for (int i = 0; i < 9 * 4; i++) {
-            if ((mask >> i & 1) == 1) {
-                slots.add(i);
-            }
-        }
-        return slots.stream().mapToInt(Integer::intValue).toArray();
-    }
-
-    public static long getMaskFromSlots(int[] slots) {
-        long mask = 0;
-        for (int slot : slots) {
-            mask += Math.pow(2, slot);
-        }
-        return mask;
     }
 }

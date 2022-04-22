@@ -33,7 +33,7 @@ public class BottomInventoryMenu extends AbstractMenu implements LayeredMenu {
     public BottomInventoryMenu(int... slots) {
         super(slots.length);
         this.slots = Arrays.stream(slots).filter(s -> s >= 0 && s < 9).distinct().sorted().toArray();
-        this.slotMask = InventoryHandler.getMaskFromSlots(slots);
+        this.slotMask = LayeredMenu.getMaskFromSlots(slots);
         addPreset(MenuPresets.fill(MenuPresets.FILLER_LIGHT));
     }
 
@@ -93,6 +93,6 @@ public class BottomInventoryMenu extends AbstractMenu implements LayeredMenu {
 
     @Override
     public void restoreSlots(long mask) {
-        refresh(false, InventoryHandler.getSlotsFromMask(mask));
+        refresh(false, LayeredMenu.getSlotsFromMask(mask));
     }
 }
