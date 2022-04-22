@@ -1,27 +1,34 @@
 package de.cubbossa.guiframework.inventory.implementations;
 
 import de.cubbossa.guiframework.inventory.AbstractInventoryMenu;
-import de.cubbossa.guiframework.inventory.HotbarMenuHandler;
+import de.cubbossa.guiframework.inventory.InventoryHandler;
 import de.cubbossa.guiframework.inventory.ItemStackMenu;
+import de.cubbossa.guiframework.inventory.LayeredMenu;
+import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.stream.IntStream;
+import java.util.Arrays;
+import java.util.Objects;
 
-public class HotbarMenu extends AbstractInventoryMenu {
+public class HotbarMenu extends AbstractInventoryMenu implements LayeredMenu {
+
+    //TODO mit bottom inventory zusammenfassen
 
     private final Player player;
+    @Getter
+    private final int[] slots;
+    @Getter
+    private final long slotMask;
 
-    public HotbarMenu(Player player) {
+    public HotbarMenu(Player player, int... slots) {
         super(9);
         this.player = player;
-    }
-
-    @Override
-    public int[] getSlots() {
-        return IntStream.range(0, 9).toArray();
+        this.slots = Arrays.stream(slots).filter(s -> s >= 0 && s < 9).distinct().sorted().toArray();
+        this.slotMask = InventoryHandler.getMaskFromSlots(this.slots);
     }
 
     @Override
@@ -35,16 +42,15 @@ public class HotbarMenu extends AbstractInventoryMenu {
     }
 
     @Override
-        protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable ItemStackMenu previous) {
-        HotbarMenuHandler.getInstance().registerInventory(viewer, this, (HotbarMenu) previous);
+    protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable ItemStackMenu previous) {
+        InventoryHandler.getInstance().registerBottomInventory(viewer, this);
         super.openInventorySynchronized(viewer, viewMode, previous);
     }
 
     @Override
     public void close(Player viewer) {
         super.close(viewer);
-        HotbarMenuHandler.getInstance().unregisterHotbarMenuListener(this);
-        HotbarMenuHandler.getInstance().closeCurrentHotbar(viewer);
+        InventoryHandler.getInstance().closeBottomMenu(player, this);
     }
 
     public boolean isThisInventory(Inventory inventory, Player player) {
@@ -62,5 +68,34 @@ public class HotbarMenu extends AbstractInventoryMenu {
         //i.setBoolean("pickup-protection", true);
         //super.setItem(slot, i.getItem());
         super.setItem(slot, item); //TODO pickup protection
+    }
+
+    @Override
+    public void refresh(int... slots) {
+        refresh(true, slots);
+    }
+
+    public void refresh(boolean checkSlots, int... slots) {
+        if (checkSlots) {
+            viewer.keySet().stream().map(Bukkit::getPlayer).filter(Objects::nonNull).forEach(player -> {
+                for (int slot : slots) {
+                    if (InventoryHandler.getInstance().getMenuAtSlot(player, slot) != this) {
+                        return;
+                    }
+                    player.getInventory().setItem(slot, getItemStack(currentPage * slotsPerPage + slot));
+                }
+            });
+        } else {
+            viewer.keySet().stream().map(Bukkit::getPlayer).filter(Objects::nonNull).forEach(player -> {
+                for (int slot : slots) {
+                    player.getInventory().setItem(slot, getItemStack(currentPage * slotsPerPage + slot));
+                }
+            });
+        }
+    }
+
+    @Override
+    public void restoreSlots(long mask) {
+        refresh(false, InventoryHandler.getSlotsFromMask(mask));
     }
 }

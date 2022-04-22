@@ -1,17 +1,20 @@
 package de.cubbossa.guiframework.test;
 
 import com.destroystokyo.paper.MaterialTags;
-import de.cubbossa.guiframework.util.Animations;
 import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.bossbar.CustomBossBar;
 import de.cubbossa.guiframework.chat.ComponentMenu;
 import de.cubbossa.guiframework.chat.TextMenu;
-import de.cubbossa.guiframework.inventory.*;
+import de.cubbossa.guiframework.inventory.Action;
+import de.cubbossa.guiframework.inventory.ButtonBuilder;
+import de.cubbossa.guiframework.inventory.MenuPresets;
 import de.cubbossa.guiframework.inventory.implementations.BottomInventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.HotbarMenu;
 import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.ListMenu;
 import de.cubbossa.guiframework.scoreboard.CustomScoreboard;
+import de.cubbossa.guiframework.util.Animations;
+import de.cubbossa.guiframework.util.InventoryRow;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
@@ -28,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 public class TestCommand implements CommandExecutor {
 
@@ -65,7 +69,8 @@ public class TestCommand implements CommandExecutor {
     CustomScoreboard higherBoard = new CustomScoreboard("test_scoreboard_2", Component.text("Noch eins"), 5);
 
     InventoryMenu exampleMenu = new InventoryMenu(4, Component.text("Example Inventory"));
-    BottomInventoryMenu bottomMenu = new BottomInventoryMenu(1);
+    BottomInventoryMenu bottomMenu = new BottomInventoryMenu(InventoryRow.FIRST_ROW);
+    BottomInventoryMenu bottomMenu2 = new BottomInventoryMenu(IntStream.range(0, 36).filter(value -> value % 2 == 1).toArray());
     ListMenu listMenu = new ListMenu(4, Component.text("Weapons"));
     InventoryMenu craftingMenu = MenuPresets.newCraftMenu(Component.text("Craft Axe:"), new ItemStack(Material.DIAMOND_AXE), 10);
 
@@ -105,6 +110,17 @@ public class TestCommand implements CommandExecutor {
 
         bottomMenu.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 0));
         bottomMenu.addPreset(MenuPresets.paginationRow(exampleMenu, 0, 0, 1, false, Action.Inventory.LEFT, Action.Inventory.RIGHT));
+        bottomMenu2.addPreset(MenuPresets.fill(new ItemStack(Material.EMERALD)));
+        for(int slot : bottomMenu.getSlots()) {
+            bottomMenu.setButton(slot, ButtonBuilder.buttonBuilder().withClickHandler(Action.Inventory.LEFT, clickContext -> {
+                clickContext.getPlayer().sendMessage(Component.text("Hat funktioniert 1"));
+            }));
+        }
+        for(int slot : bottomMenu2.getSlots()) {
+            bottomMenu2.setButton(slot, ButtonBuilder.buttonBuilder().withClickHandler(Action.Inventory.LEFT, clickContext -> {
+                clickContext.getPlayer().sendMessage(Component.text("Hat funktioniert 2"));
+            }));
+        }
 
         listMenu.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 3));
         listMenu.addPreset(MenuPresets.paginationRow(3, 0, 1, false, Action.Inventory.LEFT));
@@ -175,6 +191,15 @@ public class TestCommand implements CommandExecutor {
             case "4.1":
                 bottomMenu.open(player);
                 break;
+            case "4.2":
+                bottomMenu.close(player);
+                break;
+            case "4.3":
+                bottomMenu2.open(player);
+                break;
+            case "4.4":
+                bottomMenu2.close(player);
+                break;
             case "5.1":
                 listMenu.open(player);
                 break;
@@ -199,7 +224,7 @@ public class TestCommand implements CommandExecutor {
                 break;
 
             case "7.1":
-                HotbarMenu hotbarMenu = new HotbarMenu(player);
+                HotbarMenu hotbarMenu = new HotbarMenu(player, 0, 1, 2, 3, 4, 5, 6, 7, 8);
                 hotbarMenu.setButton(4, ButtonBuilder.buttonBuilder()
                         .withClickHandler(Action.Hotbar.LEFT_CLICK_AIR, clickContext -> clickContext.getPlayer().sendMessage("lol"))
                         .withItemStack(Material.DIAMOND)

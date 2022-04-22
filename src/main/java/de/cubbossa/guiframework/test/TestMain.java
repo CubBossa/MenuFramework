@@ -1,7 +1,6 @@
 package de.cubbossa.guiframework.test;
 
 import de.cubbossa.guiframework.GUIHandler;
-import de.cubbossa.guiframework.inventory.HotbarMenuHandler;
 import de.cubbossa.guiframework.inventory.InventoryHandler;
 import de.cubbossa.guiframework.scoreboard.CustomScoreboardHandler;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -20,7 +19,6 @@ public class TestMain extends JavaPlugin {
         };
         new CustomScoreboardHandler();
         new InventoryHandler();
-        new HotbarMenuHandler();
 
         Bukkit.getPluginCommand("guitest").setExecutor(new TestCommand());
     }
