@@ -2,9 +2,9 @@ package de.cubbossa.guiframework.inventory.listener;
 
 import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.inventory.Action;
-import de.cubbossa.guiframework.inventory.implementations.HotbarMenu;
 import de.cubbossa.guiframework.inventory.context.ClickContext;
 import de.cubbossa.guiframework.inventory.context.TargetContext;
+import de.cubbossa.guiframework.inventory.implementations.BottomInventoryMenu;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,17 +18,17 @@ import java.util.Set;
 
 public class HotbarListener implements Listener {
 
-	private final Set<HotbarMenu> menus = new HashSet<>();
+	private final Set<BottomInventoryMenu> menus = new HashSet<>();
 
 	public HotbarListener() {
 		Bukkit.getPluginManager().registerEvents(this, GUIHandler.getInstance().getPlugin());
 	}
 
-	public void register(HotbarMenu menu) {
+	public void register(BottomInventoryMenu menu) {
 		menus.add(menu);
 	}
 
-	public void unregister(HotbarMenu menu) {
+	public void unregister(BottomInventoryMenu menu) {
 		menus.remove(menu);
 	}
 
@@ -41,7 +41,7 @@ public class HotbarListener implements Listener {
 			}
 			ClickContext clickContext = new ClickContext(player, player.getInventory().getHeldItemSlot(), true);
 			ItemStack stack = event.getItemDrop().getItemStack();
-			event.setCancelled(menu.handleInteract(Action.Hotbar.DROP, clickContext));
+			event.setCancelled(menu.handleInteract(Action.DROP, clickContext));
 			if (clickContext.isCancelled()) {
 				Bukkit.getScheduler().runTaskLater(GUIHandler.getInstance().getPlugin(), () -> {
 					player.getInventory().removeItem(stack);
@@ -58,10 +58,10 @@ public class HotbarListener implements Listener {
 				return;
 			}
 			switch (event.getAction()) {
-				case LEFT_CLICK_AIR -> event.setCancelled(menu.handleInteract(Action.Hotbar.LEFT_CLICK_AIR, new ClickContext(player, player.getInventory().getHeldItemSlot(), true)));
-				case RIGHT_CLICK_AIR -> event.setCancelled(menu.handleInteract(Action.Hotbar.RIGHT_CLICK_AIR, new ClickContext(player, player.getInventory().getHeldItemSlot(), true)));
-				case LEFT_CLICK_BLOCK -> event.setCancelled(menu.handleInteract(Action.Hotbar.LEFT_CLICK_BLOCK, new TargetContext<>(player, player.getInventory().getHeldItemSlot(), true, event.getClickedBlock())));
-				case RIGHT_CLICK_BLOCK -> event.setCancelled(menu.handleInteract(Action.Hotbar.RIGHT_CLICK_BLOCK, new TargetContext<>(player, player.getInventory().getHeldItemSlot(), true, event.getClickedBlock())));
+				case LEFT_CLICK_AIR -> event.setCancelled(menu.handleInteract(Action.LEFT_CLICK_AIR, new ClickContext(player, player.getInventory().getHeldItemSlot(), true)));
+				case RIGHT_CLICK_AIR -> event.setCancelled(menu.handleInteract(Action.RIGHT_CLICK_AIR, new ClickContext(player, player.getInventory().getHeldItemSlot(), true)));
+				case LEFT_CLICK_BLOCK -> event.setCancelled(menu.handleInteract(Action.LEFT_CLICK_BLOCK, new TargetContext<>(player, player.getInventory().getHeldItemSlot(), true, event.getClickedBlock())));
+				case RIGHT_CLICK_BLOCK -> event.setCancelled(menu.handleInteract(Action.RIGHT_CLICK_BLOCK, new TargetContext<>(player, player.getInventory().getHeldItemSlot(), true, event.getClickedBlock())));
 			}
 		});
 	}

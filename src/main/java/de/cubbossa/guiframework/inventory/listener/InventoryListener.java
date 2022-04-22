@@ -39,14 +39,14 @@ public class InventoryListener implements Listener {
 				if (!menu.isThisInventory(event.getClickedInventory(), player)) {
 					return;
 				}
-				event.setCancelled(menu.handleInteract(Action.Inventory.fromClickType(event.getClick()), new ClickContext(player, event.getSlot(), true)));
+				event.setCancelled(menu.handleInteract(Action.fromClickType(event.getClick()), new ClickContext(player, event.getSlot(), true)));
 			});
 			if (event.getClickedInventory() != null && event.getClickedInventory().getType() == InventoryType.PLAYER) {
 				AbstractInventoryMenu menu = ((AbstractInventoryMenu) InventoryHandler.getInstance().getMenuAtSlot(player, event.getSlot()));
 				if (menu == null) {
 					return;
 				}
-				event.setCancelled(menu.handleInteract(Action.Inventory.fromClickType(event.getClick()), new ClickContext(player, event.getSlot(), true)))
+				event.setCancelled(menu.handleInteract(Action.fromClickType(event.getClick()), new ClickContext(player, event.getSlot(), true)))
 				;
 			}
 		}
@@ -64,14 +64,14 @@ public class InventoryListener implements Listener {
 				if (event.getInventorySlots().size() > 1) {
 					return;
 				}
-				event.setCancelled(menu.handleInteract(Action.Inventory.fromClickType(type), new ClickContext(player, slot, true)));
+				event.setCancelled(menu.handleInteract(Action.fromClickType(type), new ClickContext(player, slot, true)));
 			});
 			if (event.getInventory().getType() == InventoryType.PLAYER && event.getInventorySlots().size() == 1) {
 				AbstractInventoryMenu menu = ((AbstractInventoryMenu) InventoryHandler.getInstance().getMenuAtSlot(player, slot));
 				if (menu == null) {
 					return;
 				}
-				event.setCancelled(menu.handleInteract(Action.Inventory.fromClickType(type), new ClickContext(player, slot, true)));
+				event.setCancelled(menu.handleInteract(Action.fromClickType(type), new ClickContext(player, slot, true)));
 			}
 		}
 	}

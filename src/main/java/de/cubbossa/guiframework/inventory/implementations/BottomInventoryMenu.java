@@ -35,7 +35,7 @@ public class BottomInventoryMenu extends AbstractInventoryMenu implements Layere
 
     public BottomInventoryMenu(int... slots) {
         super(slots.length);
-        this.slots = slots;
+        this.slots = Arrays.stream(slots).filter(s -> s >= 0 && s < 9).distinct().sorted().toArray();
         this.slotMask = InventoryHandler.getMaskFromSlots(slots);
     }
 

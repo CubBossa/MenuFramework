@@ -1,6 +1,6 @@
 package de.cubbossa.guiframework.inventory;
 
-import de.cubbossa.guiframework.inventory.implementations.HotbarMenu;
+import de.cubbossa.guiframework.inventory.implementations.BottomInventoryMenu;
 import de.cubbossa.guiframework.inventory.listener.HotbarListener;
 import de.cubbossa.guiframework.inventory.listener.InventoryListener;
 import lombok.Getter;
@@ -122,7 +122,7 @@ public class InventoryHandler {
 
         if (menu instanceof TopInventoryMenu aMenu && aMenu.getViewer().size() == 1) {
             inventoryListener.register(aMenu);
-        } else if (menu instanceof HotbarMenu aMenu && aMenu.getViewer().size() == 1) {
+        } else if (menu instanceof BottomInventoryMenu aMenu && aMenu.getViewer().size() == 1) {
             hotbarListener.register(aMenu);
         }
     }

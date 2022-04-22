@@ -5,8 +5,10 @@ import de.cubbossa.guiframework.inventory.context.ClickContext;
 import de.cubbossa.guiframework.inventory.context.CloseContext;
 import de.cubbossa.guiframework.inventory.context.ContextConsumer;
 import de.cubbossa.guiframework.inventory.context.TargetContext;
+import de.cubbossa.guiframework.inventory.implementations.BottomInventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.ListMenu;
+import de.cubbossa.guiframework.util.InventoryRow;
 import de.cubbossa.guiframework.util.ItemStackUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -344,7 +346,7 @@ public class MenuPresets {
         ListMenu listMenu = new ListMenu(rows, title);
         listMenu.addPreset(fill(FILLER_LIGHT));
         listMenu.addPreset(fillRow(FILLER_DARK, rows - 1));
-        listMenu.addPreset(paginationRow(rows - 1, 0, 1, false, Action.Inventory.LEFT));
+        listMenu.addPreset(paginationRow(rows - 1, 0, 1, false, Action.LEFT));
 
         if (supplier instanceof ListMenuManagerSupplier<T> manager) {
 
@@ -354,11 +356,11 @@ public class MenuPresets {
                         .withClickHandler(action, c -> {
                             clickHandler.accept(new TargetContext<>(c.getPlayer(), c.getSlot(), c.isCancelled(), object));
                         })
-                        .withClickHandler(Action.Inventory.MIDDLE, clickContext -> {
+                        .withClickHandler(Action.MIDDLE, clickContext -> {
                             manager.duplicateElementFromMenu(object);
                             listMenu.refresh(listMenu.getListSlots());
                         })
-                        .withClickHandler(Action.Inventory.RIGHT, clickContext -> {
+                        .withClickHandler(Action.RIGHT, clickContext -> {
                             manager.deleteFromMenu(object);
                             listMenu.refresh(listMenu.getListSlots());
                         }));
@@ -509,6 +511,13 @@ public class MenuPresets {
         return menu;
     }
 
+    /**
+     * @return A new Hotbar menu, consisting of a {@link BottomInventoryMenu} with the slots 0 - 8
+     */
+    public static BottomInventoryMenu newHotbarMenu() {
+        return new BottomInventoryMenu(InventoryRow.HOTBAR);
+    }
+
     private static String concatShape(String[] shape) {
         StringBuilder combined = new StringBuilder();
         for (int i = 0; i < 3; i++) {
@@ -530,7 +539,7 @@ public class MenuPresets {
     private static <C extends TargetContext<?>> MenuPreset<C> newItem(int slot, ContextConsumer<C> newHandler) {
         return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
             placeDynamicItem.accept(slot, NEW);
-            placeDynamicClickHandler.accept(slot, populate(newHandler, new Action[]{Action.Inventory.LEFT}));
+            placeDynamicClickHandler.accept(slot, populate(newHandler, new Action[]{Action.LEFT}));
         };
     }
 }

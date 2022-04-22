@@ -9,7 +9,6 @@ import de.cubbossa.guiframework.inventory.Action;
 import de.cubbossa.guiframework.inventory.ButtonBuilder;
 import de.cubbossa.guiframework.inventory.MenuPresets;
 import de.cubbossa.guiframework.inventory.implementations.BottomInventoryMenu;
-import de.cubbossa.guiframework.inventory.implementations.HotbarMenu;
 import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.ListMenu;
 import de.cubbossa.guiframework.scoreboard.CustomScoreboard;
@@ -90,40 +89,40 @@ public class TestCommand implements CommandExecutor {
     public TestCommand() {
         exampleMenu.addPreset(MenuPresets.fill(MenuPresets.FILLER_LIGHT));
         exampleMenu.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 3));
-        exampleMenu.addPreset(MenuPresets.paginationRow(3, 0, 1, false, Action.Inventory.LEFT));
+        exampleMenu.addPreset(MenuPresets.paginationRow(3, 0, 1, false, Action.LEFT));
         int i = 0;
         for (Material material : MaterialTags.BEDS.getValues()) {
             exampleMenu.setButton(i++, ButtonBuilder.buttonBuilder()
                     .withItemStack(material)
                     .withSound(Sound.ENTITY_EVOKER_PREPARE_WOLOLO, 0f, 2f, .5f, 2f)
-                    .withClickHandler(clickContext -> clickContext.getPlayer().getInventory().addItem(new ItemStack(material)), Action.Inventory.RIGHT));
+                    .withClickHandler(clickContext -> clickContext.getPlayer().getInventory().addItem(new ItemStack(material)), Action.RIGHT));
             if (i / 9 % 4 == 3) {
                 i += 9;
             }
         }
         exampleMenu.setItem(60, new ItemStack(Material.STONE));
         exampleMenu.setItem(-70, new ItemStack(Material.STONE));
-        exampleMenu.setClickHandler(60, Action.Inventory.LEFT, clickContext ->
+        exampleMenu.setClickHandler(60, Action.LEFT, clickContext ->
                 exampleMenu.openSubMenu(clickContext.getPlayer(), listMenu,
-                        MenuPresets.back(listMenu.getRows() - 1, 8, false, Action.Inventory.LEFT)));
+                        MenuPresets.back(listMenu.getRows() - 1, 8, false, Action.LEFT)));
         exampleMenu.updateTitle(Component.text("Seite 2"), 1);
 
         bottomMenu.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 0));
-        bottomMenu.addPreset(MenuPresets.paginationRow(exampleMenu, 0, 0, 1, false, Action.Inventory.LEFT, Action.Inventory.RIGHT));
+        bottomMenu.addPreset(MenuPresets.paginationRow(exampleMenu, 0, 0, 1, false, Action.LEFT, Action.RIGHT));
         bottomMenu2.addPreset(MenuPresets.fill(new ItemStack(Material.EMERALD)));
         for(int slot : bottomMenu.getSlots()) {
-            bottomMenu.setButton(slot, ButtonBuilder.buttonBuilder().withClickHandler(Action.Inventory.LEFT, clickContext -> {
+            bottomMenu.setButton(slot, ButtonBuilder.buttonBuilder().withClickHandler(Action.LEFT, clickContext -> {
                 clickContext.getPlayer().sendMessage(Component.text("Hat funktioniert 1"));
             }));
         }
         for(int slot : bottomMenu2.getSlots()) {
-            bottomMenu2.setButton(slot, ButtonBuilder.buttonBuilder().withClickHandler(Action.Inventory.LEFT, clickContext -> {
+            bottomMenu2.setButton(slot, ButtonBuilder.buttonBuilder().withClickHandler(Action.LEFT, clickContext -> {
                 clickContext.getPlayer().sendMessage(Component.text("Hat funktioniert 2"));
             }));
         }
 
         listMenu.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 3));
-        listMenu.addPreset(MenuPresets.paginationRow(3, 0, 1, false, Action.Inventory.LEFT));
+        listMenu.addPreset(MenuPresets.paginationRow(3, 0, 1, false, Action.LEFT));
         for (Material material : MaterialTags.ENCHANTABLE.getValues()) {
             listMenu.addListEntry(ButtonBuilder.buttonBuilder().withItemStack(material));
         }
@@ -213,7 +212,7 @@ public class TestCommand implements CommandExecutor {
                 MenuPresets.newCookingMenu(Component.text("Burn hand:"), player.getInventory().getItemInMainHand(), 10).open(player);
                 break;
             case "5.5":
-                MenuPresets.newPlayerListMenu(Component.text("Online"), 3, Action.Inventory.LEFT, playerTargetContext -> {
+                MenuPresets.newPlayerListMenu(Component.text("Online"), 3, Action.LEFT, playerTargetContext -> {
                     playerTargetContext.getTarget().getInventory().addItem(new ItemStack(Material.DIAMOND_AXE));
                     playerTargetContext.getPlayer().closeInventory();
                 }).open(player);
@@ -224,12 +223,12 @@ public class TestCommand implements CommandExecutor {
                 break;
 
             case "7.1":
-                HotbarMenu hotbarMenu = new HotbarMenu(player, 0, 1, 2, 3, 4, 5, 6, 7, 8);
+                BottomInventoryMenu hotbarMenu = MenuPresets.newHotbarMenu();
                 hotbarMenu.setButton(4, ButtonBuilder.buttonBuilder()
-                        .withClickHandler(Action.Hotbar.LEFT_CLICK_AIR, clickContext -> clickContext.getPlayer().sendMessage("lol"))
+                        .withClickHandler(Action.LEFT_CLICK_AIR, clickContext -> clickContext.getPlayer().sendMessage("lol"))
                         .withItemStack(Material.DIAMOND)
                         .withSound(Sound.ENTITY_VILLAGER_NO));
-                hotbarMenu.setDefaultClickHandler(Action.Hotbar.DROP, clickContext -> hotbarMenu.close(clickContext.getPlayer()));
+                hotbarMenu.setDefaultClickHandler(Action.DROP, clickContext -> hotbarMenu.close(clickContext.getPlayer()));
                 hotbarMenu.open(player);
                 break;
 

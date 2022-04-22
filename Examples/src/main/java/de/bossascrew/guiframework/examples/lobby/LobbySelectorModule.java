@@ -29,7 +29,7 @@ public class LobbySelectorModule implements CommandExecutor {
     public LobbySelectorModule(JavaPlugin plugin) {
         lobbyMenu = new InventoryMenu(4, Component.text("Choose a lobby"));
         lobbyMenu.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 3));
-        lobbyMenu.addPreset(MenuPresets.paginationRow(3, 0, 1, true, Action.Inventory.LEFT, Action.Inventory.RIGHT));
+        lobbyMenu.addPreset(MenuPresets.paginationRow(3, 0, 1, true, Action.LEFT, Action.RIGHT));
 
         int slot = 0;
         for(NetworkServer lobby : ServerHandler.getInstance().getServers(ServerHandler.ServerType.LOBBY)) {
@@ -41,7 +41,7 @@ public class LobbySelectorModule implements CommandExecutor {
                 stack.setItemMeta(meta);
                 return stack;
             });
-            lobbyMenu.setClickHandler(slot, Action.Inventory.LEFT, clickContext -> {
+            lobbyMenu.setClickHandler(slot, Action.LEFT, clickContext -> {
                 if(ServerHandler.getInstance().canConnect(clickContext.getPlayer(), lobby)) {
                     ServerHandler.getInstance().connect(clickContext.getPlayer(), lobby);
                 } else {
