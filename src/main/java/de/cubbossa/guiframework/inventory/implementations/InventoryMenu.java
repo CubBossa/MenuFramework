@@ -2,6 +2,7 @@ package de.cubbossa.guiframework.inventory.implementations;
 
 import de.cubbossa.guiframework.inventory.InventoryHandler;
 import de.cubbossa.guiframework.inventory.AbstractMenu;
+import de.cubbossa.guiframework.inventory.Menu;
 import de.cubbossa.guiframework.inventory.TopInventoryMenu;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
@@ -49,7 +50,7 @@ public class InventoryMenu extends TopInventoryMenu {
     }
 
 	@Override
-	protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable AbstractMenu previous) {
+	protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable Menu previous) {
         if (inventory != null) {
             clearContent();
         }

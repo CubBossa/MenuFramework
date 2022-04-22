@@ -92,7 +92,7 @@ public interface Menu {
 	 * @param menuSupplier The supplier for the menu that is supposed to be opened as sub menu to this menu.
 	 * @return The sub menu instance.
 	 */
-	Menu openSubMenu(Player player, Supplier<AbstractMenu> menuSupplier);
+	Menu openSubMenu(Player player, Supplier<Menu> menuSupplier);
 
 	/**
 	 * Opens another menu as a sub menu to this menu.
@@ -112,7 +112,7 @@ public interface Menu {
 	 * @param backPreset   A menu preset that could insert a back icon on every page. E.g. {@link MenuPresets#back(int, int, boolean, Action[])}
 	 * @return The sub menu instance.
 	 */
-	Menu openSubMenu(Player player, Supplier<AbstractMenu> menuSupplier, MenuPreset<?> backPreset);
+	Menu openSubMenu(Player player, Supplier<Menu> menuSupplier, MenuPreset<?> backPreset);
 
 	/**
 	 * Renders the next page. This page might be empty, if no items are set.
@@ -233,14 +233,6 @@ public interface Menu {
 	void removeItem(int... slots);
 
 	/**
-	 * Populates the inventory with itemstacks that are rendered on each page, if no real item was found.
-	 *
-	 * @param slot The slots to render the item at (not paginated, only 0 to rows*cols)
-	 * @param item The item to render
-	 */
-	void setDynamicItem(int slot, ItemStack item);
-
-	/**
 	 * Gets the click handler that will be executed when interacting. This regards menu presets, if no static handler was set.
 	 * Click handlers are mapped on slots and actions.
 	 *
@@ -258,25 +250,76 @@ public interface Menu {
 	 */
 	void setButton(int slot, ButtonBuilder button);
 
+	/**
+	 * Sets a click handler, that is called if a player interacts with the given slot and the actions are equal.
+	 *
+	 * @param slot         The absolute slot to insert the clickHandler at. {@code ((current_page * slots_per_page) + page_slot)}
+	 * @param action       The action to run this click handler for.
+	 * @param clickHandler An instance of the actual click handler interface, you might want to use lambda expressions
+	 * @param <C>          The click context type of the action and click handler.
+	 */
 	<C extends ClickContext> void setClickHandler(int slot, Action<C> action, ContextConsumer<C> clickHandler);
 
-	void setClickHandler(int slot, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler, int... slots);
+	/**
+	 * Sets a click handler, that is called if a player interacts with the given slot and the actions are equal.
+	 *
+	 * @param slot         The absolute slot to insert the clickHandler at. {@code ((current_page * slots_per_page) + page_slot)}
+	 * @param clickHandler A map of actions and corresponding instances of the actual click handler interfaces.
+	 */
+	void setClickHandler(int slot, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler);
 
+	/**
+	 * Sets a click handler, that is called if a player interacts with the given slot and the actions are equal.
+	 *
+	 * @param slot         The absolute slot to insert the clickHandler at. {@code ((current_page * slots_per_page) + page_slot)}
+	 * @param item         The item stack to insert at the slit.
+	 * @param action       The action to run this click handler for.
+	 * @param clickHandler An instance of the actual click handler interface, you might want to use lambda expressions.
+	 * @param <C>          The click context type of the action and click handler.
+	 */
 	<C extends ClickContext> void setItemAndClickHandler(int slot, ItemStack item, Action<C> action, ContextConsumer<C> clickHandler);
 
+	/**
+	 * Sets a default click handler to run on a certain action
+	 *
+	 * @param action       The action to call the default click handler for.
+	 * @param clickHandler An instance of the actual click handler interface, you might want to use lambda expressions
+	 * @param <C>The       click context type of the action and click handler.
+	 */
 	<C extends ClickContext> void setDefaultClickHandler(Action<C> action, ContextConsumer<C> clickHandler);
 
-	void setDynamicClickHandler(int slot, Action<?> action, ContextConsumer<ClickContext> clickHandler);
-
+	/**
+	 * Removes all click handlers from the given slots.
+	 */
 	void removeClickHandler(int... slots);
 
-	<C extends ClickContext> void removeClickHandler(Action<C> action, int... slots);
+	/**
+	 * Removes all click handlers for a certain action from the given slots.
+	 *
+	 * @param action The action to remove all click handlers for.
+	 * @param slots  The slots to clear.
+	 */
+	void removeClickHandler(Action<?> action, int... slots);
 
+	/**
+	 * Removes all items and click handlers from the given slots.
+	 */
 	void removeItemAndClickHandler(int... slots);
 
-	<C extends ClickContext> void removeItemAndClickHandler(Action<C> action, int... slots);
+	/**
+	 * Removes all items and click handlers for a certain action from the given slots.
+	 *
+	 * @param action The action to remove all click handlers for.
+	 * @param slots  The slots to clear.
+	 */
+	void removeItemAndClickHandler(Action<?> action, int... slots);
 
-	<C extends ClickContext> void removeDefaultClickHandler(Action<C> action);
+	/**
+	 * Removes a default click handler
+	 *
+	 * @param action The action to remove the default click handler for.
+	 */
+	void removeDefaultClickHandler(Action<?> action);
 
 	/**
 	 * Checks if a certain inventory is equal to the current instance of this menu inventory.

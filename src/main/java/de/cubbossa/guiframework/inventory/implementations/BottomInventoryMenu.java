@@ -56,7 +56,7 @@ public class BottomInventoryMenu extends AbstractMenu implements LayeredMenu {
     }
 
     @Override
-    protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable AbstractMenu previous) {
+    protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable Menu previous) {
         InventoryHandler.getInstance().registerBottomInventory(viewer, this);
         super.openInventorySynchronized(viewer, viewMode, previous);
     }

@@ -81,30 +81,30 @@ public abstract class AbstractMenu implements Menu {
         viewers.forEach(player -> open(player, viewMode));
     }
 
-    public void open(Player viewer, AbstractMenu previous) {
+    public void open(Player viewer, Menu previous) {
         GUIHandler.getInstance().callSynchronized(() -> openInventorySynchronized(viewer, previous));
     }
 
-    public void open(Collection<Player> viewers, AbstractMenu previous) {
+    public void open(Collection<Player> viewers, Menu previous) {
         viewers.forEach(player -> open(player, previous));
     }
 
-    public AbstractMenu openSubMenu(Player player, AbstractMenu menu) {
+    public Menu openSubMenu(Player player, Menu menu) {
         menu.open(player, this);
         return menu;
     }
 
-    public AbstractMenu openSubMenu(Player player, Supplier<AbstractMenu> menuSupplier) {
+    public Menu openSubMenu(Player player, Supplier<Menu> menuSupplier) {
         return openSubMenu(player, menuSupplier.get());
     }
 
-    public AbstractMenu openSubMenu(Player player, AbstractMenu menu, MenuPreset<?> backPreset) {
+    public Menu openSubMenu(Player player, Menu menu, MenuPreset<?> backPreset) {
         menu.addPreset(backPreset);
         menu.open(player, this);
         return menu;
     }
 
-    public AbstractMenu openSubMenu(Player player, Supplier<AbstractMenu> menuSupplier, MenuPreset<?> backPreset) {
+    public Menu openSubMenu(Player player, Supplier<Menu> menuSupplier, MenuPreset<?> backPreset) {
         return openSubMenu(player, menuSupplier.get(), backPreset);
     }
 
@@ -121,11 +121,11 @@ public abstract class AbstractMenu implements Menu {
         render(player);
     }
 
-    protected void openInventorySynchronized(Player viewer, @Nullable AbstractMenu previous) {
+    protected void openInventorySynchronized(Player viewer, @Nullable Menu previous) {
         openInventorySynchronized(viewer, ViewMode.MODIFY, previous);
     }
 
-    protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable AbstractMenu previous) {
+    protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable Menu previous) {
 
         if (viewer.isSleeping()) {
             viewer.wakeup(true);
@@ -302,7 +302,7 @@ public abstract class AbstractMenu implements Menu {
         this.clickHandler.put(slot, map);
     }
 
-    public void setClickHandler(int slot, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler, int... slots) {
+    public void setClickHandler(int slot, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler) {
         Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> map = this.clickHandler.getOrDefault(slot, new HashMap<>());
         map.putAll(clickHandler);
         this.clickHandler.put(slot, map);
@@ -329,7 +329,7 @@ public abstract class AbstractMenu implements Menu {
         }
     }
 
-    public <C extends ClickContext> void removeClickHandler(Action<C> action, int... slots) {
+    public void removeClickHandler(Action<?> action, int... slots) {
         for (int slot : slots) {
             Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> map = clickHandler.get(slot);
             if (map != null) {
@@ -346,7 +346,7 @@ public abstract class AbstractMenu implements Menu {
         }
     }
 
-    public <C extends ClickContext> void removeItemAndClickHandler(Action<C> action, int... slots) {
+    public void removeItemAndClickHandler(Action<?> action, int... slots) {
         for (int slot : slots) {
             inventory.setItem(slot, null);
             itemStacks.remove(slot);
@@ -357,7 +357,7 @@ public abstract class AbstractMenu implements Menu {
         }
     }
 
-    public <C extends ClickContext> void removeDefaultClickHandler(Action<C> action) {
+    public void removeDefaultClickHandler(Action<?> action) {
         defaultClickHandler.remove(action);
     }
 
