@@ -11,7 +11,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -40,7 +39,7 @@ public abstract class AbstractMenu implements Menu {
 
     protected final Map<Integer, Collection<Animation>> animations;
     protected final Map<UUID, ViewMode> viewer;
-
+    protected final Map<UUID, Menu> previous;
 
     protected final int slotsPerPage;
     protected int currentPage = 0;
@@ -55,6 +54,7 @@ public abstract class AbstractMenu implements Menu {
         this.dynamicItemStacks = new TreeMap<>();
         this.animations = new TreeMap<>();
         this.viewer = new HashMap<>();
+        this.previous = new HashMap<>();
         this.slotsPerPage = slotsPerPage;
         this.clickHandler = new TreeMap<>();
         this.dynamicClickHandler = new TreeMap<>();
@@ -69,28 +69,37 @@ public abstract class AbstractMenu implements Menu {
 
     protected abstract void openInventory(Player player, Inventory inventory);
 
+    public void firstOpen() {
+        InvMenuHandler.getInstance().registerMenu(this);
+    }
+
+    public void lastClose() {
+        InvMenuHandler.getInstance().unregisterMenu(this);
+    }
+
     public void open(Player viewer) {
         open(viewer, ViewMode.MODIFY);
     }
 
     public void open(Player viewer, ViewMode viewMode) {
-        GUIHandler.getInstance().callSynchronized(() -> openInventorySynchronized(viewer, viewMode, null));
+        GUIHandler.getInstance().callSynchronized(() -> openSync(viewer, viewMode));
+    }
+
+    public void open(Collection<Player> viewers) {
+        GUIHandler.getInstance().callSynchronized(() -> {
+            viewers.forEach(player -> openSync(player, ViewMode.MODIFY));
+        });
     }
 
     public void open(Collection<Player> viewers, ViewMode viewMode) {
-        viewers.forEach(player -> open(player, viewMode));
-    }
-
-    public void open(Player viewer, Menu previous) {
-        GUIHandler.getInstance().callSynchronized(() -> openInventorySynchronized(viewer, previous));
-    }
-
-    public void open(Collection<Player> viewers, Menu previous) {
-        viewers.forEach(player -> open(player, previous));
+        GUIHandler.getInstance().callSynchronized(() -> {
+            viewers.forEach(player -> openSync(player, viewMode));
+        });
     }
 
     public Menu openSubMenu(Player player, Menu menu) {
-        menu.open(player, this);
+        menu.setPrevious(player, this);
+        menu.open(player);
         return menu;
     }
 
@@ -99,13 +108,27 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public Menu openSubMenu(Player player, Menu menu, MenuPreset<?> backPreset) {
-        menu.addPreset(backPreset);
-        menu.open(player, this);
-        return menu;
+        return openSubMenu(player, menu, ViewMode.MODIFY, backPreset);
     }
 
     public Menu openSubMenu(Player player, Supplier<Menu> menuSupplier, MenuPreset<?> backPreset) {
-        return openSubMenu(player, menuSupplier.get(), backPreset);
+        return openSubMenu(player, menuSupplier.get(), ViewMode.MODIFY, backPreset);
+    }
+
+    public Menu openSubMenu(Player player, Menu menu, ViewMode viewMode, MenuPreset<?> backPreset) {
+        menu.setPrevious(player, this);
+        menu.addPreset(backPreset);
+        menu.open(player);
+        return menu;
+    }
+
+    public Menu openSubMenu(Player player, Supplier<Menu> menuSupplier, ViewMode viewMode, MenuPreset<?> backPreset) {
+        return openSubMenu(player, menuSupplier.get(), viewMode, backPreset);
+    }
+
+    @Override
+    public void setPrevious(Player player, Menu previous) {
+        this.previous.put(player.getUniqueId(), previous);
     }
 
     public void openNextPage(Player player) {
@@ -121,11 +144,11 @@ public abstract class AbstractMenu implements Menu {
         render(player, true);
     }
 
-    protected void openInventorySynchronized(Player viewer, @Nullable Menu previous) {
-        openInventorySynchronized(viewer, ViewMode.MODIFY, previous);
+    public void openSync(Player viewer) {
+        openSync(viewer, ViewMode.MODIFY);
     }
 
-    protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable Menu previous) {
+    public void openSync(Player viewer, ViewMode viewMode) {
 
         if (viewer.isSleeping()) {
             viewer.wakeup(true);
@@ -143,6 +166,10 @@ public abstract class AbstractMenu implements Menu {
             });
         }
         this.viewer.put(viewer.getUniqueId(), viewMode);
+
+        if (this.viewer.size() == 1) {
+            firstOpen();
+        }
     }
 
     public void render(Player viewer, boolean clear) {
@@ -175,20 +202,27 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public void close(Player viewer) {
+        GUIHandler.getInstance().callSynchronized(() -> {
 
-        if (this.viewer.remove(viewer.getUniqueId()) == null) {
-            return;
-        }
-        if (this.viewer.size() == 0) {
-            animations.forEach((integer, animations1) -> animations1.forEach(Animation::stop));
-        }
-        if (closeHandler != null) {
-            try {
-                closeHandler.accept(new CloseContext(viewer, currentPage));
-            } catch (Exception exc) {
-                GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error occured while closing gui for " + viewer.getName(), exc);
+            Menu previous = this.previous.remove(viewer.getUniqueId());
+            if (this.viewer.remove(viewer.getUniqueId()) == null) {
+                return;
             }
-        }
+            if (this.viewer.size() == 0) {
+                animations.forEach((integer, animations1) -> animations1.forEach(Animation::stop));
+                lastClose();
+            }
+            if (closeHandler != null) {
+                try {
+                    closeHandler.accept(new CloseContext(viewer, currentPage));
+                } catch (Exception exc) {
+                    GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error occured while closing gui for " + viewer.getName(), exc);
+                }
+            }
+            if (previous != null) {
+                previous.openSync(viewer, ViewMode.MODIFY);
+            }
+        });
     }
 
     public void closeAll(Collection<Player> viewers) {

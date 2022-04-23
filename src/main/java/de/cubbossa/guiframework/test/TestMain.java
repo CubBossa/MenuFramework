@@ -11,14 +11,15 @@ public class TestMain extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        new GUIHandler(this) {
+        GUIHandler guiHandler = new GUIHandler(this) {
             @Override
             public MiniMessage getMiniMessage() {
                 return MiniMessage.miniMessage();
             }
-        }.registerDefaultListeners();
-        new CustomScoreboardHandler();
+        };
         new InvMenuHandler();
+        guiHandler.registerDefaultListeners();
+        new CustomScoreboardHandler();
 
         Bukkit.getPluginCommand("guitest").setExecutor(new TestCommand());
     }

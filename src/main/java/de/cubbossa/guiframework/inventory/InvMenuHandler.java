@@ -14,33 +14,22 @@ public class InvMenuHandler {
     @Getter
     private static InvMenuHandler instance;
 
-    private final Map<UUID, Stack<TopInventoryMenu>> navigationTopMap;
     private final Map<UUID, Stack<LayeredMenu>> navigationBottomMap;
     private final Map<UUID, ItemStack[]> coveredInventories;
+
+    private final Set<MenuListener> listeners;
 
     public InvMenuHandler() {
         instance = this;
 
-        this.navigationTopMap = new HashMap<>();
         this.navigationBottomMap = new HashMap<>();
         this.coveredInventories = new HashMap<>();
-    }
-
-    public Collection<TopInventoryMenu> getTopMenus() {
-        Set<TopInventoryMenu> set = new HashSet<>();
-        navigationTopMap.forEach((uuid, menus) -> set.addAll(menus));
-        return set;
+        this.listeners = new HashSet<>();
     }
 
     public Collection<LayeredMenu> getBottomMenus() {
         Set<LayeredMenu> set = new HashSet<>();
         navigationBottomMap.forEach((uuid, menus) -> set.addAll(menus));
-        return set;
-    }
-
-    public <T> Collection<T> getTopMenus(Class<T> type) {
-        Set<T> set = new HashSet<>();
-        navigationTopMap.forEach((uuid, menus) -> set.addAll((Collection<? extends T>) menus.stream().filter(menu -> menu.getClass().equals(type)).toList()));
         return set;
     }
 
@@ -50,13 +39,6 @@ public class InvMenuHandler {
         return set;
     }
 
-    public Stack<TopInventoryMenu> getTopMenus(Player player) {
-        if (!navigationTopMap.containsKey(player.getUniqueId())) {
-            return new Stack<>();
-        }
-        return (Stack<TopInventoryMenu>) navigationTopMap.get(player.getUniqueId()).clone();
-    }
-
     public Stack<LayeredMenu> getBottomMenus(Player player) {
         if (!navigationBottomMap.containsKey(player.getUniqueId())) {
             return new Stack<>();
@@ -64,37 +46,7 @@ public class InvMenuHandler {
         return (Stack<LayeredMenu>) navigationBottomMap.get(player.getUniqueId()).clone();
     }
 
-    public void registerTopInventory(Player player, TopInventoryMenu menu, @Nullable TopInventoryMenu previous) {
-
-        if (menu == null) {
-            return;
-        }
-
-        Stack<TopInventoryMenu> stack = navigationTopMap.getOrDefault(player.getUniqueId(), new Stack<>());
-        if (previous != null && (stack.isEmpty() || stack.peek() != previous)) {
-            stack.clear();
-            stack.push(previous);
-        }
-        if (stack.isEmpty() || stack.peek() != menu) {
-            stack.push(menu);
-        }
-        navigationTopMap.put(player.getUniqueId(), stack);
-    }
-
-    public TopInventoryMenu getCurrentTopMenu(Player player) {
-        Stack<TopInventoryMenu> stack = navigationTopMap.getOrDefault(player.getUniqueId(), new Stack<>());
-        return stack.isEmpty() ? null : stack.pop();
-    }
-
     public void closeAllMenus() {
-        for (Stack<TopInventoryMenu> stack : navigationTopMap.values()) {
-            if (stack.isEmpty()) {
-                continue;
-            }
-            AbstractMenu open = stack.peek();
-            stack.clear();
-            open.closeAll();
-        }
         for (Stack<LayeredMenu> stack : navigationBottomMap.values()) {
             while (stack.isEmpty()) {
                 LayeredMenu layered = stack.peek();
@@ -102,23 +54,6 @@ public class InvMenuHandler {
                     menu.closeAll();
                 }
             }
-        }
-    }
-
-    public void closeCurrentTopMenu(Collection<Player> players) {
-        players.forEach(this::closeCurrentTopMenu);
-    }
-
-    public void closeCurrentTopMenu(Player player) {
-        Stack<TopInventoryMenu> menuStack = navigationTopMap.get(player.getUniqueId());
-        if (menuStack == null) {
-            return;
-        }
-        if (!menuStack.isEmpty()) {
-            menuStack.pop();
-        }
-        if (!menuStack.isEmpty()) {
-            menuStack.peek().open(player);
         }
     }
 
@@ -218,5 +153,21 @@ public class InvMenuHandler {
             }
         }
         return null;
+    }
+
+    public void registerMenu(Menu menu) {
+        listeners.forEach(listener -> listener.register(menu));
+    }
+
+    public void unregisterMenu(Menu menu) {
+        listeners.forEach(listener -> listener.unregister(menu));
+    }
+
+    public void registerListener(MenuListener listener) {
+        listeners.add(listener);
+    }
+
+    public void unregisterListener(MenuListener listener) {
+        listeners.add(listener);
     }
 }

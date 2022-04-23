@@ -48,11 +48,6 @@ public class InventoryMenu extends TopInventoryMenu {
         this.slots = IntStream.range(0, rows * 9).toArray();
     }
 
-	@Override
-	protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable Menu previous) {
-        super.openInventorySynchronized(viewer, viewMode, previous);
-    }
-
     @Override
     public Inventory createInventory(Player player, int page) {
         return inventoryType == InventoryType.CHEST ?

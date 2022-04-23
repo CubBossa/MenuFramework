@@ -1,12 +1,10 @@
 package de.cubbossa.guiframework.inventory.implementations;
 
 import de.cubbossa.guiframework.inventory.*;
-import de.cubbossa.guiframework.inventory.InventoryRow;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -56,9 +54,9 @@ public class BottomInventoryMenu extends AbstractMenu implements LayeredMenu {
     }
 
     @Override
-    protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable Menu previous) {
+    public void openSync(Player viewer, ViewMode viewMode) {
         InvMenuHandler.getInstance().registerBottomInventory(viewer, this);
-        super.openInventorySynchronized(viewer, viewMode, previous);
+        super.openSync(viewer, viewMode);
     }
 
     @Override

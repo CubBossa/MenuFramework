@@ -9,11 +9,10 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 public interface Menu {
-
-	//TODO parent menu as part of the menu object, no stacking in InvMenuHandler required
 
 	/**
 	 * If set to view, a viewer cannot interact with the menu anymore
@@ -22,6 +21,11 @@ public interface Menu {
 		MODIFY,
 		VIEW
 	}
+
+	/**
+	 * @return A map of all players that currently see this menu and their view mode.
+	 */
+	Map<UUID, ViewMode> getViewer();
 
 	/**
 	 * @return All slots that form one page of this menu.
@@ -51,32 +55,34 @@ public interface Menu {
 	/**
 	 * Opens this menu to multiple viewers.
 	 *
+	 * @param viewers The viewers to open this menu for.
+	 */
+	void open(Collection<Player> viewers);
+
+	/**
+	 * Opens this menu to multiple viewers.
+	 *
 	 * @param viewers  The viewers to open this menu for.
 	 * @param viewMode The viewmode. Use VIEW to prevent the viewer from interacting with entries.
 	 */
 	void open(Collection<Player> viewers, ViewMode viewMode);
 
 	/**
-	 * Opens this menu to a viewer.
+	 * Opening inventories is not generally thread safe, therefore the actual opening happens in a synchronized method.
+	 * Only call this method if you are on the main thread.
 	 *
-	 * @param viewer   The viewer to open this menu for.
-	 * @param previous The menu that is expected to be open before this menu.
-	 *                 If this menu is an instance of {@link LayeredMenu}, previous will be ignored.
-	 *                 If not and previous is set to null, this menu will be opened as new base menu.
-	 *                 Base menus simply close when closed. Child menus open their parent menus if closed.
+	 * @param viewer The viewer to open this menu for.
 	 */
-	void open(Player viewer, Menu previous);
+	void openSync(Player viewer);
 
 	/**
-	 * Opens this menu to multiple viewers.
+	 * Opening inventories is not generally thread safe, therefore the actual opening happens in a synchronized method.
+	 * Only call this method if you are on the main thread.
 	 *
-	 * @param viewers  The viewers to open this menu for.
-	 * @param previous The menu that is expected to be open before this menu.
-	 *                 If this menu is an instance of {@link LayeredMenu}, previous will be ignored.
-	 *                 If not and previous is set to null, this menu will be opened as new base menu.
-	 *                 Base menus simply close when closed. Child menus open their parent menus if closed.
+	 * @param viewer   The viewer to open this menu for.
+	 * @param viewMode The viewmode. Use VIEW to prevent the viewer from interacting with entries.
 	 */
-	void open(Collection<Player> viewers, Menu previous);
+	void openSync(Player viewer, ViewMode viewMode);
 
 	/**
 	 * Opens another menu as a sub menu to this menu.
@@ -115,6 +121,33 @@ public interface Menu {
 	 * @return The sub menu instance.
 	 */
 	Menu openSubMenu(Player player, Supplier<Menu> menuSupplier, MenuPreset<?> backPreset);
+
+	/**
+	 * Opens another menu as a sub menu to this menu.
+	 *
+	 * @param player     The viewer to open the sub menu for.
+	 * @param menu       The menu that is supposed to be opened as sub menu to this menu.
+	 * @param viewMode   The viewmode. Use VIEW to prevent the viewer from interacting with entries.
+	 * @param backPreset A menu preset that could insert a back icon on every page. E.g. {@link MenuPresets#back(int, int, boolean, Action[])}
+	 * @return The sub menu instance.
+	 */
+	Menu openSubMenu(Player player, Menu menu, ViewMode viewMode, MenuPreset<?> backPreset);
+
+	/**
+	 * Opens another menu as a sub menu to this menu.
+	 *
+	 * @param player       The viewer to open the sub menu for.
+	 * @param menuSupplier The supplier for the menu that is supposed to be opened as sub menu to this menu.
+	 * @param viewMode The viewmode. Use VIEW to prevent the viewer from interacting with entries.
+	 * @param backPreset   A menu preset that could insert a back icon on every page. E.g. {@link MenuPresets#back(int, int, boolean, Action[])}
+	 * @return The sub menu instance.
+	 */
+	Menu openSubMenu(Player player, Supplier<Menu> menuSupplier, ViewMode viewMode, MenuPreset<?> backPreset);
+
+	/**
+	 * @param previous The menu that will reappear once this menu closes
+	 */
+	void setPrevious(Player player, Menu previous);
 
 	/**
 	 * Renders the next page. This page might be empty, if no items are set.

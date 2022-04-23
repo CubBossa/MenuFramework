@@ -7,14 +7,17 @@ import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.TreeMap;
 
 @Getter
-public abstract class TopInventoryMenu extends AbstractMenu {
+public abstract class TopInventoryMenu extends AbstractMenu implements Listener {
 
     private Component fallbackTitle;
     private final Map<Integer, Component> pageTitles;
@@ -25,16 +28,19 @@ public abstract class TopInventoryMenu extends AbstractMenu {
         this.pageTitles = new TreeMap<>();
     }
 
+    @EventHandler
+    public void onCloseInventory(InventoryCloseEvent event) {
+        if (event.getPlayer() instanceof Player player) {
+            if (isThisInventory(event.getInventory(), player)) {
+                close(player);
+            }
+        }
+    }
+
     @Override
     public void openPage(Player player, int page) {
         super.openPage(player, page);
         updateCurrentInventoryTitle(getTitle(page));
-    }
-
-    @Override
-    public void close(Player viewer) {
-        super.close(viewer);
-        InvMenuHandler.getInstance().closeCurrentTopMenu(viewer);
     }
 
     public Component getTitle(int page) {
@@ -62,18 +68,6 @@ public abstract class TopInventoryMenu extends AbstractMenu {
         String name = ChatUtils.toLegacy(title);
         viewer.keySet().stream().map(Bukkit::getPlayer).forEach(player ->
                 InventoryUpdate.updateInventory(GUIHandler.getInstance().getPlugin(), player, name));
-
-        /*GUIHandler.getInstance().callSynchronized(() -> {
-            Inventory old = inventory;
-            Optional<UUID> anyPlayer = viewer.keySet().stream().findAny();
-            if (anyPlayer.isPresent()) {
-                this.inventory = createInventory(Bukkit.getPlayer(anyPlayer.get()), currentPage);
-                this.inventory.setContents(old.getContents());
-                for (Player viewer : viewer.keySet().stream().map(Bukkit::getPlayer).toList()) {
-                    viewer.openInventory(this.inventory);
-                }
-            }
-        });*/
     }
 
     @Override
@@ -82,8 +76,14 @@ public abstract class TopInventoryMenu extends AbstractMenu {
     }
 
     @Override
-    protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable Menu previous) {
-        super.openInventorySynchronized(viewer, viewMode, previous);
-        InvMenuHandler.getInstance().registerTopInventory(viewer, this, (TopInventoryMenu) previous);
+    public void firstOpen() {
+        super.firstOpen();
+        Bukkit.getPluginManager().registerEvents(this, GUIHandler.getInstance().getPlugin());
+    }
+
+    @Override
+    public void lastClose() {
+        super.lastClose();
+        InventoryCloseEvent.getHandlerList().unregister(this);
     }
 }
