@@ -50,18 +50,7 @@ public class InventoryMenu extends TopInventoryMenu {
 
 	@Override
 	protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable Menu previous) {
-        if (inventory != null) {
-            clearContent();
-        }
         super.openInventorySynchronized(viewer, viewMode, previous);
-    }
-
-    @Override
-    public void close(Player viewer) {
-        super.close(viewer);
-        if (this.getViewer().size() == 0) {
-            InvMenuHandler.getInstance().getInventoryListener().unregister(this);
-        }
     }
 
     @Override

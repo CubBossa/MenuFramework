@@ -13,6 +13,8 @@ import java.util.function.Supplier;
 
 public interface Menu {
 
+	//TODO parent menu as part of the menu object, no stacking in InvMenuHandler required
+
 	/**
 	 * If set to view, a viewer cannot interact with the menu anymore
 	 */
@@ -141,8 +143,9 @@ public interface Menu {
 	 * Renders all items to the open inventory.
 	 *
 	 * @param viewer The viewer to render the items for. Used to render menus that are displayed for each player individually.
+	 * @param clear  If the inventory should be cleared before rendering items.
 	 */
-	void render(Player viewer);
+	void render(Player viewer, boolean clear);
 
 	/**
 	 * Close this menu for a player.

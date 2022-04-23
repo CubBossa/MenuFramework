@@ -118,7 +118,7 @@ public abstract class AbstractMenu implements Menu {
 
     public void openPage(Player player, int page) {
         currentPage = page;
-        render(player);
+        render(player, true);
     }
 
     protected void openInventorySynchronized(Player viewer, @Nullable Menu previous) {
@@ -130,7 +130,8 @@ public abstract class AbstractMenu implements Menu {
         if (viewer.isSleeping()) {
             viewer.wakeup(true);
         }
-        render(viewer);
+
+        render(viewer, true);
         openInventory(viewer, inventory);
 
         if (this.viewer.isEmpty()) {
@@ -144,10 +145,14 @@ public abstract class AbstractMenu implements Menu {
         this.viewer.put(viewer.getUniqueId(), viewMode);
     }
 
-    public void render(Player viewer) {
+    public void render(Player viewer, boolean clear) {
 
         if (inventory == null) {
             inventory = createInventory(viewer, currentPage);
+        }
+
+        if (clear) {
+            clearContent();
         }
 
         int minPage = getMinPage();

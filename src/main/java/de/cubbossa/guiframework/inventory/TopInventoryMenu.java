@@ -1,6 +1,8 @@
 package de.cubbossa.guiframework.inventory;
 
 import de.cubbossa.guiframework.GUIHandler;
+import de.cubbossa.guiframework.util.ChatUtils;
+import de.cubbossa.guiframework.util.InventoryUpdate;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -9,9 +11,7 @@ import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.TreeMap;
-import java.util.UUID;
 
 @Getter
 public abstract class TopInventoryMenu extends AbstractMenu {
@@ -27,8 +27,8 @@ public abstract class TopInventoryMenu extends AbstractMenu {
 
     @Override
     public void openPage(Player player, int page) {
-        updateCurrentInventoryTitle(getTitle(page));
         super.openPage(player, page);
+        updateCurrentInventoryTitle(getTitle(page));
     }
 
     @Override
@@ -58,7 +58,12 @@ public abstract class TopInventoryMenu extends AbstractMenu {
     }
 
     private void updateCurrentInventoryTitle(Component title) {
-        GUIHandler.getInstance().callSynchronized(() -> {
+
+        String name = ChatUtils.toLegacy(title);
+        viewer.keySet().stream().map(Bukkit::getPlayer).forEach(player ->
+                InventoryUpdate.updateInventory(GUIHandler.getInstance().getPlugin(), player, name));
+
+        /*GUIHandler.getInstance().callSynchronized(() -> {
             Inventory old = inventory;
             Optional<UUID> anyPlayer = viewer.keySet().stream().findAny();
             if (anyPlayer.isPresent()) {
@@ -68,7 +73,7 @@ public abstract class TopInventoryMenu extends AbstractMenu {
                     viewer.openInventory(this.inventory);
                 }
             }
-        });
+        });*/
     }
 
     @Override

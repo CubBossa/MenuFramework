@@ -2,7 +2,6 @@ package de.cubbossa.guiframework.inventory.implementations;
 
 import de.cubbossa.guiframework.inventory.Action;
 import de.cubbossa.guiframework.inventory.ButtonBuilder;
-import de.cubbossa.guiframework.inventory.MenuPresets;
 import de.cubbossa.guiframework.inventory.context.ContextConsumer;
 import de.cubbossa.guiframework.inventory.context.TargetContext;
 import de.cubbossa.guiframework.util.Pair;
@@ -66,7 +65,7 @@ public class ListMenu extends InventoryMenu {
 
     @Override
     public int getMaxPage() {
-        return Integer.max(super.getMaxPage(), listElements.size() / listSlots.length);
+        return Integer.max(super.getMaxPage(), (int) Math.ceil((double) listElements.size() / listSlots.length));
     }
 
     /**

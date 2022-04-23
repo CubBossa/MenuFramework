@@ -4,12 +4,14 @@ import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.inventory.AbstractMenu;
 import de.cubbossa.guiframework.inventory.Action;
 import de.cubbossa.guiframework.inventory.InvMenuHandler;
+import de.cubbossa.guiframework.inventory.Menu;
 import de.cubbossa.guiframework.inventory.context.ClickContext;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.*;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 public class InventoryListener implements Listener {
 
@@ -66,8 +68,17 @@ public class InventoryListener implements Listener {
 	@EventHandler
 	public void onInventoryClose(InventoryCloseEvent event) {
 		if (event.getPlayer() instanceof Player player) {
-			InvMenuHandler.getInstance().getTopMenus().forEach(menu -> menu.close(player));
-			InvMenuHandler.getInstance().closeAllBottomMenus(player);
+			Menu m = InvMenuHandler.getInstance().getCurrentTopMenu(player);
+			if (m != null) {
+				m.close(player);
+			}
 		}
+	}
+
+	@EventHandler
+	public void onPlayerQuit(PlayerQuitEvent event) {
+		Player player = event.getPlayer();
+		InvMenuHandler.getInstance().getTopMenus().forEach(menu -> menu.close(player));
+		InvMenuHandler.getInstance().closeAllBottomMenus(player);
 	}
 }

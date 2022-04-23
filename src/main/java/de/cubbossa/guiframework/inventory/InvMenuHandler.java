@@ -51,14 +51,24 @@ public class InvMenuHandler {
     }
 
     public Stack<TopInventoryMenu> getTopMenus(Player player) {
+        if (!navigationTopMap.containsKey(player.getUniqueId())) {
+            return new Stack<>();
+        }
         return (Stack<TopInventoryMenu>) navigationTopMap.get(player.getUniqueId()).clone();
     }
 
     public Stack<LayeredMenu> getBottomMenus(Player player) {
+        if (!navigationBottomMap.containsKey(player.getUniqueId())) {
+            return new Stack<>();
+        }
         return (Stack<LayeredMenu>) navigationBottomMap.get(player.getUniqueId()).clone();
     }
 
     public void registerTopInventory(Player player, TopInventoryMenu menu, @Nullable TopInventoryMenu previous) {
+
+        if (menu == null) {
+            return;
+        }
 
         Stack<TopInventoryMenu> stack = navigationTopMap.getOrDefault(player.getUniqueId(), new Stack<>());
         if (previous != null && (stack.isEmpty() || stack.peek() != previous)) {
@@ -72,7 +82,7 @@ public class InvMenuHandler {
     }
 
     public TopInventoryMenu getCurrentTopMenu(Player player) {
-        Stack<TopInventoryMenu> stack = navigationTopMap.get(player.getUniqueId());
+        Stack<TopInventoryMenu> stack = navigationTopMap.getOrDefault(player.getUniqueId(), new Stack<>());
         return stack.isEmpty() ? null : stack.pop();
     }
 
@@ -101,6 +111,9 @@ public class InvMenuHandler {
 
     public void closeCurrentTopMenu(Player player) {
         Stack<TopInventoryMenu> menuStack = navigationTopMap.get(player.getUniqueId());
+        if (menuStack == null) {
+            return;
+        }
         if (!menuStack.isEmpty()) {
             menuStack.pop();
         }
