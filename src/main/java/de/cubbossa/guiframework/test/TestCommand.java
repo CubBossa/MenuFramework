@@ -228,7 +228,7 @@ public class TestCommand implements CommandExecutor {
                         .withClickHandler(Action.LEFT_CLICK_AIR, clickContext -> clickContext.getPlayer().sendMessage("lol"))
                         .withItemStack(Material.DIAMOND)
                         .withSound(Sound.ENTITY_VILLAGER_NO));
-                hotbarMenu.setDefaultClickHandler(Action.DROP, clickContext -> hotbarMenu.close(clickContext.getPlayer()));
+                hotbarMenu.setDefaultClickHandler(Action.HOTBAR_DROP, clickContext -> hotbarMenu.close(clickContext.getPlayer()));
                 hotbarMenu.open(player);
                 break;
 

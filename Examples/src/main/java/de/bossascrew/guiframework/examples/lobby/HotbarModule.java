@@ -12,7 +12,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.checkerframework.common.subtyping.qual.Bottom;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,7 +54,7 @@ public class HotbarModule implements Listener {
         }
 
         // not exactly useful in a lobby hotbar but for tutorials sake:
-        hotbar.setDefaultClickHandler(Action.DROP, clickContext -> {
+        hotbar.setDefaultClickHandler(Action.HOTBAR_DROP, clickContext -> {
             hotbar.close(clickContext.getPlayer());
         });
 

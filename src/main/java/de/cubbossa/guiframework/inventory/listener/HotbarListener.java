@@ -41,7 +41,7 @@ public class HotbarListener implements Listener {
 			}
 			ClickContext clickContext = new ClickContext(player, player.getInventory().getHeldItemSlot(), true);
 			ItemStack stack = event.getItemDrop().getItemStack();
-			event.setCancelled(menu.handleInteract(Action.DROP, clickContext));
+			event.setCancelled(menu.handleInteract(Action.HOTBAR_DROP, clickContext));
 			if (clickContext.isCancelled()) {
 				Bukkit.getScheduler().runTaskLater(GUIHandler.getInstance().getPlugin(), () -> {
 					player.getInventory().removeItem(stack);

@@ -2,7 +2,6 @@ package de.cubbossa.guiframework.inventory;
 
 import de.cubbossa.guiframework.inventory.context.ClickContext;
 import de.cubbossa.guiframework.inventory.context.TargetContext;
-import lombok.experimental.UtilityClass;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.inventory.ClickType;
@@ -18,7 +17,7 @@ public class Action<C extends TargetContext<?>> {
     public static final Action<ClickContext> MIDDLE = new Action<>();
     public static final Action<ClickContext> NUMBER_KEY = new Action<>();
     public static final Action<ClickContext> DOUBLE_CLICK = new Action<>();
-    public static final Action<ClickContext> DROP = new Action<>();
+    public static final Action<ClickContext> INVENTORY_DROP = new Action<>();
     public static final Action<ClickContext> CONTROL_DROP = new Action<>();
     public static final Action<ClickContext> CREATIVE = new Action<>();
     public static final Action<ClickContext> SWAP_OFFHAND = new Action<>();
@@ -35,7 +34,7 @@ public class Action<C extends TargetContext<?>> {
             case MIDDLE -> Action.MIDDLE;
             case NUMBER_KEY -> Action.NUMBER_KEY;
             case DOUBLE_CLICK -> Action.DOUBLE_CLICK;
-            case DROP -> Action.DROP;
+            case DROP -> Action.INVENTORY_DROP;
             case CONTROL_DROP -> Action.CONTROL_DROP;
             case CREATIVE -> Action.CREATIVE;
             case SWAP_OFFHAND -> Action.SWAP_OFFHAND;
@@ -43,7 +42,7 @@ public class Action<C extends TargetContext<?>> {
         };
     }
 
-    public static Action<ClickContext> DROP_Q = new Action<>();
+    public static Action<ClickContext> HOTBAR_DROP = new Action<>();
     public static Action<ClickContext> SWAP_HANDS = new Action<>();
     public static Action<ClickContext> LEFT_CLICK_AIR = new Action<>();
     public static Action<ClickContext> RIGHT_CLICK_AIR = new Action<>();
