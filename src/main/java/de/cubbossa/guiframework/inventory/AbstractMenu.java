@@ -405,10 +405,23 @@ public abstract class AbstractMenu implements Menu {
     public void refreshDynamicItemSuppliers() {
         dynamicItemStacks.clear();
         dynamicClickHandler.clear();
-        for (MenuPreset processor : dynamicProcessors) {
-            processor.placeDynamicEntries(this,
-                    (integer, itemStack) -> dynamicItemStacks.put((Integer) integer, (ItemStack) itemStack),
-                    (key, value) -> dynamicClickHandler.put((Integer) key, (Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>) value));
+
+        MenuPreset.PresetApplier applier = new MenuPreset.PresetApplier(this) {
+            @Override
+            public void addItem(int slot, ItemStack itemStack) {
+                dynamicItemStacks.put(slot, itemStack);
+            }
+
+            @Override
+            public <C extends TargetContext<?>> void addClickHandler(int slot, Action<C> action, ContextConsumer<C> clickHandler) {
+                Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> map = dynamicClickHandler.getOrDefault(slot, new HashMap<>());
+                map.put(action, clickHandler);
+                dynamicClickHandler.put(slot, map);
+            }
+        };
+
+        for (MenuPreset<?> processor : dynamicProcessors) {
+            processor.placeDynamicEntries(applier);
         }
     }
 

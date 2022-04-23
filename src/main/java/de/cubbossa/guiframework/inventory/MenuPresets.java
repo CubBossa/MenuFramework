@@ -130,13 +130,15 @@ public class MenuPresets {
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
     public static <C extends TargetContext<?>> MenuPreset<C> back(int row, int slot, boolean disabled, Action<C>... actions) {
-        return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
-            placeDynamicItem.accept(row * 9 + slot, disabled ? BACK_DISABLED : BACK);
-            placeDynamicClickHandler.accept(row * 9 + slot, populate(c -> {
-                if (!disabled) {
-                    c.getPlayer().closeInventory();
-                }
-            }, actions));
+        return applier -> {
+            applier.addItem(row * 9 + slot, disabled ? BACK_DISABLED : BACK);
+            for (Action<?> action : actions) {
+                applier.addClickHandler(slot, action, targetContext -> {
+                    if (!disabled) {
+                        targetContext.getPlayer().closeInventory();
+                    }
+                });
+            }
         };
     }
 
@@ -153,25 +155,29 @@ public class MenuPresets {
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
     public static <C extends ClickContext> MenuPreset<C> paginationRow(int row, int leftSlot, int rightSlot, boolean hideDisabled, Action<C>... actions) {
-        return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
+        return applier -> {
 
-            boolean leftLimit = menu.getCurrentPage() <= menu.getMinPage();
-            boolean rightLimit = menu.getCurrentPage() >= menu.getMaxPage();
+            boolean leftLimit = applier.getMenu().getCurrentPage() <= applier.getMenu().getMinPage();
+            boolean rightLimit = applier.getMenu().getCurrentPage() >= applier.getMenu().getMaxPage();
             if (leftLimit) {
                 if (!hideDisabled) {
-                    placeDynamicItem.accept(row * 9 + leftSlot, LEFT_DISABLED);
+                    applier.addItem(row * 9 + leftSlot, LEFT_DISABLED);
                 }
             } else {
-                placeDynamicItem.accept(row * 9 + leftSlot, LEFT);
-                placeDynamicClickHandler.accept(row * 9 + leftSlot, populate(c -> menu.openPreviousPage(c.getPlayer()), actions));
+                applier.addItem(row * 9 + leftSlot, LEFT);
+                for (Action<?> action : actions) {
+                    applier.addClickHandler(row * 9 + leftSlot, action, c -> applier.getMenu().openPreviousPage(c.getPlayer()));
+                }
             }
             if (rightLimit) {
                 if (!hideDisabled) {
-                    placeDynamicItem.accept(row * 9 + rightSlot, RIGHT_DISABLED);
+                    applier.addItem(row * 9 + rightSlot, RIGHT_DISABLED);
                 }
             } else {
-                placeDynamicItem.accept(row * 9 + rightSlot, RIGHT);
-                placeDynamicClickHandler.accept(row * 9 + rightSlot, populate(c -> menu.openNextPage(c.getPlayer()), actions));
+                applier.addItem(row * 9 + rightSlot, RIGHT);
+                for (Action<?> action : actions) {
+                    applier.addClickHandler(row * 9 + rightSlot, action, c -> applier.getMenu().openNextPage(c.getPlayer()));
+                }
             }
         };
     }
@@ -193,36 +199,40 @@ public class MenuPresets {
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
     public static <C extends TargetContext<?>> MenuPreset<C> paginationRow(Menu otherMenu, int row, int leftSlot, int rightSlot, boolean hideDisabled, Action<C>... actions) {
-        return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
+        return applier -> {
+            Menu menu = applier.getMenu();
+
             int lSlot = row * 9 + leftSlot;
             int rSlot = row * 9 + rightSlot;
 
             // place next and previous items
             boolean leftLimit = otherMenu.getCurrentPage() <= otherMenu.getMinPage();
             if (!leftLimit || !hideDisabled) {
-                placeDynamicItem.accept(lSlot, leftLimit ? LEFT_DISABLED : LEFT);
+                applier.addItem(lSlot, leftLimit ? LEFT_DISABLED : LEFT);
             }
             boolean rightLimit = otherMenu.getCurrentPage() >= otherMenu.getMaxPage();
             if (!rightLimit || !hideDisabled) {
-                placeDynamicItem.accept(rSlot, rightLimit ? RIGHT_DISABLED : RIGHT);
+                applier.addItem(rSlot, rightLimit ? RIGHT_DISABLED : RIGHT);
             }
 
             // handle clicking
-            placeDynamicClickHandler.accept(lSlot, populate(c -> {
-                if (otherMenu.getCurrentPage() > otherMenu.getMinPage()) {
-                    otherMenu.openPreviousPage(c.getPlayer());
-                    menu.refreshDynamicItemSuppliers();
-                    menu.refresh(menu.getSlots());
-                }
-            }, actions));
+            for (Action<?> action : actions) {
+                applier.addClickHandler(lSlot, action, targetContext -> {
+                    if (otherMenu.getCurrentPage() > otherMenu.getMinPage()) {
+                        otherMenu.openPreviousPage(targetContext.getPlayer());
+                        menu.refreshDynamicItemSuppliers();
+                        menu.refresh(menu.getSlots());
+                    }
+                });
+                applier.addClickHandler(lSlot, action, targetContext -> {
+                    if (otherMenu.getCurrentPage() < otherMenu.getMaxPage()) {
+                        otherMenu.openNextPage(targetContext.getPlayer());
+                        menu.refreshDynamicItemSuppliers();
+                        menu.refresh(menu.getSlots());
+                    }
+                });
+            }
 
-            placeDynamicClickHandler.accept(rSlot, populate(c -> {
-                if (otherMenu.getCurrentPage() < otherMenu.getMaxPage()) {
-                    otherMenu.openNextPage(c.getPlayer());
-                    menu.refreshDynamicItemSuppliers();
-                    menu.refresh(menu.getSlots());
-                }
-            }, actions));
         };
     }
 
@@ -239,24 +249,29 @@ public class MenuPresets {
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
     public static <C extends TargetContext<?>> MenuPreset<C> paginationColumn(int column, int upSlot, int downSlot, boolean hideDisabled, Action<C>... actions) {
-        return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
+        return applier -> {
+            Menu menu = applier.getMenu();
             boolean upperLimit = menu.getCurrentPage() == menu.getMinPage();
             boolean lowerLimit = menu.getCurrentPage() == menu.getMaxPage();
             if (upperLimit) {
                 if (!hideDisabled) {
-                    placeDynamicItem.accept(upSlot * 9 + column, UP_DISABLED);
+                    applier.addItem(upSlot * 9 + column, UP_DISABLED);
                 }
             } else {
-                placeDynamicItem.accept(upSlot * 9 + column, UP);
-                placeDynamicClickHandler.accept(upSlot * 9 + column, populate(c -> menu.openPreviousPage(c.getPlayer()), actions));
+                applier.addItem(upSlot * 9 + column, UP);
+                for (Action<?> action : actions) {
+                    applier.addClickHandler(upSlot * 9 + column, action, c -> menu.openPreviousPage(c.getPlayer()));
+                }
             }
             if (lowerLimit) {
                 if (!hideDisabled) {
-                    placeDynamicItem.accept(downSlot * 9 + column, DOWN_DISABLED);
+                    applier.addItem(downSlot * 9 + column, DOWN_DISABLED);
                 }
             } else {
-                placeDynamicItem.accept(downSlot * 9 + column, DOWN);
-                placeDynamicClickHandler.accept(downSlot * 9 + column, populate(c -> menu.openNextPage(c.getPlayer()), actions));
+                applier.addItem(downSlot * 9 + column, DOWN);
+                for (Action<?> action : actions) {
+                    applier.addClickHandler(downSlot * 9 + column, action, c -> menu.openNextPage(c.getPlayer()));
+                }
             }
         };
     }
@@ -268,9 +283,7 @@ public class MenuPresets {
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
     public static MenuPreset<? extends TargetContext<?>> fill(ItemStack stack) {
-        return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
-            Arrays.stream(menu.getSlots()).forEach(value -> placeDynamicItem.accept(value, stack));
-        };
+        return applier -> Arrays.stream(applier.getMenu().getSlots()).forEach(value -> applier.addItem(value, stack));
     }
 
     /**
@@ -281,8 +294,8 @@ public class MenuPresets {
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
     public static MenuPreset fillRow(ItemStack stack, int line) {
-        return (menu1, placeDynamicItem, placeDynamicClickHandler) -> {
-            IntStream.range(line * 9, line * 9 + 9).forEach(value -> placeDynamicItem.accept(value, stack));
+        return applier -> {
+            IntStream.range(line * 9, line * 9 + 9).forEach(value -> applier.addItem(value, stack));
         };
     }
 
@@ -294,8 +307,8 @@ public class MenuPresets {
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
     public static MenuPreset<? extends TargetContext<?>> fillColumn(ItemStack stack, int column) {
-        return (menu1, placeDynamicItem, placeDynamicClickHandler) -> {
-            IntStream.range(0, menu1.getSlotsPerPage()).filter(value -> value % 9 == column).forEach(value -> placeDynamicItem.accept(value, stack));
+        return applier -> {
+            IntStream.range(0, applier.getMenu().getSlotsPerPage()).filter(value -> value % 9 == column).forEach(value -> applier.addItem(value, stack));
         };
     }
 
@@ -306,10 +319,10 @@ public class MenuPresets {
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
     public static MenuPreset<? extends TargetContext<?>> fillFrame(ItemStack stack) {
-        return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
-            IntStream.range(0, menu.getSlotsPerPage())
-                    .filter(value -> value % 9 == 0 || value % 9 == 8 || value < 9 || value >= menu.getSlotsPerPage() - 9)
-                    .forEach(value -> placeDynamicItem.accept(value, stack));
+        return applier -> {
+            IntStream.range(0, applier.getMenu().getSlotsPerPage())
+                    .filter(value -> value % 9 == 0 || value % 9 == 8 || value < 9 || value >= applier.getMenu().getSlotsPerPage() - 9)
+                    .forEach(value -> applier.addItem(value, stack));
         };
     }
 
@@ -390,7 +403,7 @@ public class MenuPresets {
             } else {
                 c = clickContext -> createNewHandler.accept(manager::newElementFromMenu);
             }
-            listMenu.addPreset(newItem(rows * 9 - 1, c));
+            listMenu.addPreset(newItem(rows * 9 - 1, Action.LEFT, c));
         } else {
 
             for (T object : supplier.getElements()) {
@@ -545,7 +558,8 @@ public class MenuPresets {
     }
 
 
-    private static <C extends TargetContext<?>> Map<Action<C>, ContextConsumer<C>> populate(ContextConsumer<C> contextConsumer, Action<C>... actions) {
+    private static <C extends TargetContext<?>> Map<Action<C>, ContextConsumer<C>> populate
+            (ContextConsumer<C> contextConsumer, Action<C>... actions) {
         Map<Action<C>, ContextConsumer<C>> map = new HashMap<>();
         for (Action<C> action : actions) {
             map.put(action, contextConsumer);
@@ -553,10 +567,10 @@ public class MenuPresets {
         return map;
     }
 
-    private static <C extends TargetContext<?>> MenuPreset<C> newItem(int slot, ContextConsumer<C> newHandler) {
-        return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
-            placeDynamicItem.accept(slot, NEW);
-            placeDynamicClickHandler.accept(slot, populate(newHandler, new Action[]{Action.LEFT}));
+    private static <C extends TargetContext<?>> MenuPreset<C> newItem(int slot, Action<C> action, ContextConsumer<C> newHandler) {
+        return applier -> {
+            applier.addItem(slot, NEW);
+            applier.addClickHandler(slot, action, newHandler);
         };
     }
 }
