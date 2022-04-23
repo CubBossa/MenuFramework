@@ -1,4 +1,4 @@
-package de.cubbossa.guiframework.util;
+package de.cubbossa.guiframework.inventory;
 
 public enum InventoryRow {
 

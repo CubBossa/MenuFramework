@@ -34,7 +34,7 @@ public abstract class TopInventoryMenu extends AbstractMenu {
     @Override
     public void close(Player viewer) {
         super.close(viewer);
-        InventoryHandler.getInstance().closeCurrentTopMenu(viewer);
+        InvMenuHandler.getInstance().closeCurrentTopMenu(viewer);
     }
 
     public Component getTitle(int page) {
@@ -79,6 +79,6 @@ public abstract class TopInventoryMenu extends AbstractMenu {
     @Override
     protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable Menu previous) {
         super.openInventorySynchronized(viewer, viewMode, previous);
-        InventoryHandler.getInstance().registerTopInventory(viewer, this, (TopInventoryMenu) previous);
+        InvMenuHandler.getInstance().registerTopInventory(viewer, this, (TopInventoryMenu) previous);
     }
 }

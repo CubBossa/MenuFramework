@@ -3,7 +3,7 @@ package de.cubbossa.guiframework.inventory;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface LayeredMenu {
+public interface LayeredMenu extends Menu {
 
 	long getSlotMask();
 

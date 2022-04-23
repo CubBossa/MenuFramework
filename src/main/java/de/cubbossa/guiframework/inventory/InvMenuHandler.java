@@ -1,8 +1,5 @@
 package de.cubbossa.guiframework.inventory;
 
-import de.cubbossa.guiframework.inventory.implementations.BottomInventoryMenu;
-import de.cubbossa.guiframework.inventory.listener.HotbarListener;
-import de.cubbossa.guiframework.inventory.listener.InventoryListener;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -10,30 +7,55 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class InventoryHandler {
+public class InvMenuHandler {
 
     private static final long INVENTORY_MASK = (long) Math.pow(2, 37) - 1;
 
-    //TODO allow dynamic registration of listeners
-
     @Getter
-    private static InventoryHandler instance;
-
-    @Getter
-    private final InventoryListener inventoryListener = new InventoryListener();
-    @Getter
-    private final HotbarListener hotbarListener = new HotbarListener();
+    private static InvMenuHandler instance;
 
     private final Map<UUID, Stack<TopInventoryMenu>> navigationTopMap;
     private final Map<UUID, Stack<LayeredMenu>> navigationBottomMap;
     private final Map<UUID, ItemStack[]> coveredInventories;
 
-    public InventoryHandler() {
+    public InvMenuHandler() {
         instance = this;
 
         this.navigationTopMap = new HashMap<>();
         this.navigationBottomMap = new HashMap<>();
         this.coveredInventories = new HashMap<>();
+    }
+
+    public Collection<TopInventoryMenu> getTopMenus() {
+        Set<TopInventoryMenu> set = new HashSet<>();
+        navigationTopMap.forEach((uuid, menus) -> set.addAll(menus));
+        return set;
+    }
+
+    public Collection<LayeredMenu> getBottomMenus() {
+        Set<LayeredMenu> set = new HashSet<>();
+        navigationBottomMap.forEach((uuid, menus) -> set.addAll(menus));
+        return set;
+    }
+
+    public <T> Collection<T> getTopMenus(Class<T> type) {
+        Set<T> set = new HashSet<>();
+        navigationTopMap.forEach((uuid, menus) -> set.addAll((Collection<? extends T>) menus.stream().filter(menu -> menu.getClass().equals(type)).toList()));
+        return set;
+    }
+
+    public <T> Collection<T> getBottomMenus(Class<T> type) {
+        Set<T> set = new HashSet<>();
+        navigationBottomMap.forEach((uuid, menus) -> set.addAll((Collection<? extends T>) menus.stream().filter(menu -> menu.getClass().equals(type)).toList()));
+        return set;
+    }
+
+    public Stack<TopInventoryMenu> getTopMenus(Player player) {
+        return (Stack<TopInventoryMenu>) navigationTopMap.get(player.getUniqueId()).clone();
+    }
+
+    public Stack<LayeredMenu> getBottomMenus(Player player) {
+        return (Stack<LayeredMenu>) navigationBottomMap.get(player.getUniqueId()).clone();
     }
 
     public void registerTopInventory(Player player, TopInventoryMenu menu, @Nullable TopInventoryMenu previous) {
@@ -47,10 +69,6 @@ public class InventoryHandler {
             stack.push(menu);
         }
         navigationTopMap.put(player.getUniqueId(), stack);
-
-        if (menu.getViewer().size() == 1) {
-            inventoryListener.register(menu);
-        }
     }
 
     public TopInventoryMenu getCurrentTopMenu(Player player) {
@@ -91,10 +109,6 @@ public class InventoryHandler {
         }
     }
 
-    public void unregisterTopMenuListener(TopInventoryMenu topMenu) {
-        inventoryListener.unregister(topMenu);
-    }
-
     public void registerBottomInventory(Player player, LayeredMenu menu) {
         Stack<LayeredMenu> stack = navigationBottomMap.getOrDefault(player.getUniqueId(), new Stack<>());
         //Remove from stack to put it back on top
@@ -118,12 +132,6 @@ public class InventoryHandler {
         navigationBottomMap.put(player.getUniqueId(), stack);
         if (stack.isEmpty() || stack.peek() != menu) {
             stack.push(menu);
-        }
-
-        if (menu instanceof TopInventoryMenu aMenu && aMenu.getViewer().size() == 1) {
-            inventoryListener.register(aMenu);
-        } else if (menu instanceof BottomInventoryMenu aMenu && aMenu.getViewer().size() == 1) {
-            hotbarListener.register(aMenu);
         }
     }
 

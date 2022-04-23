@@ -8,7 +8,6 @@ import de.cubbossa.guiframework.inventory.context.TargetContext;
 import de.cubbossa.guiframework.inventory.implementations.BottomInventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.ListMenu;
-import de.cubbossa.guiframework.util.InventoryRow;
 import de.cubbossa.guiframework.util.ItemStackUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

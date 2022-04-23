@@ -1,7 +1,6 @@
 package de.cubbossa.guiframework.inventory.implementations;
 
-import de.cubbossa.guiframework.inventory.InventoryHandler;
-import de.cubbossa.guiframework.inventory.AbstractMenu;
+import de.cubbossa.guiframework.inventory.InvMenuHandler;
 import de.cubbossa.guiframework.inventory.Menu;
 import de.cubbossa.guiframework.inventory.TopInventoryMenu;
 import lombok.Getter;
@@ -61,7 +60,7 @@ public class InventoryMenu extends TopInventoryMenu {
     public void close(Player viewer) {
         super.close(viewer);
         if (this.getViewer().size() == 0) {
-            InventoryHandler.getInstance().getInventoryListener().unregister(this);
+            InvMenuHandler.getInstance().getInventoryListener().unregister(this);
         }
     }
 

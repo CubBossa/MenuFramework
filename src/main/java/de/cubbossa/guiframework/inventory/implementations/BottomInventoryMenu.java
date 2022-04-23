@@ -1,7 +1,7 @@
 package de.cubbossa.guiframework.inventory.implementations;
 
 import de.cubbossa.guiframework.inventory.*;
-import de.cubbossa.guiframework.util.InventoryRow;
+import de.cubbossa.guiframework.inventory.InventoryRow;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -57,14 +57,14 @@ public class BottomInventoryMenu extends AbstractMenu implements LayeredMenu {
 
     @Override
     protected void openInventorySynchronized(Player viewer, ViewMode viewMode, @Nullable Menu previous) {
-        InventoryHandler.getInstance().registerBottomInventory(viewer, this);
+        InvMenuHandler.getInstance().registerBottomInventory(viewer, this);
         super.openInventorySynchronized(viewer, viewMode, previous);
     }
 
     @Override
     public void close(Player viewer) {
         super.close(viewer);
-        InventoryHandler.getInstance().closeBottomMenu(viewer, this);
+        InvMenuHandler.getInstance().closeBottomMenu(viewer, this);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class BottomInventoryMenu extends AbstractMenu implements LayeredMenu {
         if (checkSlots) {
             viewer.keySet().stream().map(Bukkit::getPlayer).filter(Objects::nonNull).forEach(player -> {
                 for (int slot : slots) {
-                    if (InventoryHandler.getInstance().getMenuAtSlot(player, slot) != this) {
+                    if (InvMenuHandler.getInstance().getMenuAtSlot(player, slot) != this) {
                         return;
                     }
                     player.getInventory().setItem(slot, getItemStack(currentPage * slotsPerPage + slot));

@@ -13,7 +13,7 @@ import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.ListMenu;
 import de.cubbossa.guiframework.scoreboard.CustomScoreboard;
 import de.cubbossa.guiframework.util.Animations;
-import de.cubbossa.guiframework.util.InventoryRow;
+import de.cubbossa.guiframework.inventory.InventoryRow;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;

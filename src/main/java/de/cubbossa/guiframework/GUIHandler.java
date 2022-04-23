@@ -1,5 +1,7 @@
 package de.cubbossa.guiframework;
 
+import de.cubbossa.guiframework.inventory.listener.HotbarListener;
+import de.cubbossa.guiframework.inventory.listener.InventoryListener;
 import lombok.Getter;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -18,6 +20,11 @@ public abstract class GUIHandler {
 	public GUIHandler(JavaPlugin plugin) {
 		instance = this;
 		this.plugin = plugin;
+	}
+
+	public void registerDefaultListeners() {
+		new InventoryListener();
+		new HotbarListener();
 	}
 
 	public Logger getLogger() {
