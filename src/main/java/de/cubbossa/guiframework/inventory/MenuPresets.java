@@ -270,7 +270,7 @@ public class MenuPresets {
      */
     public static MenuPreset<? extends TargetContext<?>> fill(ItemStack stack) {
         return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
-            IntStream.range(0, menu.getSlotsPerPage()).forEach(value -> placeDynamicItem.accept(value, stack));
+            Arrays.stream(menu.getSlots()).forEach(value -> placeDynamicItem.accept(value, stack));
         };
     }
 
@@ -309,7 +309,7 @@ public class MenuPresets {
     public static MenuPreset<? extends TargetContext<?>> fillFrame(ItemStack stack) {
         return (menu, placeDynamicItem, placeDynamicClickHandler) -> {
             IntStream.range(0, menu.getSlotsPerPage())
-                    .filter(value -> value % 9 == 0 || value % 9 == 5 || value < 9 || value >= menu.getSlotsPerPage() - 9)
+                    .filter(value -> value % 9 == 0 || value % 9 == 8 || value < 9 || value >= menu.getSlotsPerPage() - 9)
                     .forEach(value -> placeDynamicItem.accept(value, stack));
         };
     }
@@ -327,6 +327,24 @@ public class MenuPresets {
     public static ListMenu newPlayerListMenu(Component title, int rows, Action<? extends TargetContext<?>> action, ContextConsumer<TargetContext<Player>> clickHandler) {
         return newListMenu(title, rows, PLAYER_LIST_SUPPLIER, action, clickHandler, null);
     }
+
+    /**
+     * Creates a list menu from a supplier and allows to delete, duplicate and create elements if the supplier derives from
+     * {@link ListMenuManagerSupplier}.
+     * To refresh the current page after adding a new element, call {@link ListMenu#refresh(int...)} for {@link ListMenu#getListSlots()}
+     *
+     * @param title            The title of the list menu
+     * @param rows             The amount of rows of the list menu
+     * @param supplier         The supplier that defines how to display the provided type of objects
+     * @param action           The action that triggers the clickhandler. Mind that middle click is used for duplicate and right click for deleting.
+     * @param clickHandler     The click handler to run when an object icon is clicked.
+     * @param <T>              The type of objects to display in the list menu as itemstacks
+     * @return The instance of the list menu
+     */
+    public static <T> ListMenu newListMenu(Component title, int rows, ListMenuSupplier<T> supplier, Action<? extends TargetContext<?>> action, ContextConsumer<TargetContext<T>> clickHandler) {
+        return newListMenu(title, rows, supplier, action, clickHandler, null);
+    }
+
 
     /**
      * Creates a list menu from a supplier and allows to delete, duplicate and create elements if the supplier derives from

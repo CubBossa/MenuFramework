@@ -127,6 +127,13 @@ public class InventoryHandler {
         }
     }
 
+    public void closeAllBottomMenus(Player player) {
+        Stack<LayeredMenu> stack = navigationBottomMap.get(player.getUniqueId());
+        for (int i = stack.size() - 1; i >= 0; i--) {
+            closeBottomMenu(player, stack.get(i));
+        }
+    }
+
     public void closeCurrentBottomMenu(Collection<Player> players) {
         players.forEach(this::closeCurrentBottomMenu);
     }

@@ -1,9 +1,9 @@
 package de.cubbossa.guiframework.inventory.listener;
 
 import de.cubbossa.guiframework.GUIHandler;
+import de.cubbossa.guiframework.inventory.AbstractMenu;
 import de.cubbossa.guiframework.inventory.Action;
 import de.cubbossa.guiframework.inventory.InventoryHandler;
-import de.cubbossa.guiframework.inventory.AbstractMenu;
 import de.cubbossa.guiframework.inventory.TopInventoryMenu;
 import de.cubbossa.guiframework.inventory.context.ClickContext;
 import org.bukkit.Bukkit;
@@ -29,7 +29,6 @@ public class InventoryListener implements Listener {
 
 	public void unregister(TopInventoryMenu menu) {
 		menus.remove(menu);
-
 	}
 
 	@EventHandler
@@ -78,13 +77,14 @@ public class InventoryListener implements Listener {
 
 	@EventHandler
 	public void onInventoryClose(InventoryCloseEvent event) {
-		for (AbstractMenu menu : new HashSet<>(menus)) {
-			if (event.getPlayer() instanceof Player player) {
+		if (event.getPlayer() instanceof Player player) {
+			for (AbstractMenu menu : new HashSet<>(menus)) {
 				if (!menu.isThisInventory(event.getInventory(), player)) {
 					return;
 				}
 				menu.close(player);
 			}
+			InventoryHandler.getInstance().closeAllBottomMenus(player);
 		}
 	}
 }

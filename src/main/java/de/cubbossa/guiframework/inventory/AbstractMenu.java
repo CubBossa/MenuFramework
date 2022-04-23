@@ -317,12 +317,6 @@ public abstract class AbstractMenu implements Menu {
         defaultClickHandler.put(action, clickHandler);
     }
 
-    public void setDynamicClickHandler(int slot, Action<?> action, ContextConsumer<ClickContext> clickHandler) {
-        Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> map = dynamicClickHandler.getOrDefault(slot, new HashMap<>());
-        map.put(action, clickHandler);
-        dynamicClickHandler.put(slot, map);
-    }
-
     public void removeClickHandler(int... slots) {
         for (int slot : slots) {
             clickHandler.remove(slot);
