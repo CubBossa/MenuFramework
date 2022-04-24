@@ -32,20 +32,22 @@ public class HotbarListener implements Listener {
 			if (menu == null) {
 				return;
 			}
-			event.setCancelled(menu.handleInteract(Action.fromClickType(event.getClick()), new ClickContext(player, slot, true)));
+			Action<ClickContext> action = Action.fromClickType(event.getClick());
+			event.setCancelled(menu.handleInteract(action, new ClickContext(player, menu, slot, action, true)));
 		}
 	}
 
 	@EventHandler
 	public void onDrop(PlayerDropItemEvent event) {
 		Player player = event.getPlayer();
-		ClickContext clickContext = new ClickContext(player, player.getInventory().getHeldItemSlot(), true);
+		int slot = player.getInventory().getHeldItemSlot();
 		ItemStack stack = event.getItemDrop().getItemStack();
 
-		LayeredMenu menu = InvMenuHandler.getInstance().getMenuAtSlot(player, clickContext.getSlot());
+		LayeredMenu menu = InvMenuHandler.getInstance().getMenuAtSlot(player, slot);
 		if(menu == null) {
 			return;
 		}
+		ClickContext clickContext = new ClickContext(player, menu, slot, Action.HOTBAR_DROP, true);
 		event.setCancelled(menu.handleInteract(Action.HOTBAR_DROP, clickContext));
 		if (clickContext.isCancelled()) {
 			Bukkit.getScheduler().runTaskLater(GUIHandler.getInstance().getPlugin(), () -> player.getInventory().removeItem(stack), 1);
@@ -60,10 +62,10 @@ public class HotbarListener implements Listener {
 		LayeredMenu menu = InvMenuHandler.getInstance().getMenuAtSlot(player, slot);
 
 		switch (event.getAction()) {
-			case LEFT_CLICK_AIR -> event.setCancelled(menu.handleInteract(Action.LEFT_CLICK_AIR, new ClickContext(player, slot, true)));
-			case RIGHT_CLICK_AIR -> event.setCancelled(menu.handleInteract(Action.RIGHT_CLICK_AIR, new ClickContext(player, slot, true)));
-			case LEFT_CLICK_BLOCK -> event.setCancelled(menu.handleInteract(Action.LEFT_CLICK_BLOCK, new TargetContext<>(player, slot, true, event.getClickedBlock())));
-			case RIGHT_CLICK_BLOCK -> event.setCancelled(menu.handleInteract(Action.RIGHT_CLICK_BLOCK, new TargetContext<>(player, slot, true, event.getClickedBlock())));
+			case LEFT_CLICK_AIR -> event.setCancelled(menu.handleInteract(Action.LEFT_CLICK_AIR, new ClickContext(player, menu, slot, Action.LEFT_CLICK_AIR, true)));
+			case RIGHT_CLICK_AIR -> event.setCancelled(menu.handleInteract(Action.RIGHT_CLICK_AIR, new ClickContext(player, menu, slot, Action.RIGHT_CLICK_AIR, true)));
+			case LEFT_CLICK_BLOCK -> event.setCancelled(menu.handleInteract(Action.LEFT_CLICK_BLOCK, new TargetContext<>(player, menu, slot, Action.LEFT_CLICK_BLOCK, true, event.getClickedBlock())));
+			case RIGHT_CLICK_BLOCK -> event.setCancelled(menu.handleInteract(Action.RIGHT_CLICK_BLOCK, new TargetContext<>(player, menu, slot, Action.RIGHT_CLICK_BLOCK, true, event.getClickedBlock())));
 		}
 	}
 
@@ -76,7 +78,8 @@ public class HotbarListener implements Listener {
 				if (menu == null) {
 					return;
 				}
-				event.setCancelled(menu.handleInteract(Action.fromClickType(event.getClick()), new ClickContext(player, event.getSlot(), true)));
+				Action<ClickContext> action = Action.fromClickType(event.getClick());
+				event.setCancelled(menu.handleInteract(action, new ClickContext(player, menu, event.getSlot(), action, true)));
 			}
 		}
 	}
@@ -92,7 +95,8 @@ public class HotbarListener implements Listener {
 				if (menu == null) {
 					return;
 				}
-				event.setCancelled(menu.handleInteract(Action.fromClickType(type), new ClickContext(player, slot, true)));
+				Action<ClickContext> action = Action.fromClickType(type);
+				event.setCancelled(menu.handleInteract(Action.fromClickType(type), new ClickContext(player, menu, slot, action, true)));
 			}
 		}
 	}

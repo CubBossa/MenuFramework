@@ -8,6 +8,7 @@ import de.cubbossa.guiframework.inventory.Action;
 import de.cubbossa.guiframework.inventory.ButtonBuilder;
 import de.cubbossa.guiframework.inventory.InventoryRow;
 import de.cubbossa.guiframework.inventory.MenuPresets;
+import de.cubbossa.guiframework.inventory.implementations.AnvilMenu;
 import de.cubbossa.guiframework.inventory.implementations.BottomInventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.ListMenu;
@@ -87,7 +88,20 @@ public class TestCommand implements CommandExecutor {
             .withProgressAnimation(Animations.bounceProgress(100, 0, .9))
             .build();
 
+    AnvilMenu menu = new AnvilMenu(Component.text("Lol", TextColor.color(1, 1, 0)), "Eingabe");
+
     public TestCommand() {
+
+        menu.setItem(0, new ItemStack(Material.PAPER));
+        menu.setItem(2, new ItemStack(Material.DIAMOND_AXE));
+        menu.setClickHandler(0, Action.LEFT, clickContext -> clickContext.getPlayer().sendMessage("Hi0"));
+        menu.setClickHandler(1, Action.LEFT, clickContext -> clickContext.getPlayer().sendMessage("Hi1"));
+        menu.setClickHandler(2, Action.LEFT, clickContext -> clickContext.getPlayer().sendMessage("Hi2"));
+        menu.setClickHandler(2, AnvilMenu.CONFIRM, clickContext -> {
+            clickContext.getPlayer().sendMessage(clickContext.getTarget());
+            clickContext.getPlayer().closeInventory();
+        });
+
         exampleMenu.addPreset(MenuPresets.fill(MenuPresets.FILLER_LIGHT));
         exampleMenu.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 3));
         exampleMenu.addPreset(MenuPresets.paginationRow(3, 0, 1, false, Action.LEFT));
@@ -106,6 +120,7 @@ public class TestCommand implements CommandExecutor {
         exampleMenu.setClickHandler(60, Action.LEFT, clickContext ->
                 exampleMenu.openSubMenu(clickContext.getPlayer(), listMenu,
                         MenuPresets.back(listMenu.getRows() - 1, 8, false, Action.LEFT)));
+        exampleMenu.setClickHandler(-70, Action.LEFT, clickContext -> clickContext.getMenu().openSubMenu(clickContext.getPlayer(), menu));
         exampleMenu.updateTitle(Component.text("Seite 2"), 1);
 
         bottomMenu.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 0));
@@ -232,6 +247,11 @@ public class TestCommand implements CommandExecutor {
                         .withSound(Sound.ENTITY_VILLAGER_NO));
                 hotbarMenu.setDefaultClickHandler(Action.HOTBAR_DROP, clickContext -> hotbarMenu.close(clickContext.getPlayer()));
                 hotbarMenu.open(player);
+                break;
+            case "8.1":
+
+
+                menu.open(player);
                 break;
 
         }

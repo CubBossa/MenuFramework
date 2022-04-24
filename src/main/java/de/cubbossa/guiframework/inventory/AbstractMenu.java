@@ -35,6 +35,8 @@ public abstract class AbstractMenu implements Menu {
     protected final SortedMap<Integer, ItemStack> dynamicItemStacks;
 
     @Setter
+    protected ContextConsumer<OpenContext> openHandler;
+    @Setter
     protected ContextConsumer<CloseContext> closeHandler;
 
     protected final Map<Integer, Collection<Animation>> animations;
@@ -197,6 +199,7 @@ public abstract class AbstractMenu implements Menu {
             if (item == null) {
                 continue;
             }
+            //TODO apply nbt tag to prevent from stacking
             inventory.setItem(slot, item.clone());
         }
     }
@@ -335,7 +338,7 @@ public abstract class AbstractMenu implements Menu {
         }
     }
 
-    public <C extends ClickContext> void setClickHandler(int slot, Action<C> action, ContextConsumer<C> clickHandler) {
+    public <C extends TargetContext<?>> void setClickHandler(int slot, Action<C> action, ContextConsumer<C> clickHandler) {
         Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> map = this.clickHandler.getOrDefault(slot, new HashMap<>());
         map.put(action, clickHandler);
         this.clickHandler.put(slot, map);
@@ -347,12 +350,12 @@ public abstract class AbstractMenu implements Menu {
         this.clickHandler.put(slot, map);
     }
 
-    public <C extends ClickContext> void setItemAndClickHandler(int slot, ItemStack item, Action<C> action, ContextConsumer<C> clickHandler) {
+    public <C extends TargetContext<?>> void setItemAndClickHandler(int slot, ItemStack item, Action<C> action, ContextConsumer<C> clickHandler) {
         setItem(slot, item);
         setClickHandler(slot, action, clickHandler);
     }
 
-    public <C extends ClickContext> void setDefaultClickHandler(Action<C> action, ContextConsumer<C> clickHandler) {
+    public <C extends TargetContext<?>> void setDefaultClickHandler(Action<C> action, ContextConsumer<C> clickHandler) {
         defaultClickHandler.put(action, clickHandler);
     }
 

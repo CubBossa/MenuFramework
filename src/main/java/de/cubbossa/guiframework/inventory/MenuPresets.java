@@ -387,7 +387,7 @@ public class MenuPresets {
                 listMenu.addListEntry(ButtonBuilder.buttonBuilder()
                         .withItemStack(manager.getDisplayItem(object))
                         .withClickHandler(action, c -> {
-                            clickHandler.accept(new TargetContext<>(c.getPlayer(), c.getSlot(), c.isCancelled(), object));
+                            clickHandler.accept(new TargetContext<>(c.getPlayer(), c.getMenu(), c.getSlot(), (Action<? extends TargetContext<T>>) c.getAction(), c.isCancelled(), object));
                         })
                         .withClickHandler(Action.MIDDLE, clickContext -> {
                             manager.duplicateElementFromMenu(object);
@@ -413,7 +413,7 @@ public class MenuPresets {
                 listMenu.addListEntry(ButtonBuilder.buttonBuilder()
                         .withItemStack(supplier.getDisplayItem(object))
                         .withClickHandler(action, c -> {
-                            clickHandler.accept(new TargetContext<>(c.getPlayer(), c.getSlot(), c.isCancelled(), object));
+                            clickHandler.accept(new TargetContext<>(c.getPlayer(), c.getMenu(), c.getSlot(), (Action<? extends TargetContext<T>>) c.getAction(), c.isCancelled(), object));
                         }));
             }
         }

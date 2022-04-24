@@ -1,8 +1,6 @@
 package de.cubbossa.guiframework.inventory;
 
-import de.cubbossa.guiframework.inventory.context.ClickContext;
-import de.cubbossa.guiframework.inventory.context.ContextConsumer;
-import de.cubbossa.guiframework.inventory.context.TargetContext;
+import de.cubbossa.guiframework.inventory.context.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -294,7 +292,7 @@ public interface Menu {
 	 * @param clickHandler An instance of the actual click handler interface, you might want to use lambda expressions
 	 * @param <C>          The click context type of the action and click handler.
 	 */
-	<C extends ClickContext> void setClickHandler(int slot, Action<C> action, ContextConsumer<C> clickHandler);
+	<C extends TargetContext<?>> void setClickHandler(int slot, Action<C> action, ContextConsumer<C> clickHandler);
 
 	/**
 	 * Sets a click handler, that is called if a player interacts with the given slot and the actions are equal.
@@ -313,7 +311,7 @@ public interface Menu {
 	 * @param clickHandler An instance of the actual click handler interface, you might want to use lambda expressions.
 	 * @param <C>          The click context type of the action and click handler.
 	 */
-	<C extends ClickContext> void setItemAndClickHandler(int slot, ItemStack item, Action<C> action, ContextConsumer<C> clickHandler);
+	<C extends TargetContext<?>> void setItemAndClickHandler(int slot, ItemStack item, Action<C> action, ContextConsumer<C> clickHandler);
 
 	/**
 	 * Sets a default click handler to run on a certain action
@@ -322,7 +320,7 @@ public interface Menu {
 	 * @param clickHandler An instance of the actual click handler interface, you might want to use lambda expressions
 	 * @param <C>The       click context type of the action and click handler.
 	 */
-	<C extends ClickContext> void setDefaultClickHandler(Action<C> action, ContextConsumer<C> clickHandler);
+	<C extends TargetContext<?>> void setDefaultClickHandler(Action<C> action, ContextConsumer<C> clickHandler);
 
 	/**
 	 * Removes all click handlers from the given slots.
@@ -356,6 +354,12 @@ public interface Menu {
 	 * @param action The action to remove the default click handler for.
 	 */
 	void removeDefaultClickHandler(Action<?> action);
+
+	//TODO doc
+
+	void setOpenHandler(ContextConsumer<OpenContext> openHandler);
+
+	void setCloseHandler(ContextConsumer<CloseContext> closeHandler);
 
 	/**
 	 * Checks if a certain inventory is equal to the current instance of this menu inventory.

@@ -6,6 +6,7 @@ import de.cubbossa.guiframework.inventory.InvMenuHandler;
 import de.cubbossa.guiframework.inventory.Menu;
 import de.cubbossa.guiframework.inventory.MenuListener;
 import de.cubbossa.guiframework.inventory.context.ClickContext;
+import de.cubbossa.guiframework.inventory.context.TargetContext;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -42,7 +43,8 @@ public class InventoryListener implements MenuListener {
 				if (!menu.isThisInventory(event.getInventory(), player)) {
 					return;
 				}
-				event.setCancelled(menu.handleInteract(Action.fromClickType(event.getClick()), new ClickContext(player, slot, true)));
+				Action<ClickContext> action = Action.fromClickType(event.getClick());
+				event.setCancelled(menu.handleInteract(action, new ClickContext(player, menu, slot, action, true)));
 			});
 		}
 	}
@@ -54,7 +56,8 @@ public class InventoryListener implements MenuListener {
 				if (menu.getViewer().size() == 0 || !menu.isThisInventory(event.getClickedInventory(), player)) {
 					return;
 				}
-				event.setCancelled(menu.handleInteract(Action.fromClickType(event.getClick()), new ClickContext(player, event.getSlot(), true)));
+				Action<ClickContext> action = Action.fromClickType(event.getClick());
+				event.setCancelled(menu.handleInteract(action, new ClickContext(player, menu, event.getSlot(), action, true)));
 			});
 
 		}
@@ -73,7 +76,8 @@ public class InventoryListener implements MenuListener {
 				if (!menu.isThisInventory(event.getInventory(), player)) {
 					return;
 				}
-				event.setCancelled(menu.handleInteract(Action.fromClickType(type), new ClickContext(player, slot, true)));
+				Action<ClickContext> action = Action.fromClickType(type);
+				event.setCancelled(menu.handleInteract(action, new ClickContext(player, menu, slot, action, true)));
 			});
 		}
 	}
