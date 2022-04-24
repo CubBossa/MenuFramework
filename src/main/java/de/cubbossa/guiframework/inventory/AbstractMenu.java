@@ -172,6 +172,13 @@ public abstract class AbstractMenu implements Menu {
         if (this.viewer.size() == 1) {
             firstOpen();
         }
+        if (this.openHandler != null) {
+            try {
+                openHandler.accept(new OpenContext(viewer, this));
+            } catch (Exception e) {
+                GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error while calling OpenHandler.", e);
+            }
+        }
     }
 
     public void render(Player viewer, boolean clear) {
@@ -219,7 +226,7 @@ public abstract class AbstractMenu implements Menu {
                 try {
                     closeHandler.accept(new CloseContext(viewer, currentPage));
                 } catch (Exception exc) {
-                    GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error occured while closing gui for " + viewer.getName(), exc);
+                    GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error while calling CloseHandler", exc);
                 }
             }
             if (previous != null) {

@@ -1,6 +1,9 @@
 package de.cubbossa.guiframework.inventory;
 
-import de.cubbossa.guiframework.inventory.context.*;
+import de.cubbossa.guiframework.inventory.context.CloseContext;
+import de.cubbossa.guiframework.inventory.context.ContextConsumer;
+import de.cubbossa.guiframework.inventory.context.OpenContext;
+import de.cubbossa.guiframework.inventory.context.TargetContext;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -355,10 +358,18 @@ public interface Menu {
 	 */
 	void removeDefaultClickHandler(Action<?> action);
 
-	//TODO doc
-
+	/**
+	 * Sets an open handler that is called when the inventory has been opened and all items are set.
+	 *
+	 * @param openHandler The open handler instance
+	 */
 	void setOpenHandler(ContextConsumer<OpenContext> openHandler);
 
+	/**
+	 * Sets a close handler that is called when the inventory has been closed.
+	 *
+	 * @param closeHandler The close handler instance
+	 */
 	void setCloseHandler(ContextConsumer<CloseContext> closeHandler);
 
 	/**

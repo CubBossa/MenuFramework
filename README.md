@@ -2,12 +2,20 @@
 
 ## Content
 
-- Maven
+- Usage
+  - Maven
+  - Setup
+- Skip Reading
 - Inventory Menus
 - Scoreboards
 - Chat Menus
 
-## Maven
+## Usage
+
+### Maven
+
+Install the framework by adding jitpack as repository and the dependency below
+to your pom.xml.
 
 ```XML
 <repositories>
@@ -21,10 +29,83 @@
     <dependency>
         <groupId>com.github.CubBossa</groupId>
         <artifactId>Minecraft-GUI-Framework</artifactId>
-        <version>-32f4741c82-1</version>
+        <version>[VERSION]</version>
     </dependency>
 </dependencies>
 ```
+
+The Kyori Adventure API is required to use Minecraft-GUI-Framework.
+You can shade both this library and adventure like so:
+!(Replace [YOUR_PLUGIN_PATH] in the shadePattern tags)
+
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-shade-plugin</artifactId>
+    <version>3.3.0-SNAPSHOT</version>
+    <executions>
+        <execution>
+            <phase>package</phase>
+            <goals>
+                <goal>shade</goal>
+            </goals>
+            <configuration>
+                <filters>
+                    <filter>
+                        <artifact>net.kyori:adventure-api</artifact>
+                        <includes>
+                            <include>**</include>
+                        </includes>
+                    </filter>
+                    <filter>
+                        <artifact>de.cubbossa.guiframework</artifact>
+                        <includes>
+                            <include>**</include>
+                        </includes>
+                    </filter>
+                </filters>
+                <relocations>
+                    <relocation>
+                        <pattern>net.kyori</pattern>
+                        <shadedPattern>[YOUR_PLUGIN_PATH].kyori</shadedPattern>
+                    </relocation>
+                    <relocation>
+                        <pattern>de.cubbossa.guiframework</pattern>
+                        <shadedPattern>[YOUR_PLUGIN_PATH].guiframework</shadedPattern>
+                    </relocation>
+                </relocations>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+### Setup
+
+To get started, you have to initialize the GUIHandler class in your plugin onEnable method and 
+disable it in the onDisable method:
+
+```java
+    @Override
+    public void onEnable() {
+        GUIHandler guiHandler = new GUIHandler(this);
+        guiHandler.enable();
+    }
+
+    @Override
+    public void onDisable() {
+        GUIHandler.getInstance().disable();
+    }
+```
+
+
+## Skip Reading
+
+If you don't want to read the whole documentation but want to get started,
+check out the classes:
+- [Menu.java](https://github.com/CubBossa/Minecraft-GUI-Framework/blob/master/src/main/java/de/cubbossa/guiframework/inventory/Menu.java) for a method overview
+- [InventoryMenu.java](https://github.com/CubBossa/Minecraft-GUI-Framework/blob/master/src/main/java/de/cubbossa/guiframework/inventory/implementations/InventoryMenu.java) as basic menu implementation
+- [MenuPresets.java](https://github.com/CubBossa/Minecraft-GUI-Framework/blob/master/src/main/java/de/cubbossa/guiframework/inventory/MenuPresets.java) for predefined inventories and presets
 
 ## Inventory Menus
 
