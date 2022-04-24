@@ -505,7 +505,7 @@ public abstract class AbstractMenu implements Menu {
                 if (intervals == -1 || interval.get() < intervals) {
                     if (item != null) {
                         try {
-                            setItem(slot, itemUpdater.apply(new AnimationContext(slot, intervals, item, Bukkit.getCurrentTick(), Bukkit.getCurrentTick() % 20)));
+                            setItem(slot, itemUpdater.apply(new AnimationContext(slot, intervals, item)));
                             refresh(slot);
                         } catch (Throwable t) {
                             GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error occured while playing animation in inventory menu", t);

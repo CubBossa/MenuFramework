@@ -12,7 +12,4 @@ public class AnimationContext extends Context {
     private final int slot;
     private final int interval;
     private final ItemStack item;
-
-    private final int ticks;
-    private final int tickIndex;
 }

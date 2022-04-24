@@ -1,15 +1,19 @@
 package de.cubbossa.guiframework;
 
+import de.cubbossa.guiframework.inventory.InvMenuHandler;
 import de.cubbossa.guiframework.inventory.listener.HotbarListener;
 import de.cubbossa.guiframework.inventory.listener.InventoryListener;
+import de.cubbossa.guiframework.scoreboard.CustomScoreboardHandler;
 import lombok.Getter;
+import lombok.Setter;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Logger;
 
-public abstract class GUIHandler {
+public class GUIHandler {
 
 	@Getter
 	JavaPlugin plugin;
@@ -17,9 +21,26 @@ public abstract class GUIHandler {
 	@Getter
 	private static GUIHandler instance;
 
+	@Getter
+	private BukkitAudiences audiences;
+
 	public GUIHandler(JavaPlugin plugin) {
 		instance = this;
 		this.plugin = plugin;
+	}
+
+	public void enable() {
+		this.audiences = BukkitAudiences.create(plugin);
+
+		new InvMenuHandler();
+		new CustomScoreboardHandler();
+
+		registerDefaultListeners();
+	}
+
+	public void disable() {
+		this.audiences.close();
+		this.audiences = null;
 	}
 
 	public void registerDefaultListeners() {
@@ -34,6 +55,4 @@ public abstract class GUIHandler {
 	public void callSynchronized(Runnable runnable) {
 		Bukkit.getScheduler().runTask(plugin, runnable);
 	}
-
-	public abstract MiniMessage getMiniMessage();
 }

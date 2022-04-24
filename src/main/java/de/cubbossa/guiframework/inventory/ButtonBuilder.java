@@ -1,9 +1,12 @@
 package de.cubbossa.guiframework.inventory;
 
+import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.inventory.context.ContextConsumer;
 import de.cubbossa.guiframework.inventory.context.TargetContext;
+import de.cubbossa.guiframework.util.ChatUtils;
 import de.cubbossa.guiframework.util.ItemStackUtils;
 import lombok.Getter;
+import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -55,7 +58,7 @@ public class ButtonBuilder {
     public ButtonBuilder withItemStack(Material material, Component name) {
         stack = new ItemStack(material);
         ItemMeta meta = stack.getItemMeta();
-        meta.displayName(name);
+        meta.setDisplayName(ChatUtils.toGson(name));
         stack.setItemMeta(meta);
         return this;
     }
@@ -89,7 +92,8 @@ public class ButtonBuilder {
      * @return the builder instance
      */
     public ButtonBuilder withItemStack(Player playerHeadOwner, @Nullable List<Component> lore) {
-        stack = ItemStackUtils.createCustomHead(playerHeadOwner, playerHeadOwner.displayName(), lore);
+        stack = ItemStackUtils.createCustomHead(playerHeadOwner, GUIHandler.getInstance()
+                .getAudiences().player(playerHeadOwner).getOrDefault(Identity.DISPLAY_NAME, Component.text(playerHeadOwner.getName())), lore);
         return this;
     }
 

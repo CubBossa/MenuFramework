@@ -1,6 +1,7 @@
 package de.cubbossa.guiframework.inventory;
 
 import com.google.common.base.Strings;
+import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.inventory.context.ClickContext;
 import de.cubbossa.guiframework.inventory.context.CloseContext;
 import de.cubbossa.guiframework.inventory.context.ContextConsumer;
@@ -9,6 +10,7 @@ import de.cubbossa.guiframework.inventory.implementations.BottomInventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.ListMenu;
 import de.cubbossa.guiframework.util.ItemStackUtils;
+import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -51,7 +53,8 @@ public class MenuPresets {
 
         @Override
         public ItemStack getDisplayItem(Player object) {
-            return ItemStackUtils.createCustomHead(object, object.displayName(), null);
+            return ItemStackUtils.createCustomHead(object, GUIHandler.getInstance().getAudiences().player(object)
+                    .getOrDefault(Identity.DISPLAY_NAME, Component.text(object.getName())), null);
         }
     };
 

@@ -1,24 +1,25 @@
 package de.cubbossa.guiframework.test;
 
-import com.destroystokyo.paper.MaterialTags;
 import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.bossbar.CustomBossBar;
 import de.cubbossa.guiframework.chat.ComponentMenu;
 import de.cubbossa.guiframework.chat.TextMenu;
 import de.cubbossa.guiframework.inventory.Action;
 import de.cubbossa.guiframework.inventory.ButtonBuilder;
+import de.cubbossa.guiframework.inventory.InventoryRow;
 import de.cubbossa.guiframework.inventory.MenuPresets;
 import de.cubbossa.guiframework.inventory.implementations.BottomInventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.ListMenu;
 import de.cubbossa.guiframework.scoreboard.CustomScoreboard;
 import de.cubbossa.guiframework.util.Animations;
-import de.cubbossa.guiframework.inventory.InventoryRow;
+import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.Tag;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.command.Command;
@@ -91,7 +92,7 @@ public class TestCommand implements CommandExecutor {
         exampleMenu.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 3));
         exampleMenu.addPreset(MenuPresets.paginationRow(3, 0, 1, false, Action.LEFT));
         int i = 0;
-        for (Material material : MaterialTags.BEDS.getValues()) {
+        for (Material material : Tag.BANNERS.getValues()) {
             exampleMenu.setButton(i++, ButtonBuilder.buttonBuilder()
                     .withItemStack(material)
                     .withSound(Sound.ENTITY_EVOKER_PREPARE_WOLOLO, 0f, 2f, .5f, 2f)
@@ -112,21 +113,21 @@ public class TestCommand implements CommandExecutor {
         bottomMenu2.addPreset(MenuPresets.fill(new ItemStack(Material.EMERALD)));
         for(int slot : bottomMenu.getSlots()) {
             bottomMenu.setButton(slot, ButtonBuilder.buttonBuilder().withClickHandler(Action.LEFT, clickContext -> {
-                clickContext.getPlayer().sendMessage(Component.text("Hat funktioniert 1"));
+                GUIHandler.getInstance().getAudiences().player(clickContext.getPlayer()).sendMessage(Component.text("Hat funktioniert 1"));
             }));
         }
         for(int slot : bottomMenu2.getSlots()) {
             bottomMenu2.setButton(slot, ButtonBuilder.buttonBuilder().withClickHandler(Action.LEFT, clickContext -> {
-                clickContext.getPlayer().sendMessage(Component.text("Hat funktioniert 2"));
+                GUIHandler.getInstance().getAudiences().player(clickContext.getPlayer()).sendMessage(Component.text("Hat funktioniert 2"));
             }));
         }
 
         listMenu.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 3));
         listMenu.addPreset(MenuPresets.paginationRow(3, 0, 1, false, Action.LEFT));
-        for (Material material : MaterialTags.ENCHANTABLE.getValues()) {
+        for (Material material : Tag.STAIRS.getValues()) {
             listMenu.addListEntry(ButtonBuilder.buttonBuilder().withItemStack(material));
         }
-        for (Material material : MaterialTags.TERRACOTTA.getValues()) {
+        for (Material material : Tag.TERRACOTTA.getValues()) {
             listMenu.addListEntry(ButtonBuilder.buttonBuilder().withItemStack(material));
         }
     }
@@ -136,7 +137,8 @@ public class TestCommand implements CommandExecutor {
         Player player = (Player) commandSender;
 
         TextMenu online = new TextMenu("Spieler online:");
-        Bukkit.getOnlinePlayers().forEach(p -> online.addSub(new ComponentMenu(p.displayName())));
+        Bukkit.getOnlinePlayers().forEach(p -> online.addSub(new ComponentMenu(GUIHandler.getInstance().getAudiences().player(player)
+                .getOrDefault(Identity.DISPLAY_NAME, Component.text(player.getName())))));
         scoreboard.setLine(3, online);
         scoreboard.setLine(7, online.asComponent());
 
@@ -173,7 +175,7 @@ public class TestCommand implements CommandExecutor {
                 inventory.send(player);
                 break;
             case "2.2":
-                player.sendMessage(inventory);
+                GUIHandler.getInstance().getAudiences().player(player).sendMessage(inventory);
                 break;
             case "2.3":
                 inventory.send(player, Integer.parseInt(strings[1]), 3);

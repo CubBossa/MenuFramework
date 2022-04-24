@@ -1,8 +1,10 @@
 package de.cubbossa.guiframework.chat;
 
 import com.google.common.collect.Lists;
+import de.cubbossa.guiframework.GUIHandler;
 import lombok.Getter;
 import lombok.Setter;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.TextComponent;
@@ -82,11 +84,13 @@ public abstract class ChatMenu<T> implements ComponentLike {
     }
 
     public void send(Player player) {
-        toComponents(0, 1024).forEach(player::sendMessage);
+        Audience audience = GUIHandler.getInstance().getAudiences().player(player);
+        toComponents(0, 1024).forEach(audience::sendMessage);
     }
 
     public void send(Player player, int page, int linesPerPage) {
-        toComponents(page, linesPerPage).forEach(player::sendMessage);
+        Audience audience = GUIHandler.getInstance().getAudiences().player(player);
+        toComponents(page, linesPerPage).forEach(audience::sendMessage);
     }
 
     @Override

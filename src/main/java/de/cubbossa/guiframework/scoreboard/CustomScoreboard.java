@@ -60,7 +60,7 @@ public class CustomScoreboard {
      */
     public void show(Player player) {
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        Objective obj = scoreboard.registerNewObjective("GUI Framework", identifier, title);
+        Objective obj = scoreboard.registerNewObjective("GUI Framework", identifier, ChatUtils.toLegacy(title));
         scoreboards.put(player, obj);
 
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -82,7 +82,7 @@ public class CustomScoreboard {
                 team = scoreboard.registerNewTeam(identifier + i);
             }
             team.addEntry(scoreString);
-            team.prefix(staticEntry);
+            team.setPrefix(ChatUtils.toLegacy(staticEntry));
         }
 
         // Run once to set all values
@@ -178,11 +178,8 @@ public class CustomScoreboard {
             team = objective.getScoreboard().registerNewTeam(dynamicEntry.key);
         }
         Component toSet = dynamicEntry.componentSupplier.get();
-        if (Objects.equals(toSet.toString(), team.prefix().toString())) {
-            return;
-        }
         team.addEntry("§" + lineHex + ChatColor.WHITE + "");
-        team.prefix(toSet);
+        team.setPrefix(ChatUtils.toLegacy(toSet));
         objective.getScore("§" + lineHex + ChatColor.WHITE + "").setScore(line);
     }
 
@@ -317,7 +314,7 @@ public class CustomScoreboard {
     public void setTitle(Component component) {
         this.title = component;
         for (Objective objective : scoreboards.values()) {
-            objective.displayName(component);
+            objective.setDisplayName(ChatUtils.toLegacy(component));
         }
     }
 
@@ -329,7 +326,7 @@ public class CustomScoreboard {
      */
     public void setTitle(Component component, Player player) {
         Objective objective = scoreboards.get(player);
-        objective.displayName(component);
+        objective.setDisplayName(ChatUtils.toLegacy(component));
     }
 
     /**

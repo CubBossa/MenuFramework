@@ -73,10 +73,6 @@ public class ChatUtils {
 		return GSON_SERIALZIER.serialize(component);
 	}
 
-	public String toLegacyFromMiniMessage(String minimessage) {
-		return toLegacy(GUIHandler.getInstance().getMiniMessage().deserialize(minimessage));
-	}
-
 	public String formatDuration(Duration duration) {
 		return new DurationParser().format(duration);
 	}

@@ -7,17 +7,20 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 @UtilityClass
 public class ItemStackUtils {
 
-	public ItemStack createItemStack(Material material, Component name, List<Component> lore) {
+	public ItemStack createItemStack(Material material, Component name, @Nullable List<Component> lore) {
 		ItemStack stack = new ItemStack(material);
 		ItemMeta meta = stack.getItemMeta();
-		meta.displayName(name);
-		meta.lore(lore);
+		meta.setDisplayName(ChatUtils.toLegacy(name));
+		if (lore != null) {
+			meta.setLore(lore.stream().map(ChatUtils::toLegacy).toList());
+		}
 		stack.setItemMeta(meta);
 		return stack;
 	}
