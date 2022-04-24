@@ -36,7 +36,6 @@ to your pom.xml.
 
 The Kyori Adventure API is required to use Minecraft-GUI-Framework.
 You can shade both this library and adventure like so:
-!(Replace [YOUR_PLUGIN_PATH] in the shadePattern tags)
 
 ```xml
 <plugin>

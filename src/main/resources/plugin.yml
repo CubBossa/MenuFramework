@@ -1,8 +1,0 @@
-author: CubBossa
-name: minecraft-gui-framework
-version: 1.0
-main: de.cubbossa.guiframework.test.TestMain
-api-version: 1.18
-
-commands:
-  guitest:
