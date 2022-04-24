@@ -125,6 +125,10 @@
                             <pattern>net.wesjd.anvilgui</pattern>
                             <shadedPattern>de.cubbossa.guiframework.anvilgui</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>net.kyori</pattern>
+                            <shadedPattern>de.cubbossa.guiframework</shadedPattern>
+                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>
@@ -137,6 +141,7 @@
                             <artifactSet>
                                 <includes>
                                     <include>net.wesjd:anvilgui</include>
+                                    <include>net.kyori:**</include>
                                 </includes>
                             </artifactSet>
                         </configuration>
