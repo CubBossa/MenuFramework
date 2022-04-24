@@ -109,7 +109,6 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <minimizeJar>true</minimizeJar>
                             <filters>
                                 <filter>
                                     <artifact>net.kyori:adventure-api</artifact>
