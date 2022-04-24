@@ -4,7 +4,6 @@ import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import javax.annotation.Nullable;
 import java.util.*;
 
 public class InvMenuHandler {
@@ -85,6 +84,9 @@ public class InvMenuHandler {
 
     public void closeAllBottomMenus(Player player) {
         Stack<LayeredMenu> stack = navigationBottomMap.get(player.getUniqueId());
+        if (stack == null) {
+            return;
+        }
         for (int i = stack.size() - 1; i >= 0; i--) {
             closeBottomMenu(player, stack.get(i));
         }

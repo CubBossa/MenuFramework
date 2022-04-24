@@ -91,6 +91,5 @@ public class DurationParser {
 		String singular;
 		String plural;
 	}
-
 }
 
