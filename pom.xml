@@ -27,13 +27,6 @@
     </repositories>
 
     <dependencies>
-
-        <dependency>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-shade-plugin</artifactId>
-            <version>3.3.0</version>
-        </dependency>
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -125,10 +118,6 @@
                             <pattern>net.wesjd.anvilgui</pattern>
                             <shadedPattern>de.cubbossa.guiframework.anvilgui</shadedPattern>
                         </relocation>
-                        <relocation>
-                            <pattern>net.kyori</pattern>
-                            <shadedPattern>de.cubbossa.guiframework</shadedPattern>
-                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>
@@ -141,7 +130,6 @@
                             <artifactSet>
                                 <includes>
                                     <include>net.wesjd:anvilgui</include>
-                                    <include>net.kyori:**</include>
                                 </includes>
                             </artifactSet>
                         </configuration>
