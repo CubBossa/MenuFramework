@@ -82,7 +82,7 @@ public class ListMenu extends InventoryMenu {
      * @return the reference to the stored object Pair. Can be used to remove list elements
      */
     public <T> ListElement<T> addListEntry(Button buttonBuilder) {
-        ListElement<T> element = new ListElement<T>(buttonBuilder::getStack, buttonBuilder.getClickHandler());
+        ListElement<T> element = new ListElement<>(buttonBuilder.getStackSupplier(), buttonBuilder.getClickHandler());
         listElements.add(element);
         return element;
     }
@@ -92,7 +92,7 @@ public class ListMenu extends InventoryMenu {
     }
 
 
-        public <T> List<ListElement<T>> addListEntries(Collection<T> elements, Function<T, ItemStack> itemSupplier, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler) {
+    public <T> List<ListElement<T>> addListEntries(Collection<T> elements, Function<T, ItemStack> itemSupplier, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler) {
         List<ListElement<T>> ret = new ArrayList<>();
         for (T element : elements) {
             ListElement<T> e = new ListElement<T>(() -> itemSupplier.apply(element), clickHandler);

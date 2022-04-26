@@ -29,7 +29,7 @@ public abstract class AbstractMenu implements Menu {
     protected final Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> defaultClickHandler;
     protected final Map<Action<?>, Boolean> defaultCancelled;
 
-    protected final SortedMap<Integer, ItemStack> itemStacks;
+    protected final SortedMap<Integer, Supplier<ItemStack>> itemStacks;
     protected final SortedMap<Integer, Consumer<Player>> soundPlayer;
 
     protected final List<MenuPreset<? extends TargetContext<?>>> dynamicProcessors;
@@ -269,7 +269,7 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public ItemStack getItemStack(int slot) {
-        ItemStack stack = itemStacks.get(slot);
+        ItemStack stack = itemStacks.get(slot).get();
         if (stack != null) {
             return stack;
         }
@@ -278,7 +278,11 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public void setItem(int slot, ItemStack item) {
-        itemStacks.put(slot, item);
+        setItem(slot, () -> item);
+    }
+
+    public void setItem(int slot, Supplier<ItemStack> itemSupplier) {
+        itemStacks.put(slot, itemSupplier);
     }
 
     public void removeItem(int... slots) {
@@ -289,7 +293,7 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public void setDynamicItem(int slot, ItemStack item) {
-        Preconditions.checkArgument(slotsPerPage <= slot ||slot < 0, "Slot must be on first page.");
+        Preconditions.checkArgument(slotsPerPage <= slot || slot < 0, "Slot must be on first page.");
         dynamicItemStacks.put(slot, item);
     }
 
@@ -515,7 +519,7 @@ public abstract class AbstractMenu implements Menu {
         }
 
         public void play() {
-            final ItemStack item = itemStacks.getOrDefault(slot, new ItemStack(Material.AIR));
+            final ItemStack item = itemStacks.getOrDefault(slot, () -> new ItemStack(Material.AIR)).get();
             AtomicInteger interval = new AtomicInteger(0);
             task = Bukkit.getScheduler().runTaskTimer(GUIHandler.getInstance().getPlugin(), () -> {
                 if (intervals == -1 || interval.get() < intervals) {

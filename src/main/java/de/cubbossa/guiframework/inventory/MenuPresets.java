@@ -20,10 +20,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.*;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 @SuppressWarnings("unchecked")
@@ -339,42 +337,23 @@ public class MenuPresets {
      * @return The instance of the list menu
      */
     public static ListMenu newPlayerListMenu(Component title, int rows, Action<? extends TargetContext<?>> action, ContextConsumer<TargetContext<Player>> clickHandler) {
-        return newListMenu(title, rows, PLAYER_LIST_SUPPLIER, action, clickHandler, null);
+        return newListMenu(title, rows, PLAYER_LIST_SUPPLIER, action, clickHandler);
     }
 
     /**
-     * Creates a list menu from a supplier and allows to delete, duplicate and create elements if the supplier derives from
+     * Creates a list menu from a supplier and allows viewing, deleting and duplicating elements if the supplier derives from
      * {@link ListMenuManagerSupplier}.
      * To refresh the current page after adding a new element, call {@link ListMenu#refresh(int...)} for {@link ListMenu#getListSlots()}
      *
-     * @param title            The title of the list menu
-     * @param rows             The amount of rows of the list menu
-     * @param supplier         The supplier that defines how to display the provided type of objects
-     * @param action           The action that triggers the clickhandler. Mind that middle click is used for duplicate and right click for deleting.
-     * @param clickHandler     The click handler to run when an object icon is clicked.
-     * @param <T>              The type of objects to display in the list menu as itemstacks
+     * @param title        The title of the list menu
+     * @param rows         The amount of rows of the list menu
+     * @param supplier     The supplier that defines how to display the provided type of objects
+     * @param action       The action that triggers the clickhandler. Mind that middle click is used for duplicate and right click for deleting.
+     * @param clickHandler The click handler to run when an object icon is clicked.
+     * @param <T>          The type of objects to display in the list menu as itemstacks
      * @return The instance of the list menu
      */
     public static <T> ListMenu newListMenu(Component title, int rows, ListMenuSupplier<T> supplier, Action<? extends TargetContext<?>> action, ContextConsumer<TargetContext<T>> clickHandler) {
-        return newListMenu(title, rows, supplier, action, clickHandler, null);
-    }
-
-
-    /**
-     * Creates a list menu from a supplier and allows to delete, duplicate and create elements if the supplier derives from
-     * {@link ListMenuManagerSupplier}.
-     * To refresh the current page after adding a new element, call {@link ListMenu#refresh(int...)} for {@link ListMenu#getListSlots()}
-     *
-     * @param title            The title of the list menu
-     * @param rows             The amount of rows of the list menu
-     * @param supplier         The supplier that defines how to display the provided type of objects
-     * @param action           The action that triggers the clickhandler. Mind that middle click is used for duplicate and right click for deleting.
-     * @param clickHandler     The click handler to run when an object icon is clicked.
-     * @param createNewHandler The createNewHandler allows to add own functions to provide the arguments for the call of {@link ListMenuManagerSupplier#newElementFromMenu(Object[])}
-     * @param <T>              The type of objects to display in the list menu as itemstacks
-     * @return The instance of the list menu
-     */
-    public static <T> ListMenu newListMenu(Component title, int rows, ListMenuSupplier<T> supplier, Action<? extends TargetContext<?>> action, ContextConsumer<TargetContext<T>> clickHandler, @Nullable Consumer<Consumer<Object[]>> createNewHandler) {
         ListMenu listMenu = new ListMenu(rows, title);
         listMenu.addPreset(fill(FILLER_LIGHT));
         listMenu.addPreset(fillRow(FILLER_DARK, rows - 1));
@@ -397,15 +376,6 @@ public class MenuPresets {
                             listMenu.refresh(listMenu.getListSlots());
                         }));
             }
-
-            ContextConsumer<ClickContext> c;
-            if (createNewHandler == null) {
-                c = clickContext -> manager.newElementFromMenu(new Object[0]);
-                listMenu.refresh(listMenu.getListSlots());
-            } else {
-                c = clickContext -> createNewHandler.accept(manager::newElementFromMenu);
-            }
-            listMenu.addPreset(newItem(rows * 9 - 1, Action.LEFT, c));
         } else {
 
             for (T object : supplier.getElements()) {
@@ -568,12 +538,5 @@ public class MenuPresets {
             map.put(action, contextConsumer);
         }
         return map;
-    }
-
-    private static <C extends TargetContext<?>> MenuPreset<C> newItem(int slot, Action<C> action, ContextConsumer<C> newHandler) {
-        return applier -> {
-            applier.addItem(slot, NEW);
-            applier.addClickHandler(slot, action, newHandler);
-        };
     }
 }

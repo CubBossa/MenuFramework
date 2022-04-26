@@ -104,7 +104,7 @@ public class AnvilMenu extends TopInventoryMenu {
 			if (i == null) {
 				i = new ItemStack(Material.PAPER);
 			}
-			ItemMeta paperMeta = this.itemStacks.get(0).getItemMeta();
+			ItemMeta paperMeta = this.itemStacks.get(0).get().getItemMeta();
 			paperMeta.setDisplayName(startText);
 			i.setItemMeta(paperMeta);
 			inventory.setItem(0, i);

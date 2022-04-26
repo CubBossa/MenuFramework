@@ -269,6 +269,15 @@ public interface Menu {
 	void setItem(int slot, ItemStack item);
 
 	/**
+	 * Sets an inventory icon
+	 *
+	 * @param itemSupplier The item supplier to insert into the inventory. The supplier is called every time the slot gets refreshed.
+	 * @param slot         The slot to add the item at. Use slots larger than the slots on one page to place them on a different page.
+	 *                     {@code slot = (current_page * slots_per_page) + inventory_slot}
+	 */
+	void setItem(int slot, Supplier<ItemStack> itemSupplier);
+
+	/**
 	 * Remove all static icons from the given slots. This does not affect the actual inventory. Use {@link #refresh(int...)} afterwards to
 	 * remove the items from view.
 	 *
