@@ -130,7 +130,7 @@ public class AnvilMenu extends TopInventoryMenu {
 
 		if (closeHandler != null) {
 			try {
-				closeHandler.accept(new CloseContext(viewer, currentPage));
+				closeHandler.accept(new CloseContext(viewer, getCurrentPage()));
 			} catch (Exception exc) {
 				GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error occured while closing gui for " + viewer.getName(), exc);
 			}

@@ -77,13 +77,13 @@ public class BottomInventoryMenu extends AbstractMenu implements LayeredMenu {
                     if (InvMenuHandler.getInstance().getMenuAtSlot(player, slot) != this) {
                         return;
                     }
-                    player.getInventory().setItem(slot, getItemStack(currentPage * slotsPerPage + slot));
+                    player.getInventory().setItem(slot, getItemStack(slot + offset));
                 }
             });
         } else {
             viewer.keySet().stream().map(Bukkit::getPlayer).filter(Objects::nonNull).forEach(player -> {
                 for (int slot : slots) {
-                    player.getInventory().setItem(slot, getItemStack(currentPage * slotsPerPage + slot));
+                    player.getInventory().setItem(slot, getItemStack(slot + offset));
                 }
             });
         }
