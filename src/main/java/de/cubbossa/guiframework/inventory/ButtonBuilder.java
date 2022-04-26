@@ -18,11 +18,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 @Getter
 public class ButtonBuilder {
 
-    private ItemStack stack;
+    private Supplier<ItemStack> stackSupplier;
     private Sound sound;
     private float pitch = 1f;
     private float volume = .8f;
@@ -32,12 +33,21 @@ public class ButtonBuilder {
         return new ButtonBuilder();
     }
 
+    public ItemStack getStack() {
+        return stackSupplier.get();
+    }
+
+    public ButtonBuilder withItemStack(Supplier<ItemStack> stackSupplier) {
+        this.stackSupplier = stackSupplier;
+        return this;
+    }
+
     /**
      * @param stack the icon itemstack
      * @return the builder instance
      */
     public ButtonBuilder withItemStack(ItemStack stack) {
-        this.stack = stack;
+        this.stackSupplier = () -> stack;
         return this;
     }
 
@@ -46,7 +56,7 @@ public class ButtonBuilder {
      * @return the builder instance
      */
     public ButtonBuilder withItemStack(Material material) {
-        this.stack = new ItemStack(material);
+        this.stackSupplier = () -> new ItemStack(material);
         return this;
     }
 
@@ -56,10 +66,13 @@ public class ButtonBuilder {
      * @return the builder instance
      */
     public ButtonBuilder withItemStack(Material material, Component name) {
-        stack = new ItemStack(material);
-        ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName(ChatUtils.toGson(name));
-        stack.setItemMeta(meta);
+        stackSupplier = () -> {
+            ItemStack s = new ItemStack(material);
+            ItemMeta meta = s.getItemMeta();
+            meta.setDisplayName(ChatUtils.toGson(name));
+            s.setItemMeta(meta);
+            return s;
+        };
         return this;
     }
 
@@ -70,7 +83,7 @@ public class ButtonBuilder {
      * @return the builder instance
      */
     public ButtonBuilder withItemStack(Material material, Component name, List<Component> lore) {
-        stack = ItemStackUtils.createItemStack(material, name, lore);
+        stackSupplier = () -> ItemStackUtils.createItemStack(material, name, lore);
         return this;
     }
 
@@ -92,7 +105,7 @@ public class ButtonBuilder {
      * @return the builder instance
      */
     public ButtonBuilder withItemStack(Player playerHeadOwner, @Nullable List<Component> lore) {
-        stack = ItemStackUtils.createCustomHead(playerHeadOwner, GUIHandler.getInstance()
+        stackSupplier = () -> ItemStackUtils.createCustomHead(playerHeadOwner, GUIHandler.getInstance()
                 .getAudiences().player(playerHeadOwner).getOrDefault(Identity.DISPLAY_NAME, Component.text(playerHeadOwner.getName())), lore);
         return this;
     }
