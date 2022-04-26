@@ -10,7 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 
 import java.util.Map;
@@ -38,8 +37,8 @@ public abstract class TopInventoryMenu extends AbstractMenu implements Listener 
     }
 
     @Override
-    public void openPage(Player player, int page) {
-        super.openPage(player, page);
+    public void setPage(Player player, int page) {
+        super.setPage(player, page);
         updateCurrentInventoryTitle(getTitle(page));
     }
 
@@ -49,12 +48,13 @@ public abstract class TopInventoryMenu extends AbstractMenu implements Listener 
 
     public void updateTitle(Component title) {
         this.fallbackTitle = title;
-        if (!pageTitles.containsKey(currentPage)) {
+        if (!pageTitles.containsKey(getCurrentPage())) {
             updateCurrentInventoryTitle(title);
         }
     }
 
     public void updateTitle(Component title, int... pages) {
+        int currentPage = getCurrentPage();
         for (int page : pages) {
             pageTitles.put(page, title);
             if (currentPage == page) {

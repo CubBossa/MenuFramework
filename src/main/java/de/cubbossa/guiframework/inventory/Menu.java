@@ -162,14 +162,14 @@ public interface Menu {
 	 *
 	 * @param player The player to render the new page for.
 	 */
-	void openNextPage(Player player);
+	void setNextPage(Player player);
 
 	/**
 	 * Renders the previous page. This page might be empty, if no items are set.
 	 *
 	 * @param player The player to render the new page for.
 	 */
-	void openPreviousPage(Player player);
+	void setPreviousPage(Player player);
 
 	/**
 	 * Renders a given page. This does not open the inventory, it only replaces all items in the current inventory with the
@@ -178,7 +178,7 @@ public interface Menu {
 	 * @param player The player to render the new page for.
 	 * @param page   The page to render.
 	 */
-	void openPage(Player player, int page);
+	void setPage(Player player, int page);
 
 	/**
 	 * Renders all items to the open inventory.

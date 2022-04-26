@@ -53,7 +53,7 @@ public class ListMenu extends InventoryMenu {
         if (index == -1) {
             return null;
         }
-        int i = index + currentPage * listSlots.length;
+        int i = index + getCurrentPage() * listSlots.length;
         return i >= listElements.size() ? null : listElements.get(i);
     }
 

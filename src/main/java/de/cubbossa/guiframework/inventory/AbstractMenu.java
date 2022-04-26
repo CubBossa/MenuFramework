@@ -45,7 +45,8 @@ public abstract class AbstractMenu implements Menu {
     protected final Map<UUID, Menu> previous;
 
     protected final int slotsPerPage;
-    protected int currentPage = 0;
+    //protected int getCurrentPage() = 0;
+    protected int offset = 0;
 
     protected Inventory inventory;
 
@@ -139,17 +140,29 @@ public abstract class AbstractMenu implements Menu {
         return this.previous.get(player.getUniqueId());
     }
 
-    public void openNextPage(Player player) {
-        openPage(player, currentPage + 1);
+    public void setNextPage(Player player) {
+        setPage(player, getCurrentPage() + 1);
     }
 
-    public void openPreviousPage(Player player) {
-        openPage(player, currentPage - 1);
+    public void setPreviousPage(Player player) {
+        setPage(player, getCurrentPage() - 1);
     }
 
-    public void openPage(Player player, int page) {
-        currentPage = page;
+    public void setPage(Player player, int page) {
+        this.setOffset(player, page * slotsPerPage);
+    }
+
+    public void setOffset(Player player, int offset) {
+        this.offset = offset;
         render(player, true);
+    }
+
+    public void addOffset(Player player, int offset) {
+        this.setOffset(player, this.offset + offset);
+    }
+
+    public void removeOffset(Player player, int offset) {
+        this.setOffset(player, this.offset - offset);
     }
 
     public void openSync(Player viewer) {
@@ -167,7 +180,7 @@ public abstract class AbstractMenu implements Menu {
 
         if (this.viewer.isEmpty()) {
             animations.forEach((integer, animations1) -> {
-                int i = integer - currentPage * slotsPerPage;
+                int i = integer - offset;
                 if (i >= 0 && i < slotsPerPage) {
                     animations1.forEach(Animation::play);
                 }
@@ -189,26 +202,19 @@ public abstract class AbstractMenu implements Menu {
 
     public void render(Player viewer, boolean clear) {
 
+        int page = getCurrentPage();
         if (inventory == null) {
-            inventory = createInventory(viewer, currentPage);
+            inventory = createInventory(viewer, page);
         }
 
         if (clear) {
             clearContent();
         }
 
-        int minPage = getMinPage();
-        int maxPage = getMaxPage();
-        if (currentPage < minPage) {
-            currentPage = minPage;
-        } else if (currentPage > maxPage) {
-            currentPage = maxPage;
-        }
-
         refreshDynamicItemSuppliers();
 
         for (int slot : getSlots()) {
-            ItemStack item = getItemStack(currentPage * slotsPerPage + slot);
+            ItemStack item = getItemStack(slot + offset);
             if (item == null) {
                 continue;
             }
@@ -230,7 +236,7 @@ public abstract class AbstractMenu implements Menu {
             }
             if (closeHandler != null) {
                 try {
-                    closeHandler.accept(new CloseContext(viewer, currentPage));
+                    closeHandler.accept(new CloseContext(viewer, getCurrentPage()));
                 } catch (Exception exc) {
                     GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error while calling CloseHandler", exc);
                 }
@@ -298,8 +304,9 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public void refresh(int... slots) {
+        int page = getCurrentPage();
         for (int slot : slots) {
-            int realIndex = currentPage * slotsPerPage + slot;
+            int realIndex = page * slotsPerPage + slot;
             inventory.setItem(slot, getItemStack(realIndex));
         }
     }
@@ -315,7 +322,7 @@ public abstract class AbstractMenu implements Menu {
             return true;
         }
 
-        int actualSlot = currentPage * slotsPerPage + slot;
+        int actualSlot = slot + offset;
         if (soundPlayer.containsKey(actualSlot)) {
             soundPlayer.get(actualSlot).accept(context.getPlayer());
         }
@@ -340,7 +347,7 @@ public abstract class AbstractMenu implements Menu {
         if (result != null) {
             return result;
         }
-        return clickHandler.getOrDefault(currentPage * slotsPerPage + slot, new HashMap<>()).get(action);
+        return clickHandler.getOrDefault(slot + offset, new HashMap<>()).get(action);
     }
 
     public void setButton(int slot, Button button) {
@@ -445,6 +452,11 @@ public abstract class AbstractMenu implements Menu {
         }
     }
 
+    public int getCurrentPage() {
+        int page = offset / slotsPerPage;
+        return offset < 0 ? page - 1 : page;
+    }
+
     public int getMinPage() {
         int minPage = 0;
         int smallestSlot = Integer.min(itemStacks.isEmpty() ? 0 : itemStacks.firstKey(), clickHandler.isEmpty() ? 0 : clickHandler.firstKey());
@@ -458,7 +470,7 @@ public abstract class AbstractMenu implements Menu {
                 smallestSlot -= slotsPerPage;
             }
         }
-        return Integer.min(negative ? --minPage : minPage, currentPage);
+        return Integer.min(negative ? --minPage : minPage, getCurrentPage());
     }
 
     public int getMaxPage() {
@@ -468,7 +480,7 @@ public abstract class AbstractMenu implements Menu {
             maxPage++;
             highestSlot -= slotsPerPage;
         }
-        return Integer.max(maxPage, currentPage);
+        return Integer.max(maxPage, getCurrentPage());
     }
 
     public Animation playAnimation(int slot, int ticks, Function<AnimationContext, ItemStack> itemUpdater) {
