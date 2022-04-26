@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 @Getter
-public class ButtonBuilder {
+public class Button {
 
     private Supplier<ItemStack> stackSupplier;
     private Sound sound;
@@ -29,15 +29,15 @@ public class ButtonBuilder {
     private float volume = .8f;
     private final Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler = new HashMap<>();
 
-    public static ButtonBuilder buttonBuilder() {
-        return new ButtonBuilder();
+    public static Button builder() {
+        return new Button();
     }
 
     public ItemStack getStack() {
         return stackSupplier.get();
     }
 
-    public ButtonBuilder withItemStack(Supplier<ItemStack> stackSupplier) {
+    public Button withItemStack(Supplier<ItemStack> stackSupplier) {
         this.stackSupplier = stackSupplier;
         return this;
     }
@@ -46,7 +46,7 @@ public class ButtonBuilder {
      * @param stack the icon itemstack
      * @return the builder instance
      */
-    public ButtonBuilder withItemStack(ItemStack stack) {
+    public Button withItemStack(ItemStack stack) {
         this.stackSupplier = () -> stack;
         return this;
     }
@@ -55,7 +55,7 @@ public class ButtonBuilder {
      * @param material the material of the icon
      * @return the builder instance
      */
-    public ButtonBuilder withItemStack(Material material) {
+    public Button withItemStack(Material material) {
         this.stackSupplier = () -> new ItemStack(material);
         return this;
     }
@@ -65,7 +65,7 @@ public class ButtonBuilder {
      * @param name     the name component of the icon
      * @return the builder instance
      */
-    public ButtonBuilder withItemStack(Material material, Component name) {
+    public Button withItemStack(Material material, Component name) {
         stackSupplier = () -> {
             ItemStack s = new ItemStack(material);
             ItemMeta meta = s.getItemMeta();
@@ -82,7 +82,7 @@ public class ButtonBuilder {
      * @param lore     the lore of the icon
      * @return the builder instance
      */
-    public ButtonBuilder withItemStack(Material material, Component name, List<Component> lore) {
+    public Button withItemStack(Material material, Component name, List<Component> lore) {
         stackSupplier = () -> ItemStackUtils.createItemStack(material, name, lore);
         return this;
     }
@@ -93,7 +93,7 @@ public class ButtonBuilder {
      * @param playerHeadOwner the skin to apply to the player head
      * @return the builder instance
      */
-    public ButtonBuilder withItemStack(Player playerHeadOwner) {
+    public Button withItemStack(Player playerHeadOwner) {
         return withItemStack(playerHeadOwner, null);
     }
 
@@ -104,7 +104,7 @@ public class ButtonBuilder {
      * @param lore            the lore to add to the player head item
      * @return the builder instance
      */
-    public ButtonBuilder withItemStack(Player playerHeadOwner, @Nullable List<Component> lore) {
+    public Button withItemStack(Player playerHeadOwner, @Nullable List<Component> lore) {
         stackSupplier = () -> ItemStackUtils.createCustomHead(playerHeadOwner, GUIHandler.getInstance()
                 .getAudiences().player(playerHeadOwner).getOrDefault(Identity.DISPLAY_NAME, Component.text(playerHeadOwner.getName())), lore);
         return this;
@@ -114,7 +114,7 @@ public class ButtonBuilder {
      * @param sound a {@link Sound} to play when clicked
      * @return the builder instance
      */
-    public ButtonBuilder withSound(Sound sound) {
+    public Button withSound(Sound sound) {
         this.sound = sound;
         return this;
     }
@@ -128,7 +128,7 @@ public class ButtonBuilder {
      * @param pitch  the pitch to play the sound with
      * @return the builder instance
      */
-    public ButtonBuilder withSound(Sound sound, float volume, float pitch) {
+    public Button withSound(Sound sound, float volume, float pitch) {
         this.sound = sound;
         this.volume = volume;
         this.pitch = pitch;
@@ -146,14 +146,14 @@ public class ButtonBuilder {
      * @param pitchTo    the upper limit for the random pitch
      * @return the builder instance
      */
-    public ButtonBuilder withSound(Sound sound, float volumeFrom, float volumeTo, float pitchFrom, float pitchTo) {
+    public Button withSound(Sound sound, float volumeFrom, float volumeTo, float pitchFrom, float pitchTo) {
         this.sound = sound;
         this.volume = (float) (volumeFrom + Math.random() * (volumeTo - volumeFrom));
         this.pitch = (float) (pitchFrom + Math.random() * (pitchTo - pitchFrom));
         return this;
     }
 
-    public <T extends TargetContext<?>> ButtonBuilder withClickHandler(Action<T> action, ContextConsumer<T> clickHandler) {
+    public <T extends TargetContext<?>> Button withClickHandler(Action<T> action, ContextConsumer<T> clickHandler) {
         this.clickHandler.put(action, clickHandler);
         return this;
     }
@@ -163,7 +163,7 @@ public class ButtonBuilder {
      * @param actions      all actions to run the click handler for
      * @return the builder instance
      */
-    public ButtonBuilder withClickHandler(ContextConsumer<? extends TargetContext<?>> clickHandler, Action<?>... actions) {
+    public Button withClickHandler(ContextConsumer<? extends TargetContext<?>> clickHandler, Action<?>... actions) {
         for (Action<?> action : actions) {
             this.clickHandler.put(action, clickHandler);
         }
@@ -174,7 +174,7 @@ public class ButtonBuilder {
      * @param clickHandler a map of click handlers for each action
      * @return the builder instance
      */
-    public ButtonBuilder withClickHandler(Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler) {
+    public Button withClickHandler(Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler) {
         this.clickHandler.putAll(clickHandler);
         return this;
     }

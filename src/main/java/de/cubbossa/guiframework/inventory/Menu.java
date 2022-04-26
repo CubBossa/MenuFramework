@@ -7,6 +7,7 @@ import de.cubbossa.guiframework.inventory.context.TargetContext;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
@@ -151,6 +152,12 @@ public interface Menu {
 	void setPrevious(Player player, Menu previous);
 
 	/**
+	 * @param player The player to find the previous menu for.
+	 * @return The previous menu for the given player of null if none was found.
+	 */
+	@Nullable Menu getPrevious(Player player);
+
+	/**
 	 * Renders the next page. This page might be empty, if no items are set.
 	 *
 	 * @param player The player to render the new page for.
@@ -283,9 +290,9 @@ public interface Menu {
 	 * Sets an inventory icon, sound and click handler from a button builder
 	 *
 	 * @param slot   The absolute slot to insert the button builder at. {@code ((current_page * slots_per_page) + page_slot)}
-	 * @param button The button builder. Use {@link ButtonBuilder#buttonBuilder()} to get a new button builder instance
+	 * @param button The button builder. Use {@link Button#builder()} to get a new button builder instance
 	 */
-	void setButton(int slot, ButtonBuilder button);
+	void setButton(int slot, Button button);
 
 	/**
 	 * Sets a click handler, that is called if a player interacts with the given slot and the actions are equal.

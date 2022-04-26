@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -131,6 +132,11 @@ public abstract class AbstractMenu implements Menu {
     @Override
     public void setPrevious(Player player, Menu previous) {
         this.previous.put(player.getUniqueId(), previous);
+    }
+
+    @Override
+    public @Nullable Menu getPrevious(Player player) {
+        return this.previous.get(player.getUniqueId());
     }
 
     public void openNextPage(Player player) {
@@ -333,7 +339,7 @@ public abstract class AbstractMenu implements Menu {
         return clickHandler.getOrDefault(currentPage * slotsPerPage + slot, new HashMap<>()).get(action);
     }
 
-    public void setButton(int slot, ButtonBuilder button) {
+    public void setButton(int slot, Button button) {
         if (button.getStack() != null) {
             setItem(slot, button.getStack());
         }

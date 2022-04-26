@@ -125,20 +125,19 @@ public class MenuPresets {
      * Places a back icon to close the current menu and open the parent menu if one was set.
      * The icon will be {@link #BACK} or {@link #BACK_DISABLED} if disabled.
      *
-     * @param row      the row to place the back icon at.
-     * @param slot     the slot to place the back icon at.
-     * @param disabled if the back icon should be displayed as disabled.
-     * @param actions  all valid actions to run the back handler.
-     * @param <C>      the ClickContext type
+     * @param row     the row to place the back icon at.
+     * @param slot    the slot to place the back icon at.
+     * @param actions all valid actions to run the back handler.
+     * @param <C>     the ClickContext type
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static <C extends TargetContext<?>> MenuPreset<C> back(int row, int slot, boolean disabled, Action<C>... actions) {
+    public static <C extends TargetContext<?>> MenuPreset<C> back(int row, int slot, Action<C>... actions) {
         return applier -> {
-            applier.addItem(row * 9 + slot, disabled ? BACK_DISABLED : BACK);
+            applier.addItem(row * 9 + slot, BACK);
             for (Action<?> action : actions) {
-                applier.addClickHandler(slot, action, targetContext -> {
-                    if (!disabled) {
-                        targetContext.getPlayer().closeInventory();
+                applier.addClickHandler(slot, action, c -> {
+                    if (applier.getMenu().getPrevious(c.getPlayer()) != null) {
+                        c.getPlayer().closeInventory();
                     }
                 });
             }
@@ -384,7 +383,7 @@ public class MenuPresets {
         if (supplier instanceof ListMenuManagerSupplier<T> manager) {
 
             for (T object : supplier.getElements()) {
-                listMenu.addListEntry(ButtonBuilder.buttonBuilder()
+                listMenu.addListEntry(Button.builder()
                         .withItemStack(manager.getDisplayItem(object))
                         .withClickHandler(action, c -> {
                             clickHandler.accept(new TargetContext<>(c.getPlayer(), c.getMenu(), c.getSlot(), (Action<? extends TargetContext<T>>) c.getAction(), c.isCancelled(), object));
@@ -410,9 +409,10 @@ public class MenuPresets {
         } else {
 
             for (T object : supplier.getElements()) {
-                listMenu.addListEntry(ButtonBuilder.buttonBuilder()
+                listMenu.addListEntry(Button.builder()
                         .withItemStack(supplier.getDisplayItem(object))
                         .withClickHandler(action, c -> {
+                            clickHandler.accept(new TargetContext<>(c.getPlayer(), c.getMenu(), c.getSlot(), (Action<? extends TargetContext<T>>) c.getAction(), c.isCancelled(), object));
                             clickHandler.accept(new TargetContext<>(c.getPlayer(), c.getMenu(), c.getSlot(), (Action<? extends TargetContext<T>>) c.getAction(), c.isCancelled(), object));
                         }));
             }
@@ -538,8 +538,8 @@ public class MenuPresets {
     public static InventoryMenu newConfirmMenu(Component title, ContextConsumer<ClickContext> accept, ContextConsumer<ClickContext> decline, ContextConsumer<CloseContext> closeHandler) {
         InventoryMenu menu = new InventoryMenu(3, title);
         menu.addPreset(fill(FILLER_DARK));
-        menu.setButton(12, ButtonBuilder.buttonBuilder().withItemStack(ACCEPT).withClickHandler(accept));
-        menu.setButton(16, ButtonBuilder.buttonBuilder().withItemStack(DECLINE).withClickHandler(decline));
+        menu.setButton(12, Button.builder().withItemStack(ACCEPT).withClickHandler(accept));
+        menu.setButton(16, Button.builder().withItemStack(DECLINE).withClickHandler(decline));
         menu.setCloseHandler(closeHandler);
         return menu;
     }

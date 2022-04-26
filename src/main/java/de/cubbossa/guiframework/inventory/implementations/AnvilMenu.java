@@ -30,7 +30,7 @@ public class AnvilMenu extends TopInventoryMenu {
 	public static final Action<TargetContext<String>> WRITE = new Action<>();
 	public static final Action<TargetContext<String>> CONFIRM = new Action<>();
 
-	private static VersionWrapper WRAPPER = new VersionMatcher().match();
+	private static final VersionWrapper WRAPPER = new VersionMatcher().match();
 
 	@Getter
 	private final int[] slots = {0, 1, 2};
@@ -122,8 +122,6 @@ public class AnvilMenu extends TopInventoryMenu {
 			animations.forEach((integer, animations1) -> animations1.forEach(Animation::stop));
 			lastClose();
 		}
-
-		//TODO listener HandlerList.unregisterAll(listener);
 
 		WRAPPER.handleInventoryCloseEvent(viewer);
 		WRAPPER.setActiveContainerDefault(viewer);

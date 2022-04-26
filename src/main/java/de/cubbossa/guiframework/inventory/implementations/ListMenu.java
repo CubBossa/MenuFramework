@@ -1,7 +1,7 @@
 package de.cubbossa.guiframework.inventory.implementations;
 
 import de.cubbossa.guiframework.inventory.Action;
-import de.cubbossa.guiframework.inventory.ButtonBuilder;
+import de.cubbossa.guiframework.inventory.Button;
 import de.cubbossa.guiframework.inventory.context.ContextConsumer;
 import de.cubbossa.guiframework.inventory.context.TargetContext;
 import lombok.Getter;
@@ -81,7 +81,7 @@ public class ListMenu extends InventoryMenu {
      * @param buttonBuilder a button to insert.
      * @return the reference to the stored object Pair. Can be used to remove list elements
      */
-    public <T> ListElement<T> addListEntry(ButtonBuilder buttonBuilder) {
+    public <T> ListElement<T> addListEntry(Button buttonBuilder) {
         ListElement<T> element = new ListElement<T>(buttonBuilder::getStack, buttonBuilder.getClickHandler());
         listElements.add(element);
         return element;
@@ -112,7 +112,7 @@ public class ListMenu extends InventoryMenu {
     /**
      * Removes the element from this list
      *
-     * @param entry The instance to remove - store it when calling {@link #addListEntry(ButtonBuilder)}
+     * @param entry The instance to remove - store it when calling {@link #addListEntry(Button)}
      */
     public void removeListEntry(ListElement<?> entry) {
         listElements.remove(entry);
