@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 public abstract class AbstractMenu implements Menu {
 
     protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> clickHandler;
-    protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> dynamicClickHandler;
     protected final Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> defaultClickHandler;
     protected final Map<Action<?>, Boolean> defaultCancelled;
 
@@ -34,6 +33,34 @@ public abstract class AbstractMenu implements Menu {
 
     protected final List<MenuPreset<? extends TargetContext<?>>> dynamicProcessors;
     protected final SortedMap<Integer, ItemStack> dynamicItemStacks;
+    protected final SortedMap<Integer, ItemStack> dynamicItemStacksOnTop;
+    protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> dynamicClickHandler;
+    protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> dynamicClickHandlerOnTop;
+
+    protected final MenuPreset.PresetApplier applier = new MenuPreset.PresetApplier(this) {
+        @Override
+        public void addItem(int slot, ItemStack itemStack) {
+            dynamicItemStacks.put(slot, itemStack);
+        }
+
+        public void addItemOnTop(int slot, ItemStack itemStack) {
+            dynamicItemStacksOnTop.put(slot, itemStack);
+        }
+
+        @Override
+        public <C extends TargetContext<?>> void addClickHandler(int slot, Action<C> action, ContextConsumer<C> clickHandler) {
+            Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> map = dynamicClickHandler.getOrDefault(slot, new HashMap<>());
+            map.put(action, clickHandler);
+            dynamicClickHandler.put(slot, map);
+        }
+
+        @Override
+        public <C extends TargetContext<?>> void addClickHandlerOnTop(int slot, Action<C> action, ContextConsumer<C> clickHandler) {
+            Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> map = dynamicClickHandlerOnTop.getOrDefault(slot, new HashMap<>());
+            map.put(action, clickHandler);
+            dynamicClickHandlerOnTop.put(slot, map);
+        }
+    };
 
     @Setter
     protected ContextConsumer<OpenContext> openHandler;
@@ -56,12 +83,14 @@ public abstract class AbstractMenu implements Menu {
         this.soundPlayer = new TreeMap<>();
         this.dynamicProcessors = new ArrayList<>();
         this.dynamicItemStacks = new TreeMap<>();
+        this.dynamicClickHandler = new TreeMap<>();
+        this.dynamicItemStacksOnTop = new TreeMap<>();
+        this.dynamicClickHandlerOnTop = new TreeMap<>();
         this.animations = new TreeMap<>();
         this.viewer = new HashMap<>();
         this.previous = new HashMap<>();
         this.slotsPerPage = slotsPerPage;
         this.clickHandler = new TreeMap<>();
-        this.dynamicClickHandler = new TreeMap<>();
         this.defaultClickHandler = new HashMap<>();
         this.defaultCancelled = new HashMap<>();
     }
@@ -275,12 +304,17 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public ItemStack getItemStack(int slot) {
-        ItemStack stack = itemStacks.get(slot).get();
+        int dynSlot = slot % slotsPerPage;
+        dynSlot = dynSlot < 0 ? dynSlot + slotsPerPage : dynSlot;
+        ItemStack stack = dynamicItemStacksOnTop.get(dynSlot);
         if (stack != null) {
             return stack;
         }
-        int dynSlot = slot % slotsPerPage;
-        return dynamicItemStacks.get(dynSlot < 0 ? dynSlot + slotsPerPage : dynSlot);
+        stack = itemStacks.get(slot).get();
+        if (stack != null) {
+            return stack;
+        }
+        return dynamicItemStacks.get(dynSlot);
     }
 
     public void setItem(int slot, ItemStack item) {
@@ -342,12 +376,17 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public ContextConsumer<? extends TargetContext<?>> getClickHandler(int slot, Action<?> action) {
-        int i = slot % slotsPerPage;
-        var result = dynamicClickHandler.getOrDefault(i < 0 ? i + slotsPerPage : i, new HashMap<>()).get(action);
+        int fixedSlot = slot % slotsPerPage;
+        fixedSlot = fixedSlot < 0 ? fixedSlot + slotsPerPage : fixedSlot;
+        var result = dynamicClickHandlerOnTop.getOrDefault(fixedSlot, new HashMap<>()).get(action);
         if (result != null) {
             return result;
         }
-        return clickHandler.getOrDefault(slot + offset, new HashMap<>()).get(action);
+        result = clickHandler.getOrDefault(slot + offset, new HashMap<>()).get(action);
+        if (result != null) {
+            return result;
+        }
+        return dynamicClickHandler.getOrDefault(fixedSlot, new HashMap<>()).get(action);
     }
 
     public void setButton(int slot, Button button) {
@@ -432,20 +471,8 @@ public abstract class AbstractMenu implements Menu {
     public void refreshDynamicItemSuppliers() {
         dynamicItemStacks.clear();
         dynamicClickHandler.clear();
-
-        MenuPreset.PresetApplier applier = new MenuPreset.PresetApplier(this) {
-            @Override
-            public void addItem(int slot, ItemStack itemStack) {
-                dynamicItemStacks.put(slot, itemStack);
-            }
-
-            @Override
-            public <C extends TargetContext<?>> void addClickHandler(int slot, Action<C> action, ContextConsumer<C> clickHandler) {
-                Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> map = dynamicClickHandler.getOrDefault(slot, new HashMap<>());
-                map.put(action, clickHandler);
-                dynamicClickHandler.put(slot, map);
-            }
-        };
+        dynamicItemStacksOnTop.clear();
+        dynamicClickHandlerOnTop.clear();
 
         for (MenuPreset<?> processor : dynamicProcessors) {
             processor.placeDynamicEntries(applier);

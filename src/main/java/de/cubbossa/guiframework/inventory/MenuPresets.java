@@ -131,9 +131,9 @@ public class MenuPresets {
      */
     public static <C extends TargetContext<?>> MenuPreset<C> back(int row, int slot, Action<C>... actions) {
         return applier -> {
-            applier.addItem(row * 9 + slot, BACK);
+            applier.addItemOnTop(row * 9 + slot, BACK);
             for (Action<?> action : actions) {
-                applier.addClickHandler(slot, action, c -> {
+                applier.addClickHandlerOnTop(slot, action, c -> {
                     if (applier.getMenu().getPrevious(c.getPlayer()) != null) {
                         c.getPlayer().closeInventory();
                     }
@@ -161,22 +161,22 @@ public class MenuPresets {
             boolean rightLimit = applier.getMenu().getCurrentPage() >= applier.getMenu().getMaxPage();
             if (leftLimit) {
                 if (!hideDisabled) {
-                    applier.addItem(row * 9 + leftSlot, LEFT_DISABLED);
+                    applier.addItemOnTop(row * 9 + leftSlot, LEFT_DISABLED);
                 }
             } else {
-                applier.addItem(row * 9 + leftSlot, LEFT);
+                applier.addItemOnTop(row * 9 + leftSlot, LEFT);
                 for (Action<?> action : actions) {
-                    applier.addClickHandler(row * 9 + leftSlot, action, c -> applier.getMenu().setPreviousPage(c.getPlayer()));
+                    applier.addClickHandlerOnTop(row * 9 + leftSlot, action, c -> applier.getMenu().setPreviousPage(c.getPlayer()));
                 }
             }
             if (rightLimit) {
                 if (!hideDisabled) {
-                    applier.addItem(row * 9 + rightSlot, RIGHT_DISABLED);
+                    applier.addItemOnTop(row * 9 + rightSlot, RIGHT_DISABLED);
                 }
             } else {
-                applier.addItem(row * 9 + rightSlot, RIGHT);
+                applier.addItemOnTop(row * 9 + rightSlot, RIGHT);
                 for (Action<?> action : actions) {
-                    applier.addClickHandler(row * 9 + rightSlot, action, c -> applier.getMenu().setNextPage(c.getPlayer()));
+                    applier.addClickHandlerOnTop(row * 9 + rightSlot, action, c -> applier.getMenu().setNextPage(c.getPlayer()));
                 }
             }
         };
@@ -208,23 +208,23 @@ public class MenuPresets {
             // place next and previous items
             boolean leftLimit = otherMenu.getCurrentPage() <= otherMenu.getMinPage();
             if (!leftLimit || !hideDisabled) {
-                applier.addItem(lSlot, leftLimit ? LEFT_DISABLED : LEFT);
+                applier.addItemOnTop(lSlot, leftLimit ? LEFT_DISABLED : LEFT);
             }
             boolean rightLimit = otherMenu.getCurrentPage() >= otherMenu.getMaxPage();
             if (!rightLimit || !hideDisabled) {
-                applier.addItem(rSlot, rightLimit ? RIGHT_DISABLED : RIGHT);
+                applier.addItemOnTop(rSlot, rightLimit ? RIGHT_DISABLED : RIGHT);
             }
 
             // handle clicking
             for (Action<?> action : actions) {
-                applier.addClickHandler(lSlot, action, targetContext -> {
+                applier.addClickHandlerOnTop(lSlot, action, targetContext -> {
                     if (otherMenu.getCurrentPage() > otherMenu.getMinPage()) {
                         otherMenu.setPreviousPage(targetContext.getPlayer());
                         menu.refreshDynamicItemSuppliers();
                         menu.refresh(menu.getSlots());
                     }
                 });
-                applier.addClickHandler(lSlot, action, targetContext -> {
+                applier.addClickHandlerOnTop(lSlot, action, targetContext -> {
                     if (otherMenu.getCurrentPage() < otherMenu.getMaxPage()) {
                         otherMenu.setNextPage(targetContext.getPlayer());
                         menu.refreshDynamicItemSuppliers();
@@ -232,7 +232,6 @@ public class MenuPresets {
                     }
                 });
             }
-
         };
     }
 
@@ -255,22 +254,22 @@ public class MenuPresets {
             boolean lowerLimit = menu.getCurrentPage() == menu.getMaxPage();
             if (upperLimit) {
                 if (!hideDisabled) {
-                    applier.addItem(upSlot * 9 + column, UP_DISABLED);
+                    applier.addItemOnTop(upSlot * 9 + column, UP_DISABLED);
                 }
             } else {
-                applier.addItem(upSlot * 9 + column, UP);
+                applier.addItemOnTop(upSlot * 9 + column, UP);
                 for (Action<?> action : actions) {
-                    applier.addClickHandler(upSlot * 9 + column, action, c -> menu.setPreviousPage(c.getPlayer()));
+                    applier.addClickHandlerOnTop(upSlot * 9 + column, action, c -> menu.setPreviousPage(c.getPlayer()));
                 }
             }
             if (lowerLimit) {
                 if (!hideDisabled) {
-                    applier.addItem(downSlot * 9 + column, DOWN_DISABLED);
+                    applier.addItemOnTop(downSlot * 9 + column, DOWN_DISABLED);
                 }
             } else {
-                applier.addItem(downSlot * 9 + column, DOWN);
+                applier.addItemOnTop(downSlot * 9 + column, DOWN);
                 for (Action<?> action : actions) {
-                    applier.addClickHandler(downSlot * 9 + column, action, c -> menu.setNextPage(c.getPlayer()));
+                    applier.addClickHandlerOnTop(downSlot * 9 + column, action, c -> menu.setNextPage(c.getPlayer()));
                 }
             }
         };
@@ -282,7 +281,7 @@ public class MenuPresets {
      * @param stack the item to place on each slot.
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static MenuPreset<? extends TargetContext<?>> fill(ItemStack stack) {
+    public static MenuPreset<?> fill(ItemStack stack) {
         return applier -> Arrays.stream(applier.getMenu().getSlots()).forEach(value -> applier.addItem(value, stack));
     }
 
@@ -293,10 +292,19 @@ public class MenuPresets {
      * @param line  the line to fill
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static MenuPreset fillRow(ItemStack stack, int line) {
-        return applier -> {
-            IntStream.range(line * 9, line * 9 + 9).forEach(value -> applier.addItem(value, stack));
-        };
+    public static MenuPreset<?> fillRow(ItemStack stack, int line) {
+        return applier -> IntStream.range(line * 9, line * 9 + 9).forEach(value -> applier.addItem(value, stack));
+    }
+
+    /**
+     * Fills a whole inventory line with the given item that override static inventory items.
+     *
+     * @param stack the item to place on each line slot.
+     * @param line  the line to fill
+     * @return an instance of the {@link MenuPreset} to register it on a menu.
+     */
+    public static MenuPreset<?> fillRowOnTop(ItemStack stack, int line) {
+        return applier -> IntStream.range(line * 9, line * 9 + 9).forEach(value -> applier.addItemOnTop(value, stack));
     }
 
     /**
@@ -313,6 +321,17 @@ public class MenuPresets {
     }
 
     /**
+     * Fills a whole inventory column with the given item and overrides static items.
+     *
+     * @param stack  the item to place on each column slot.
+     * @param column the column to fill
+     * @return an instance of the {@link MenuPreset} to register it on a menu.
+     */
+    public static MenuPreset<? extends TargetContext<?>> fillColumnOnTop(ItemStack stack, int column) {
+        return applier -> IntStream.range(0, applier.getMenu().getSlotsPerPage()).filter(value -> value % 9 == column).forEach(value -> applier.addItemOnTop(value, stack));
+    }
+
+    /**
      * Fills a whole inventory with a frame (outer ring of slots filled)
      *
      * @param stack the stack to place
@@ -324,6 +343,18 @@ public class MenuPresets {
                     .filter(value -> value % 9 == 0 || value % 9 == 8 || value < 9 || value >= applier.getMenu().getSlotsPerPage() - 9)
                     .forEach(value -> applier.addItem(value, stack));
         };
+    }
+
+    /**
+     * Fills a whole inventory with a frame (outer ring of slots filled) and overrides static items.
+     *
+     * @param stack the stack to place
+     * @return an instance of the {@link MenuPreset} to register it on a menu.
+     */
+    public static MenuPreset<? extends TargetContext<?>> fillFrameOnTop(ItemStack stack) {
+        return applier -> IntStream.range(0, applier.getMenu().getSlotsPerPage())
+                .filter(value -> value % 9 == 0 || value % 9 == 8 || value < 9 || value >= applier.getMenu().getSlotsPerPage() - 9)
+                .forEach(value -> applier.addItemOnTop(value, stack));
     }
 
     /**
@@ -521,6 +552,14 @@ public class MenuPresets {
         return new BottomInventoryMenu(InventoryRow.HOTBAR);
     }
 
+    public static <C extends TargetContext<?>> Map<Action<C>, ContextConsumer<C>> combineActions(ContextConsumer<C> contextConsumer, Action<C>... actions) {
+        Map<Action<C>, ContextConsumer<C>> map = new HashMap<>();
+        for (Action<C> action : actions) {
+            map.put(action, contextConsumer);
+        }
+        return map;
+    }
+
     private static String concatShape(String[] shape) {
         StringBuilder combined = new StringBuilder();
         for (int i = 0; i < 3; i++) {
@@ -528,15 +567,5 @@ public class MenuPresets {
             combined.append(s).append(Strings.repeat(" ", s.length() < 3 ? 3 - s.length() : 0));
         }
         return combined.toString();
-    }
-
-
-    private static <C extends TargetContext<?>> Map<Action<C>, ContextConsumer<C>> populate
-            (ContextConsumer<C> contextConsumer, Action<C>... actions) {
-        Map<Action<C>, ContextConsumer<C>> map = new HashMap<>();
-        for (Action<C> action : actions) {
-            map.put(action, contextConsumer);
-        }
-        return map;
     }
 }
