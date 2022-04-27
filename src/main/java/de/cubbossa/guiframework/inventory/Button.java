@@ -33,8 +33,8 @@ public class Button {
         return new Button();
     }
 
-    public ItemStack getStack() {
-        return stackSupplier.get();
+    public @Nullable ItemStack getStack() {
+        return stackSupplier == null ? null : stackSupplier.get();
     }
 
     public Button withItemStack(Supplier<ItemStack> stackSupplier) {

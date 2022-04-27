@@ -6,7 +6,6 @@ import de.cubbossa.guiframework.inventory.context.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -310,7 +309,8 @@ public abstract class AbstractMenu implements Menu {
         if (stack != null) {
             return stack;
         }
-        stack = itemStacks.get(slot).get();
+        Supplier<ItemStack> supplier = itemStacks.get(slot);
+        stack = supplier != null ? supplier.get() : null;
         if (stack != null) {
             return stack;
         }
@@ -480,8 +480,7 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public int getCurrentPage() {
-        int page = offset / slotsPerPage;
-        return offset < 0 ? page - 1 : page;
+        return offset / slotsPerPage;
     }
 
     public int getMinPage() {
@@ -558,7 +557,8 @@ public abstract class AbstractMenu implements Menu {
         }
 
         public void play() {
-            final ItemStack item = itemStacks.getOrDefault(slot, () -> new ItemStack(Material.AIR)).get();
+            Supplier<ItemStack> supplier = itemStacks.get(slot);
+            final ItemStack item = supplier != null ? supplier.get() : null;
             AtomicInteger interval = new AtomicInteger(0);
             task = Bukkit.getScheduler().runTaskTimer(GUIHandler.getInstance().getPlugin(), () -> {
                 if (intervals == -1 || interval.get() < intervals) {

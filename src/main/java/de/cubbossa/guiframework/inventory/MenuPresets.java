@@ -133,7 +133,7 @@ public class MenuPresets {
         return applier -> {
             applier.addItemOnTop(row * 9 + slot, BACK);
             for (Action<?> action : actions) {
-                applier.addClickHandlerOnTop(slot, action, c -> {
+                applier.addClickHandlerOnTop(row * 9 + slot, action, c -> {
                     if (applier.getMenu().getPrevious(c.getPlayer()) != null) {
                         c.getPlayer().closeInventory();
                     }
@@ -177,6 +177,34 @@ public class MenuPresets {
                 applier.addItemOnTop(row * 9 + rightSlot, RIGHT);
                 for (Action<?> action : actions) {
                     applier.addClickHandlerOnTop(row * 9 + rightSlot, action, c -> applier.getMenu().setNextPage(c.getPlayer()));
+                }
+            }
+        };
+    }
+
+    public static <C extends ClickContext> MenuPreset<C> scrollingVertically(int leftSlot, int rightSlot, boolean hideDisabled, Action<C>... actions) {
+        return applier -> {
+
+            boolean leftLimit = applier.getMenu().getCurrentPage() <= applier.getMenu().getMinPage();
+            boolean rightLimit = applier.getMenu().getCurrentPage() >= applier.getMenu().getMaxPage();
+            if (leftLimit) {
+                if (!hideDisabled) {
+                    applier.addItemOnTop(leftSlot, LEFT_DISABLED);
+                }
+            } else {
+                applier.addItemOnTop(leftSlot, LEFT);
+                for (Action<?> action : actions) {
+                    applier.addClickHandlerOnTop(leftSlot, action, c -> applier.getMenu().setPreviousPage(c.getPlayer()));
+                }
+            }
+            if (rightLimit) {
+                if (!hideDisabled) {
+                    applier.addItemOnTop(rightSlot, RIGHT_DISABLED);
+                }
+            } else {
+                applier.addItemOnTop(rightSlot, RIGHT);
+                for (Action<?> action : actions) {
+                    applier.addClickHandlerOnTop(rightSlot, action, c -> applier.getMenu().setNextPage(c.getPlayer()));
                 }
             }
         };
