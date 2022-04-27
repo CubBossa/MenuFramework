@@ -22,6 +22,7 @@ public interface LayeredMenu extends Menu {
 	void restoreSlots(long mask);
 
 	static int[] getSlotsFromMask(long mask) {
+		if(mask < 0) return new int[0];
 		List<Integer> slots = new ArrayList<>();
 		for (int i = 0; i < 9 * 4; i++) {
 			if ((mask >> i & 1) == 1) {

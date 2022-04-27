@@ -20,7 +20,9 @@ public interface MenuPreset<C extends TargetContext<?>> {
 		private final Menu menu;
 
 		public abstract void addItem(int slot, ItemStack itemStack);
+		public abstract void addItemOnTop(int slot, ItemStack itemStack);
 
 		public abstract <C extends TargetContext<?>> void addClickHandler(int slot, Action<C> action, ContextConsumer<C> clickHandler);
+		public abstract <C extends TargetContext<?>> void addClickHandlerOnTop(int slot, Action<C> action, ContextConsumer<C> clickHandler);
 	}
 }

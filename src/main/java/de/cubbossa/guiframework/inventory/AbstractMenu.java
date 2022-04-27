@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,15 +25,42 @@ import java.util.stream.Collectors;
 public abstract class AbstractMenu implements Menu {
 
     protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> clickHandler;
-    protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> dynamicClickHandler;
     protected final Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> defaultClickHandler;
     protected final Map<Action<?>, Boolean> defaultCancelled;
 
-    protected final SortedMap<Integer, ItemStack> itemStacks;
+    protected final SortedMap<Integer, Supplier<ItemStack>> itemStacks;
     protected final SortedMap<Integer, Consumer<Player>> soundPlayer;
 
     protected final List<MenuPreset<? extends TargetContext<?>>> dynamicProcessors;
     protected final SortedMap<Integer, ItemStack> dynamicItemStacks;
+    protected final SortedMap<Integer, ItemStack> dynamicItemStacksOnTop;
+    protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> dynamicClickHandler;
+    protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> dynamicClickHandlerOnTop;
+
+    protected final MenuPreset.PresetApplier applier = new MenuPreset.PresetApplier(this) {
+        @Override
+        public void addItem(int slot, ItemStack itemStack) {
+            dynamicItemStacks.put(slot, itemStack);
+        }
+
+        public void addItemOnTop(int slot, ItemStack itemStack) {
+            dynamicItemStacksOnTop.put(slot, itemStack);
+        }
+
+        @Override
+        public <C extends TargetContext<?>> void addClickHandler(int slot, Action<C> action, ContextConsumer<C> clickHandler) {
+            Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> map = dynamicClickHandler.getOrDefault(slot, new HashMap<>());
+            map.put(action, clickHandler);
+            dynamicClickHandler.put(slot, map);
+        }
+
+        @Override
+        public <C extends TargetContext<?>> void addClickHandlerOnTop(int slot, Action<C> action, ContextConsumer<C> clickHandler) {
+            Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> map = dynamicClickHandlerOnTop.getOrDefault(slot, new HashMap<>());
+            map.put(action, clickHandler);
+            dynamicClickHandlerOnTop.put(slot, map);
+        }
+    };
 
     @Setter
     protected ContextConsumer<OpenContext> openHandler;
@@ -44,7 +72,8 @@ public abstract class AbstractMenu implements Menu {
     protected final Map<UUID, Menu> previous;
 
     protected final int slotsPerPage;
-    protected int currentPage = 0;
+    //protected int getCurrentPage() = 0;
+    protected int offset = 0;
 
     protected Inventory inventory;
 
@@ -54,12 +83,14 @@ public abstract class AbstractMenu implements Menu {
         this.soundPlayer = new TreeMap<>();
         this.dynamicProcessors = new ArrayList<>();
         this.dynamicItemStacks = new TreeMap<>();
+        this.dynamicClickHandler = new TreeMap<>();
+        this.dynamicItemStacksOnTop = new TreeMap<>();
+        this.dynamicClickHandlerOnTop = new TreeMap<>();
         this.animations = new TreeMap<>();
         this.viewer = new HashMap<>();
         this.previous = new HashMap<>();
         this.slotsPerPage = slotsPerPage;
         this.clickHandler = new TreeMap<>();
-        this.dynamicClickHandler = new TreeMap<>();
         this.defaultClickHandler = new HashMap<>();
         this.defaultCancelled = new HashMap<>();
     }
@@ -133,17 +164,34 @@ public abstract class AbstractMenu implements Menu {
         this.previous.put(player.getUniqueId(), previous);
     }
 
-    public void openNextPage(Player player) {
-        openPage(player, currentPage + 1);
+    @Override
+    public @Nullable Menu getPrevious(Player player) {
+        return this.previous.get(player.getUniqueId());
     }
 
-    public void openPreviousPage(Player player) {
-        openPage(player, currentPage - 1);
+    public void setNextPage(Player player) {
+        setPage(player, getCurrentPage() + 1);
     }
 
-    public void openPage(Player player, int page) {
-        currentPage = page;
+    public void setPreviousPage(Player player) {
+        setPage(player, getCurrentPage() - 1);
+    }
+
+    public void setPage(Player player, int page) {
+        this.setOffset(player, page * slotsPerPage);
+    }
+
+    public void setOffset(Player player, int offset) {
+        this.offset = offset;
         render(player, true);
+    }
+
+    public void addOffset(Player player, int offset) {
+        this.setOffset(player, this.offset + offset);
+    }
+
+    public void removeOffset(Player player, int offset) {
+        this.setOffset(player, this.offset - offset);
     }
 
     public void openSync(Player viewer) {
@@ -161,7 +209,7 @@ public abstract class AbstractMenu implements Menu {
 
         if (this.viewer.isEmpty()) {
             animations.forEach((integer, animations1) -> {
-                int i = integer - currentPage * slotsPerPage;
+                int i = integer - offset;
                 if (i >= 0 && i < slotsPerPage) {
                     animations1.forEach(Animation::play);
                 }
@@ -183,26 +231,19 @@ public abstract class AbstractMenu implements Menu {
 
     public void render(Player viewer, boolean clear) {
 
+        int page = getCurrentPage();
         if (inventory == null) {
-            inventory = createInventory(viewer, currentPage);
+            inventory = createInventory(viewer, page);
         }
 
         if (clear) {
             clearContent();
         }
 
-        int minPage = getMinPage();
-        int maxPage = getMaxPage();
-        if (currentPage < minPage) {
-            currentPage = minPage;
-        } else if (currentPage > maxPage) {
-            currentPage = maxPage;
-        }
-
         refreshDynamicItemSuppliers();
 
         for (int slot : getSlots()) {
-            ItemStack item = getItemStack(currentPage * slotsPerPage + slot);
+            ItemStack item = getItemStack(slot + offset);
             if (item == null) {
                 continue;
             }
@@ -224,7 +265,7 @@ public abstract class AbstractMenu implements Menu {
             }
             if (closeHandler != null) {
                 try {
-                    closeHandler.accept(new CloseContext(viewer, currentPage));
+                    closeHandler.accept(new CloseContext(viewer, getCurrentPage()));
                 } catch (Exception exc) {
                     GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error while calling CloseHandler", exc);
                 }
@@ -263,16 +304,25 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public ItemStack getItemStack(int slot) {
-        ItemStack stack = itemStacks.get(slot);
+        int dynSlot = slot % slotsPerPage;
+        dynSlot = dynSlot < 0 ? dynSlot + slotsPerPage : dynSlot;
+        ItemStack stack = dynamicItemStacksOnTop.get(dynSlot);
         if (stack != null) {
             return stack;
         }
-        int dynSlot = slot % slotsPerPage;
-        return dynamicItemStacks.get(dynSlot < 0 ? dynSlot + slotsPerPage : dynSlot);
+        stack = itemStacks.get(slot).get();
+        if (stack != null) {
+            return stack;
+        }
+        return dynamicItemStacks.get(dynSlot);
     }
 
     public void setItem(int slot, ItemStack item) {
-        itemStacks.put(slot, item);
+        setItem(slot, () -> item);
+    }
+
+    public void setItem(int slot, Supplier<ItemStack> itemSupplier) {
+        itemStacks.put(slot, itemSupplier);
     }
 
     public void removeItem(int... slots) {
@@ -283,13 +333,14 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public void setDynamicItem(int slot, ItemStack item) {
-        Preconditions.checkArgument(slotsPerPage <= slot ||slot < 0, "Slot must be on first page.");
+        Preconditions.checkArgument(slotsPerPage <= slot || slot < 0, "Slot must be on first page.");
         dynamicItemStacks.put(slot, item);
     }
 
     public void refresh(int... slots) {
+        int page = getCurrentPage();
         for (int slot : slots) {
-            int realIndex = currentPage * slotsPerPage + slot;
+            int realIndex = page * slotsPerPage + slot;
             inventory.setItem(slot, getItemStack(realIndex));
         }
     }
@@ -305,7 +356,7 @@ public abstract class AbstractMenu implements Menu {
             return true;
         }
 
-        int actualSlot = currentPage * slotsPerPage + slot;
+        int actualSlot = slot + offset;
         if (soundPlayer.containsKey(actualSlot)) {
             soundPlayer.get(actualSlot).accept(context.getPlayer());
         }
@@ -325,15 +376,20 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public ContextConsumer<? extends TargetContext<?>> getClickHandler(int slot, Action<?> action) {
-        int i = slot % slotsPerPage;
-        var result = dynamicClickHandler.getOrDefault(i < 0 ? i + slotsPerPage : i, new HashMap<>()).get(action);
+        int fixedSlot = slot % slotsPerPage;
+        fixedSlot = fixedSlot < 0 ? fixedSlot + slotsPerPage : fixedSlot;
+        var result = dynamicClickHandlerOnTop.getOrDefault(fixedSlot, new HashMap<>()).get(action);
         if (result != null) {
             return result;
         }
-        return clickHandler.getOrDefault(currentPage * slotsPerPage + slot, new HashMap<>()).get(action);
+        result = clickHandler.getOrDefault(slot + offset, new HashMap<>()).get(action);
+        if (result != null) {
+            return result;
+        }
+        return dynamicClickHandler.getOrDefault(fixedSlot, new HashMap<>()).get(action);
     }
 
-    public void setButton(int slot, ButtonBuilder button) {
+    public void setButton(int slot, Button button) {
         if (button.getStack() != null) {
             setItem(slot, button.getStack());
         }
@@ -415,24 +471,17 @@ public abstract class AbstractMenu implements Menu {
     public void refreshDynamicItemSuppliers() {
         dynamicItemStacks.clear();
         dynamicClickHandler.clear();
-
-        MenuPreset.PresetApplier applier = new MenuPreset.PresetApplier(this) {
-            @Override
-            public void addItem(int slot, ItemStack itemStack) {
-                dynamicItemStacks.put(slot, itemStack);
-            }
-
-            @Override
-            public <C extends TargetContext<?>> void addClickHandler(int slot, Action<C> action, ContextConsumer<C> clickHandler) {
-                Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> map = dynamicClickHandler.getOrDefault(slot, new HashMap<>());
-                map.put(action, clickHandler);
-                dynamicClickHandler.put(slot, map);
-            }
-        };
+        dynamicItemStacksOnTop.clear();
+        dynamicClickHandlerOnTop.clear();
 
         for (MenuPreset<?> processor : dynamicProcessors) {
             processor.placeDynamicEntries(applier);
         }
+    }
+
+    public int getCurrentPage() {
+        int page = offset / slotsPerPage;
+        return offset < 0 ? page - 1 : page;
     }
 
     public int getMinPage() {
@@ -448,7 +497,7 @@ public abstract class AbstractMenu implements Menu {
                 smallestSlot -= slotsPerPage;
             }
         }
-        return Integer.min(negative ? --minPage : minPage, currentPage);
+        return Integer.min(negative ? --minPage : minPage, getCurrentPage());
     }
 
     public int getMaxPage() {
@@ -458,7 +507,7 @@ public abstract class AbstractMenu implements Menu {
             maxPage++;
             highestSlot -= slotsPerPage;
         }
-        return Integer.max(maxPage, currentPage);
+        return Integer.max(maxPage, getCurrentPage());
     }
 
     public Animation playAnimation(int slot, int ticks, Function<AnimationContext, ItemStack> itemUpdater) {
@@ -509,7 +558,7 @@ public abstract class AbstractMenu implements Menu {
         }
 
         public void play() {
-            final ItemStack item = itemStacks.getOrDefault(slot, new ItemStack(Material.AIR));
+            final ItemStack item = itemStacks.getOrDefault(slot, () -> new ItemStack(Material.AIR)).get();
             AtomicInteger interval = new AtomicInteger(0);
             task = Bukkit.getScheduler().runTaskTimer(GUIHandler.getInstance().getPlugin(), () -> {
                 if (intervals == -1 || interval.get() < intervals) {

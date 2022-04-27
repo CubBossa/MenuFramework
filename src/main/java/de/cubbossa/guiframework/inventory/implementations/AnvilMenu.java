@@ -30,7 +30,7 @@ public class AnvilMenu extends TopInventoryMenu {
 	public static final Action<TargetContext<String>> WRITE = new Action<>();
 	public static final Action<TargetContext<String>> CONFIRM = new Action<>();
 
-	private static VersionWrapper WRAPPER = new VersionMatcher().match();
+	private static final VersionWrapper WRAPPER = new VersionMatcher().match();
 
 	@Getter
 	private final int[] slots = {0, 1, 2};
@@ -104,7 +104,7 @@ public class AnvilMenu extends TopInventoryMenu {
 			if (i == null) {
 				i = new ItemStack(Material.PAPER);
 			}
-			ItemMeta paperMeta = this.itemStacks.get(0).getItemMeta();
+			ItemMeta paperMeta = this.itemStacks.get(0).get().getItemMeta();
 			paperMeta.setDisplayName(startText);
 			i.setItemMeta(paperMeta);
 			inventory.setItem(0, i);
@@ -123,8 +123,6 @@ public class AnvilMenu extends TopInventoryMenu {
 			lastClose();
 		}
 
-		//TODO listener HandlerList.unregisterAll(listener);
-
 		WRAPPER.handleInventoryCloseEvent(viewer);
 		WRAPPER.setActiveContainerDefault(viewer);
 		WRAPPER.sendPacketCloseWindow(viewer, containerId);
@@ -132,7 +130,7 @@ public class AnvilMenu extends TopInventoryMenu {
 
 		if (closeHandler != null) {
 			try {
-				closeHandler.accept(new CloseContext(viewer, currentPage));
+				closeHandler.accept(new CloseContext(viewer, getCurrentPage()));
 			} catch (Exception exc) {
 				GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error occured while closing gui for " + viewer.getName(), exc);
 			}

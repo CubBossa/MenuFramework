@@ -1,17 +1,19 @@
 package de.cubbossa.guiframework.inventory.implementations;
 
 import de.cubbossa.guiframework.inventory.Action;
-import de.cubbossa.guiframework.inventory.ButtonBuilder;
+import de.cubbossa.guiframework.inventory.Button;
 import de.cubbossa.guiframework.inventory.context.ContextConsumer;
 import de.cubbossa.guiframework.inventory.context.TargetContext;
-import de.cubbossa.guiframework.util.Pair;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 /**
@@ -19,9 +21,13 @@ import java.util.stream.IntStream;
  */
 public class ListMenu extends InventoryMenu {
 
+    public record ListElement<T>(Supplier<ItemStack> itemSupplier,
+                                 Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandlers) {
+    }
+
     @Getter
     private final int[] listSlots;
-    private final List<Pair<ItemStack, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>>> listElements;
+    private final List<ListElement<?>> listElements;
 
     /**
      * Creates a new chest list menu with the given count of rows
@@ -36,7 +42,7 @@ public class ListMenu extends InventoryMenu {
         this.listElements = new ArrayList<>();
     }
 
-    private Pair<ItemStack, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> getElement(int slot) {
+    private ListElement<?> getElement(int slot) {
         int index = -1;
         int pageSlot = slot % slotsPerPage;
         for (int i = 0; i < listSlots.length; i++) {
@@ -47,20 +53,20 @@ public class ListMenu extends InventoryMenu {
         if (index == -1) {
             return null;
         }
-        int i = index + currentPage * listSlots.length;
+        int i = index + getCurrentPage() * listSlots.length;
         return i >= listElements.size() ? null : listElements.get(i);
     }
 
     @Override
     public ItemStack getItemStack(int slot) {
         var element = getElement(slot);
-        return element == null ? super.getItemStack(slot) : element.getLeft();
+        return element == null ? super.getItemStack(slot) : element.itemSupplier().get();
     }
 
     @Override
     public ContextConsumer<? extends TargetContext<?>> getClickHandler(int slot, Action<?> action) {
         var element = getElement(slot);
-        return element == null ? super.getClickHandler(slot, action) : element.getRight().get(action);
+        return element == null ? super.getClickHandler(slot, action) : element.clickHandlers().get(action);
     }
 
     @Override
@@ -75,10 +81,25 @@ public class ListMenu extends InventoryMenu {
      * @param buttonBuilder a button to insert.
      * @return the reference to the stored object Pair. Can be used to remove list elements
      */
-    public Pair<ItemStack, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> addListEntry(ButtonBuilder buttonBuilder) {
-        var pair = new Pair<>(buttonBuilder.getStack(), buttonBuilder.getClickHandler());
-        listElements.add(pair);
-        return pair;
+    public <T> ListElement<T> addListEntry(Button buttonBuilder) {
+        ListElement<T> element = new ListElement<>(buttonBuilder.getStackSupplier(), buttonBuilder.getClickHandler());
+        listElements.add(element);
+        return element;
+    }
+
+    public <T> List<ListElement<T>> addListEntries(Collection<T> elements, Function<T, ItemStack> itemSupplier, Action<?> action, ContextConsumer<TargetContext<T>> clickHandler) {
+        return addListEntries(elements, itemSupplier, Map.of(action, clickHandler));
+    }
+
+
+    public <T> List<ListElement<T>> addListEntries(Collection<T> elements, Function<T, ItemStack> itemSupplier, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler) {
+        List<ListElement<T>> ret = new ArrayList<>();
+        for (T element : elements) {
+            ListElement<T> e = new ListElement<T>(() -> itemSupplier.apply(element), clickHandler);
+            this.listElements.add(e);
+            ret.add(e);
+        }
+        return ret;
     }
 
     /**
@@ -90,9 +111,10 @@ public class ListMenu extends InventoryMenu {
 
     /**
      * Removes the element from this list
-     * @param entry The instance to remove - store it when calling {@link #addListEntry(ButtonBuilder)}
+     *
+     * @param entry The instance to remove - store it when calling {@link #addListEntry(Button)}
      */
-    public void removeListEntry(Pair<ItemStack, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> entry) {
+    public void removeListEntry(ListElement<?> entry) {
         listElements.remove(entry);
     }
 

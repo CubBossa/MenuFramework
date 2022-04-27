@@ -25,4 +25,8 @@ public class TargetContext<T> extends PlayerContext {
         this.cancelled = cancelled;
         this.target = target;
     }
+
+    public static <A> TargetContext<A> recreate(TargetContext<?> context, A target) {
+        return new TargetContext<A>(context.getPlayer(), context.menu, context.slot, (Action<? extends TargetContext<A>>) context.action, context.cancelled, target);
+    }
 }

@@ -20,10 +20,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.*;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 @SuppressWarnings("unchecked")
@@ -125,20 +123,19 @@ public class MenuPresets {
      * Places a back icon to close the current menu and open the parent menu if one was set.
      * The icon will be {@link #BACK} or {@link #BACK_DISABLED} if disabled.
      *
-     * @param row      the row to place the back icon at.
-     * @param slot     the slot to place the back icon at.
-     * @param disabled if the back icon should be displayed as disabled.
-     * @param actions  all valid actions to run the back handler.
-     * @param <C>      the ClickContext type
+     * @param row     the row to place the back icon at.
+     * @param slot    the slot to place the back icon at.
+     * @param actions all valid actions to run the back handler.
+     * @param <C>     the ClickContext type
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static <C extends TargetContext<?>> MenuPreset<C> back(int row, int slot, boolean disabled, Action<C>... actions) {
+    public static <C extends TargetContext<?>> MenuPreset<C> back(int row, int slot, Action<C>... actions) {
         return applier -> {
-            applier.addItem(row * 9 + slot, disabled ? BACK_DISABLED : BACK);
+            applier.addItemOnTop(row * 9 + slot, BACK);
             for (Action<?> action : actions) {
-                applier.addClickHandler(slot, action, targetContext -> {
-                    if (!disabled) {
-                        targetContext.getPlayer().closeInventory();
+                applier.addClickHandlerOnTop(slot, action, c -> {
+                    if (applier.getMenu().getPrevious(c.getPlayer()) != null) {
+                        c.getPlayer().closeInventory();
                     }
                 });
             }
@@ -164,22 +161,22 @@ public class MenuPresets {
             boolean rightLimit = applier.getMenu().getCurrentPage() >= applier.getMenu().getMaxPage();
             if (leftLimit) {
                 if (!hideDisabled) {
-                    applier.addItem(row * 9 + leftSlot, LEFT_DISABLED);
+                    applier.addItemOnTop(row * 9 + leftSlot, LEFT_DISABLED);
                 }
             } else {
-                applier.addItem(row * 9 + leftSlot, LEFT);
+                applier.addItemOnTop(row * 9 + leftSlot, LEFT);
                 for (Action<?> action : actions) {
-                    applier.addClickHandler(row * 9 + leftSlot, action, c -> applier.getMenu().openPreviousPage(c.getPlayer()));
+                    applier.addClickHandlerOnTop(row * 9 + leftSlot, action, c -> applier.getMenu().setPreviousPage(c.getPlayer()));
                 }
             }
             if (rightLimit) {
                 if (!hideDisabled) {
-                    applier.addItem(row * 9 + rightSlot, RIGHT_DISABLED);
+                    applier.addItemOnTop(row * 9 + rightSlot, RIGHT_DISABLED);
                 }
             } else {
-                applier.addItem(row * 9 + rightSlot, RIGHT);
+                applier.addItemOnTop(row * 9 + rightSlot, RIGHT);
                 for (Action<?> action : actions) {
-                    applier.addClickHandler(row * 9 + rightSlot, action, c -> applier.getMenu().openNextPage(c.getPlayer()));
+                    applier.addClickHandlerOnTop(row * 9 + rightSlot, action, c -> applier.getMenu().setNextPage(c.getPlayer()));
                 }
             }
         };
@@ -211,31 +208,30 @@ public class MenuPresets {
             // place next and previous items
             boolean leftLimit = otherMenu.getCurrentPage() <= otherMenu.getMinPage();
             if (!leftLimit || !hideDisabled) {
-                applier.addItem(lSlot, leftLimit ? LEFT_DISABLED : LEFT);
+                applier.addItemOnTop(lSlot, leftLimit ? LEFT_DISABLED : LEFT);
             }
             boolean rightLimit = otherMenu.getCurrentPage() >= otherMenu.getMaxPage();
             if (!rightLimit || !hideDisabled) {
-                applier.addItem(rSlot, rightLimit ? RIGHT_DISABLED : RIGHT);
+                applier.addItemOnTop(rSlot, rightLimit ? RIGHT_DISABLED : RIGHT);
             }
 
             // handle clicking
             for (Action<?> action : actions) {
-                applier.addClickHandler(lSlot, action, targetContext -> {
+                applier.addClickHandlerOnTop(lSlot, action, targetContext -> {
                     if (otherMenu.getCurrentPage() > otherMenu.getMinPage()) {
-                        otherMenu.openPreviousPage(targetContext.getPlayer());
+                        otherMenu.setPreviousPage(targetContext.getPlayer());
                         menu.refreshDynamicItemSuppliers();
                         menu.refresh(menu.getSlots());
                     }
                 });
-                applier.addClickHandler(lSlot, action, targetContext -> {
+                applier.addClickHandlerOnTop(lSlot, action, targetContext -> {
                     if (otherMenu.getCurrentPage() < otherMenu.getMaxPage()) {
-                        otherMenu.openNextPage(targetContext.getPlayer());
+                        otherMenu.setNextPage(targetContext.getPlayer());
                         menu.refreshDynamicItemSuppliers();
                         menu.refresh(menu.getSlots());
                     }
                 });
             }
-
         };
     }
 
@@ -258,22 +254,22 @@ public class MenuPresets {
             boolean lowerLimit = menu.getCurrentPage() == menu.getMaxPage();
             if (upperLimit) {
                 if (!hideDisabled) {
-                    applier.addItem(upSlot * 9 + column, UP_DISABLED);
+                    applier.addItemOnTop(upSlot * 9 + column, UP_DISABLED);
                 }
             } else {
-                applier.addItem(upSlot * 9 + column, UP);
+                applier.addItemOnTop(upSlot * 9 + column, UP);
                 for (Action<?> action : actions) {
-                    applier.addClickHandler(upSlot * 9 + column, action, c -> menu.openPreviousPage(c.getPlayer()));
+                    applier.addClickHandlerOnTop(upSlot * 9 + column, action, c -> menu.setPreviousPage(c.getPlayer()));
                 }
             }
             if (lowerLimit) {
                 if (!hideDisabled) {
-                    applier.addItem(downSlot * 9 + column, DOWN_DISABLED);
+                    applier.addItemOnTop(downSlot * 9 + column, DOWN_DISABLED);
                 }
             } else {
-                applier.addItem(downSlot * 9 + column, DOWN);
+                applier.addItemOnTop(downSlot * 9 + column, DOWN);
                 for (Action<?> action : actions) {
-                    applier.addClickHandler(downSlot * 9 + column, action, c -> menu.openNextPage(c.getPlayer()));
+                    applier.addClickHandlerOnTop(downSlot * 9 + column, action, c -> menu.setNextPage(c.getPlayer()));
                 }
             }
         };
@@ -285,7 +281,7 @@ public class MenuPresets {
      * @param stack the item to place on each slot.
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static MenuPreset<? extends TargetContext<?>> fill(ItemStack stack) {
+    public static MenuPreset<?> fill(ItemStack stack) {
         return applier -> Arrays.stream(applier.getMenu().getSlots()).forEach(value -> applier.addItem(value, stack));
     }
 
@@ -296,10 +292,19 @@ public class MenuPresets {
      * @param line  the line to fill
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static MenuPreset fillRow(ItemStack stack, int line) {
-        return applier -> {
-            IntStream.range(line * 9, line * 9 + 9).forEach(value -> applier.addItem(value, stack));
-        };
+    public static MenuPreset<?> fillRow(ItemStack stack, int line) {
+        return applier -> IntStream.range(line * 9, line * 9 + 9).forEach(value -> applier.addItem(value, stack));
+    }
+
+    /**
+     * Fills a whole inventory line with the given item that override static inventory items.
+     *
+     * @param stack the item to place on each line slot.
+     * @param line  the line to fill
+     * @return an instance of the {@link MenuPreset} to register it on a menu.
+     */
+    public static MenuPreset<?> fillRowOnTop(ItemStack stack, int line) {
+        return applier -> IntStream.range(line * 9, line * 9 + 9).forEach(value -> applier.addItemOnTop(value, stack));
     }
 
     /**
@@ -313,6 +318,17 @@ public class MenuPresets {
         return applier -> {
             IntStream.range(0, applier.getMenu().getSlotsPerPage()).filter(value -> value % 9 == column).forEach(value -> applier.addItem(value, stack));
         };
+    }
+
+    /**
+     * Fills a whole inventory column with the given item and overrides static items.
+     *
+     * @param stack  the item to place on each column slot.
+     * @param column the column to fill
+     * @return an instance of the {@link MenuPreset} to register it on a menu.
+     */
+    public static MenuPreset<? extends TargetContext<?>> fillColumnOnTop(ItemStack stack, int column) {
+        return applier -> IntStream.range(0, applier.getMenu().getSlotsPerPage()).filter(value -> value % 9 == column).forEach(value -> applier.addItemOnTop(value, stack));
     }
 
     /**
@@ -330,6 +346,18 @@ public class MenuPresets {
     }
 
     /**
+     * Fills a whole inventory with a frame (outer ring of slots filled) and overrides static items.
+     *
+     * @param stack the stack to place
+     * @return an instance of the {@link MenuPreset} to register it on a menu.
+     */
+    public static MenuPreset<? extends TargetContext<?>> fillFrameOnTop(ItemStack stack) {
+        return applier -> IntStream.range(0, applier.getMenu().getSlotsPerPage())
+                .filter(value -> value % 9 == 0 || value % 9 == 8 || value < 9 || value >= applier.getMenu().getSlotsPerPage() - 9)
+                .forEach(value -> applier.addItemOnTop(value, stack));
+    }
+
+    /**
      * Creates a list menu with all Online Players. The implementation of refresh on join and disconnect needs to be implemented manually.
      * To refresh the current page, call {@link ListMenu#refresh(int...)} for {@link ListMenu#getListSlots()}
      *
@@ -340,42 +368,23 @@ public class MenuPresets {
      * @return The instance of the list menu
      */
     public static ListMenu newPlayerListMenu(Component title, int rows, Action<? extends TargetContext<?>> action, ContextConsumer<TargetContext<Player>> clickHandler) {
-        return newListMenu(title, rows, PLAYER_LIST_SUPPLIER, action, clickHandler, null);
+        return newListMenu(title, rows, PLAYER_LIST_SUPPLIER, action, clickHandler);
     }
 
     /**
-     * Creates a list menu from a supplier and allows to delete, duplicate and create elements if the supplier derives from
+     * Creates a list menu from a supplier and allows viewing, deleting and duplicating elements if the supplier derives from
      * {@link ListMenuManagerSupplier}.
      * To refresh the current page after adding a new element, call {@link ListMenu#refresh(int...)} for {@link ListMenu#getListSlots()}
      *
-     * @param title            The title of the list menu
-     * @param rows             The amount of rows of the list menu
-     * @param supplier         The supplier that defines how to display the provided type of objects
-     * @param action           The action that triggers the clickhandler. Mind that middle click is used for duplicate and right click for deleting.
-     * @param clickHandler     The click handler to run when an object icon is clicked.
-     * @param <T>              The type of objects to display in the list menu as itemstacks
+     * @param title        The title of the list menu
+     * @param rows         The amount of rows of the list menu
+     * @param supplier     The supplier that defines how to display the provided type of objects
+     * @param action       The action that triggers the clickhandler. Mind that middle click is used for duplicate and right click for deleting.
+     * @param clickHandler The click handler to run when an object icon is clicked.
+     * @param <T>          The type of objects to display in the list menu as itemstacks
      * @return The instance of the list menu
      */
     public static <T> ListMenu newListMenu(Component title, int rows, ListMenuSupplier<T> supplier, Action<? extends TargetContext<?>> action, ContextConsumer<TargetContext<T>> clickHandler) {
-        return newListMenu(title, rows, supplier, action, clickHandler, null);
-    }
-
-
-    /**
-     * Creates a list menu from a supplier and allows to delete, duplicate and create elements if the supplier derives from
-     * {@link ListMenuManagerSupplier}.
-     * To refresh the current page after adding a new element, call {@link ListMenu#refresh(int...)} for {@link ListMenu#getListSlots()}
-     *
-     * @param title            The title of the list menu
-     * @param rows             The amount of rows of the list menu
-     * @param supplier         The supplier that defines how to display the provided type of objects
-     * @param action           The action that triggers the clickhandler. Mind that middle click is used for duplicate and right click for deleting.
-     * @param clickHandler     The click handler to run when an object icon is clicked.
-     * @param createNewHandler The createNewHandler allows to add own functions to provide the arguments for the call of {@link ListMenuManagerSupplier#newElementFromMenu(Object[])}
-     * @param <T>              The type of objects to display in the list menu as itemstacks
-     * @return The instance of the list menu
-     */
-    public static <T> ListMenu newListMenu(Component title, int rows, ListMenuSupplier<T> supplier, Action<? extends TargetContext<?>> action, ContextConsumer<TargetContext<T>> clickHandler, @Nullable Consumer<Consumer<Object[]>> createNewHandler) {
         ListMenu listMenu = new ListMenu(rows, title);
         listMenu.addPreset(fill(FILLER_LIGHT));
         listMenu.addPreset(fillRow(FILLER_DARK, rows - 1));
@@ -384,7 +393,7 @@ public class MenuPresets {
         if (supplier instanceof ListMenuManagerSupplier<T> manager) {
 
             for (T object : supplier.getElements()) {
-                listMenu.addListEntry(ButtonBuilder.buttonBuilder()
+                listMenu.addListEntry(Button.builder()
                         .withItemStack(manager.getDisplayItem(object))
                         .withClickHandler(action, c -> {
                             clickHandler.accept(new TargetContext<>(c.getPlayer(), c.getMenu(), c.getSlot(), (Action<? extends TargetContext<T>>) c.getAction(), c.isCancelled(), object));
@@ -398,21 +407,13 @@ public class MenuPresets {
                             listMenu.refresh(listMenu.getListSlots());
                         }));
             }
-
-            ContextConsumer<ClickContext> c;
-            if (createNewHandler == null) {
-                c = clickContext -> manager.newElementFromMenu(new Object[0]);
-                listMenu.refresh(listMenu.getListSlots());
-            } else {
-                c = clickContext -> createNewHandler.accept(manager::newElementFromMenu);
-            }
-            listMenu.addPreset(newItem(rows * 9 - 1, Action.LEFT, c));
         } else {
 
             for (T object : supplier.getElements()) {
-                listMenu.addListEntry(ButtonBuilder.buttonBuilder()
+                listMenu.addListEntry(Button.builder()
                         .withItemStack(supplier.getDisplayItem(object))
                         .withClickHandler(action, c -> {
+                            clickHandler.accept(new TargetContext<>(c.getPlayer(), c.getMenu(), c.getSlot(), (Action<? extends TargetContext<T>>) c.getAction(), c.isCancelled(), object));
                             clickHandler.accept(new TargetContext<>(c.getPlayer(), c.getMenu(), c.getSlot(), (Action<? extends TargetContext<T>>) c.getAction(), c.isCancelled(), object));
                         }));
             }
@@ -538,8 +539,8 @@ public class MenuPresets {
     public static InventoryMenu newConfirmMenu(Component title, ContextConsumer<ClickContext> accept, ContextConsumer<ClickContext> decline, ContextConsumer<CloseContext> closeHandler) {
         InventoryMenu menu = new InventoryMenu(3, title);
         menu.addPreset(fill(FILLER_DARK));
-        menu.setButton(12, ButtonBuilder.buttonBuilder().withItemStack(ACCEPT).withClickHandler(accept));
-        menu.setButton(16, ButtonBuilder.buttonBuilder().withItemStack(DECLINE).withClickHandler(decline));
+        menu.setButton(12, Button.builder().withItemStack(ACCEPT).withClickHandler(accept));
+        menu.setButton(16, Button.builder().withItemStack(DECLINE).withClickHandler(decline));
         menu.setCloseHandler(closeHandler);
         return menu;
     }
@@ -551,18 +552,7 @@ public class MenuPresets {
         return new BottomInventoryMenu(InventoryRow.HOTBAR);
     }
 
-    private static String concatShape(String[] shape) {
-        StringBuilder combined = new StringBuilder();
-        for (int i = 0; i < 3; i++) {
-            String s = i < shape.length ? shape[i] : "   ";
-            combined.append(s).append(Strings.repeat(" ", s.length() < 3 ? 3 - s.length() : 0));
-        }
-        return combined.toString();
-    }
-
-
-    private static <C extends TargetContext<?>> Map<Action<C>, ContextConsumer<C>> populate
-            (ContextConsumer<C> contextConsumer, Action<C>... actions) {
+    public static <C extends TargetContext<?>> Map<Action<C>, ContextConsumer<C>> combineActions(ContextConsumer<C> contextConsumer, Action<C>... actions) {
         Map<Action<C>, ContextConsumer<C>> map = new HashMap<>();
         for (Action<C> action : actions) {
             map.put(action, contextConsumer);
@@ -570,10 +560,12 @@ public class MenuPresets {
         return map;
     }
 
-    private static <C extends TargetContext<?>> MenuPreset<C> newItem(int slot, Action<C> action, ContextConsumer<C> newHandler) {
-        return applier -> {
-            applier.addItem(slot, NEW);
-            applier.addClickHandler(slot, action, newHandler);
-        };
+    private static String concatShape(String[] shape) {
+        StringBuilder combined = new StringBuilder();
+        for (int i = 0; i < 3; i++) {
+            String s = i < shape.length ? shape[i] : "   ";
+            combined.append(s).append(Strings.repeat(" ", s.length() < 3 ? 3 - s.length() : 0));
+        }
+        return combined.toString();
     }
 }
