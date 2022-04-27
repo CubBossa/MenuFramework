@@ -3,7 +3,6 @@ package de.cubbossa.guiframework.inventory;
 import com.google.common.base.Strings;
 import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.inventory.context.ClickContext;
-import de.cubbossa.guiframework.inventory.context.CloseContext;
 import de.cubbossa.guiframework.inventory.context.ContextConsumer;
 import de.cubbossa.guiframework.inventory.context.TargetContext;
 import de.cubbossa.guiframework.inventory.implementations.BottomInventoryMenu;
@@ -22,6 +21,7 @@ import org.bukkit.inventory.*;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiFunction;
 import java.util.stream.IntStream;
 
 @SuppressWarnings("unchecked")
@@ -39,9 +39,6 @@ public class MenuPresets {
     public static ItemStack DOWN_DISABLED = ItemStackUtils.createItemStack(Material.MAP, Component.text("Down", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false), null);
     public static ItemStack RIGHT_DISABLED = ItemStackUtils.createItemStack(Material.MAP, Component.text("Next", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false), null);
     public static ItemStack LEFT_DISABLED = ItemStackUtils.createItemStack(Material.MAP, Component.text("Previous", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false), null);
-    public static ItemStack ACCEPT = ItemStackUtils.createItemStack(Material.LIME_CONCRETE, Component.text("Accept", NamedTextColor.GREEN).decoration(TextDecoration.ITALIC, false), null);
-    public static ItemStack DECLINE = ItemStackUtils.createItemStack(Material.RED_CONCRETE, Component.text("Decline", NamedTextColor.RED).decoration(TextDecoration.ITALIC, false), null);
-    public static ItemStack NEW = ItemStackUtils.createItemStack(Material.EMERALD, Component.text("New", NamedTextColor.GREEN).decoration(TextDecoration.ITALIC, false), null);
 
     public static ListMenuSupplier<Player> PLAYER_LIST_SUPPLIER = new ListMenuSupplier<>() {
         @Override
@@ -55,6 +52,13 @@ public class MenuPresets {
                     .getOrDefault(Identity.DISPLAY_NAME, Component.text(object.getName())), null);
         }
     };
+
+    /**
+     * x = 0 is first col, x = 8 is last col,
+     * y = 0 is first row, y = 5 is last row
+     * -> top left to bottom right
+     */
+    public static BiFunction<Integer, Integer, Integer> XY_TO_INDEX = (col, row) -> 9 * row + col;
 
     /**
      * Fills one page of an inventory menu with an itemstack
@@ -553,24 +557,6 @@ public class MenuPresets {
         }
 
         return furnace;
-    }
-
-    /**
-     * Creates a simple confirm menu that allows to click the preset accept and decline buttons.
-     *
-     * @param title        The title of the inventory
-     * @param accept       The click handler to run if the player accepts
-     * @param decline      The click handler to run if the player declines
-     * @param closeHandler The close handler to run if the player closes the inventory
-     * @return The instance of the created confirm menu.
-     */
-    public static InventoryMenu newConfirmMenu(Component title, ContextConsumer<ClickContext> accept, ContextConsumer<ClickContext> decline, ContextConsumer<CloseContext> closeHandler) {
-        InventoryMenu menu = new InventoryMenu(3, title);
-        menu.addPreset(fill(FILLER_DARK));
-        menu.setButton(12, Button.builder().withItemStack(ACCEPT).withClickHandler(accept));
-        menu.setButton(16, Button.builder().withItemStack(DECLINE).withClickHandler(decline));
-        menu.setCloseHandler(closeHandler);
-        return menu;
     }
 
     /**

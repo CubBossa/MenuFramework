@@ -9,12 +9,23 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 
+import java.util.function.BiFunction;
 import java.util.stream.IntStream;
 
 /**
  * Defines all types of basic top inventory menus
  */
 public class InventoryMenu extends TopInventoryMenu {
+
+    public final BiFunction<Integer, Integer, Integer> VERT_SCROLL = (slot, row) -> {
+        int i = slot + (9 * offset);
+        if (i >= 36) {
+            i--;
+            i = i % 9;
+        }
+        return i;
+    };
+
 
     private InventoryType inventoryType = InventoryType.CHEST;
     @Getter
