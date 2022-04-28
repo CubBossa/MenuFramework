@@ -169,11 +169,11 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public void setNextPage(Player player) {
-        setPage(player, getCurrentPage() + 1);
+        addOffset(player, slotsPerPage);
     }
 
     public void setPreviousPage(Player player) {
-        setPage(player, getCurrentPage() - 1);
+        removeOffset(player, slotsPerPage);
     }
 
     public void setPage(Player player, int page) {
@@ -303,18 +303,17 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public ItemStack getItemStack(int slot) {
-        int dynSlot = slot % slotsPerPage;
-        dynSlot = dynSlot < 0 ? dynSlot + slotsPerPage : dynSlot;
-        ItemStack stack = dynamicItemStacksOnTop.get(dynSlot);
+        int staticSlot = slot - offset;
+        ItemStack stack = dynamicItemStacksOnTop.get(staticSlot);
         if (stack != null) {
             return stack;
         }
-        Supplier<ItemStack> supplier = itemStacks.get(slot);
+        Supplier<ItemStack> supplier = itemStacks.get(slot + offset);
         stack = supplier != null ? supplier.get() : null;
         if (stack != null) {
             return stack;
         }
-        return dynamicItemStacks.get(dynSlot);
+        return dynamicItemStacks.get(staticSlot);
     }
 
     public void setItem(int slot, ItemStack item) {
@@ -480,7 +479,8 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public int getCurrentPage() {
-        return offset / slotsPerPage;
+
+        return (int) Math.floor((double) offset / slotsPerPage);
     }
 
     public int getMinPage() {

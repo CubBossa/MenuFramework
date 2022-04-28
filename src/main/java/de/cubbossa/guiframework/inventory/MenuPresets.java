@@ -198,7 +198,7 @@ public class MenuPresets {
             } else {
                 applier.addItemOnTop(leftSlot, LEFT);
                 for (Action<?> action : actions) {
-                    applier.addClickHandlerOnTop(leftSlot, action, c -> applier.getMenu().setPreviousPage(c.getPlayer()));
+                    applier.addClickHandlerOnTop(leftSlot, action, c -> applier.getMenu().removeOffset(c.getPlayer(), 1));
                 }
             }
             if (rightLimit) {
@@ -208,7 +208,7 @@ public class MenuPresets {
             } else {
                 applier.addItemOnTop(rightSlot, RIGHT);
                 for (Action<?> action : actions) {
-                    applier.addClickHandlerOnTop(rightSlot, action, c -> applier.getMenu().setNextPage(c.getPlayer()));
+                    applier.addClickHandlerOnTop(rightSlot, action, c -> applier.getMenu().addOffset(c.getPlayer(), 9));
                 }
             }
         };

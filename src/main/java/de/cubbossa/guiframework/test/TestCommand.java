@@ -106,7 +106,7 @@ public class TestCommand implements CommandExecutor {
 		exampleMenu.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 3));
 		exampleMenu.addPreset(MenuPresets.paginationRow(3, 0, 1, false, Action.LEFT));
 		int i = 0;
-		for (Material material : Tag.BANNERS.getValues()) {
+		for (Material material : Tag.BEDS.getValues()) {
 			exampleMenu.setButton(i++, Button.builder()
 					.withItemStack(material)
 					.withSound(Sound.ENTITY_EVOKER_PREPARE_WOLOLO, 0f, 2f, .5f, 2f)
@@ -137,8 +137,8 @@ public class TestCommand implements CommandExecutor {
 			}));
 		}
 
-		listMenu.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 3));
-		listMenu.addPreset(MenuPresets.paginationRow(3, 0, 1, false, Action.LEFT));
+		listMenu.addPreset(MenuPresets.fillRowOnTop(MenuPresets.FILLER_DARK, 3));
+		listMenu.addPreset(MenuPresets.scrollingVertically(27, 28, false, Action.LEFT));
 		for (Material material : Tag.STAIRS.getValues()) {
 			listMenu.addListEntry(Button.builder().withItemStack(material));
 		}

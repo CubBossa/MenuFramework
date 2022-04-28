@@ -44,7 +44,7 @@ public class ListMenu extends InventoryMenu {
 
     private ListElement<?> getElement(int slot) {
         int index = -1;
-        int pageSlot = slot % slotsPerPage;
+        int pageSlot = slot - offset;
         for (int i = 0; i < listSlots.length; i++) {
             if (listSlots[i] == pageSlot) {
                 index = i;
@@ -53,20 +53,27 @@ public class ListMenu extends InventoryMenu {
         if (index == -1) {
             return null;
         }
-        int i = index + getCurrentPage() * listSlots.length;
-        return i >= listElements.size() ? null : listElements.get(i);
+        return index + offset >= listElements.size() ? null : listElements.get(index + offset);
     }
 
     @Override
     public ItemStack getItemStack(int slot) {
-        var element = getElement(slot);
-        return element == null ? super.getItemStack(slot) : element.itemSupplier().get();
+        var ret = super.getItemStack(slot);
+        if (ret == null) {
+            var element = getElement(slot);
+            ret = element == null ? null : element.itemSupplier.get();
+        }
+        return ret;
     }
 
     @Override
     public ContextConsumer<? extends TargetContext<?>> getClickHandler(int slot, Action<?> action) {
-        var element = getElement(slot);
-        return element == null ? super.getClickHandler(slot, action) : element.clickHandlers().get(action);
+        var ret = super.getClickHandler(slot, action);
+        if (ret == null) {
+            var element = getElement(slot);
+            ret = element == null ? null : element.clickHandlers.get(action);
+        }
+        return ret;
     }
 
     @Override
