@@ -1,5 +1,8 @@
 package de.cubbossa.guiframework.testing;
 
+import co.aikar.commands.BaseCommand;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.Default;
 import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.bossbar.CustomBossBar;
 import de.cubbossa.guiframework.chat.ComponentMenu;
@@ -20,47 +23,16 @@ import org.bukkit.Sound;
 import org.bukkit.Tag;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-public class TestCommand implements CommandExecutor {
-
-    /*
-    Testcases
-    1) Scoreboards
-        - show
-        - hide
-        - stacked
-        - animations
-        - thread safety
-    2) Chat Menus
-        - pagination
-        - itemstacks
-        - string component mixed
-    3) Top Inventory Menus
-        - setting items and clickhandlers
-        - default click handlers
-        - pagination
-        - presets
-            - pagination
-            - backhandler
-            - static filling
-            - dynamic filling
-        - sub and parent menus
-        - animations
-        - shared view in top menus
-        - view modes
-
-
-     */
+@CommandAlias("menuframework test")
+public class TestCommand extends BaseCommand {
 
 	CustomScoreboard.Animation scoreboardAnimation = null;
 	CustomScoreboard scoreboard = new CustomScoreboard("test_scoreboard_1", Component.text("Nur ein Scoreboard"), 10);
@@ -134,8 +106,8 @@ public class TestCommand implements CommandExecutor {
 		}
 	}
 
-	@Override
-	public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+	@Default
+	public boolean onCommand(CommandSender commandSender, String strings) {
 		Player player = (Player) commandSender;
 
 		TextMenu online = new TextMenu("Spieler online:");
@@ -147,7 +119,7 @@ public class TestCommand implements CommandExecutor {
 		TextMenu inventory = new TextMenu("Your Inventory:");
 		Arrays.stream(player.getInventory().getContents()).filter(Objects::nonNull).forEach(stack -> inventory.addSub(new TextMenu(stack.getAmount() + "x " + stack.getType().toString())));
 
-		switch (strings[0]) {
+		switch (strings) {
 			case "1.1":
 				scoreboard.show(player);
 				break;
@@ -178,9 +150,6 @@ public class TestCommand implements CommandExecutor {
 				break;
 			case "2.2":
 				GUIHandler.getInstance().getAudiences().player(player).sendMessage(inventory);
-				break;
-			case "2.3":
-				inventory.send(player, Integer.parseInt(strings[1]), 3);
 				break;
 
 			case "3.1":

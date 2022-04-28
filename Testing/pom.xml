@@ -16,12 +16,26 @@
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>aikar</id>
+            <url>https://repo.aikar.co/content/groups/aikar/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>de.cubbossa</groupId>
             <artifactId>MenuFramework</artifactId>
             <version>0.1.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>co.aikar</groupId>
+            <artifactId>acf-paper</artifactId>
+            <version>0.5.1-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -45,6 +59,14 @@
                             <pattern>net.kyori</pattern>
                             <shadedPattern>de.cubbossa.guiframework</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>co.aikar.commands</pattern>
+                            <shadedPattern>de.cubbossa.guiframework.acf</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>co.aikar.locales</pattern>
+                            <shadedPattern>de.cubbossa.guiframework.locales</shadedPattern>
+                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>
@@ -57,7 +79,8 @@
                             <finalName>MenuFramework-Testing-${parent.version}</finalName>
                             <artifactSet>
                                 <includes>
-                                    <include>de.cubbossa:Core</include>
+                                    <include>co.aikar:acf-paper</include>
+                                    <include>de.cubbossa:MenuFramework</include>
                                     <include>net.kyori:**</include>
                                 </includes>
                             </artifactSet>
