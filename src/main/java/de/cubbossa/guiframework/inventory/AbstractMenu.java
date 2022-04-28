@@ -534,6 +534,10 @@ public abstract class AbstractMenu implements Menu {
         }
     }
 
+    protected int applyOffset(int slot) {
+        return slot + offset;
+    }
+
     public class Animation {
 
         private final int slot;

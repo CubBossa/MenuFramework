@@ -8,10 +8,7 @@ import de.cubbossa.guiframework.inventory.Action;
 import de.cubbossa.guiframework.inventory.Button;
 import de.cubbossa.guiframework.inventory.InventoryRow;
 import de.cubbossa.guiframework.inventory.MenuPresets;
-import de.cubbossa.guiframework.inventory.implementations.AnvilMenu;
-import de.cubbossa.guiframework.inventory.implementations.BottomInventoryMenu;
-import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
-import de.cubbossa.guiframework.inventory.implementations.ListMenu;
+import de.cubbossa.guiframework.inventory.implementations.*;
 import de.cubbossa.guiframework.scoreboard.CustomScoreboard;
 import de.cubbossa.guiframework.util.Animations;
 import net.kyori.adventure.identity.Identity;
@@ -69,7 +66,7 @@ public class TestCommand implements CommandExecutor {
 	CustomScoreboard scoreboard = new CustomScoreboard("test_scoreboard_1", Component.text("Nur ein Scoreboard"), 10);
 	CustomScoreboard higherBoard = new CustomScoreboard("test_scoreboard_2", Component.text("Noch eins"), 5);
 
-	InventoryMenu exampleMenu = new InventoryMenu(4, Component.text("Example Inventory"));
+	RectInventoryMenu exampleMenu = new RectInventoryMenu(Component.text("Example Inventory"), 4);
 	BottomInventoryMenu bottomMenu = new BottomInventoryMenu(InventoryRow.FIRST_ROW);
 	BottomInventoryMenu bottomMenu2 = new BottomInventoryMenu(IntStream.range(0, 36).filter(value -> value % 2 == 1).toArray());
 	ListMenu listMenu = new ListMenu(4, Component.text("Weapons"));

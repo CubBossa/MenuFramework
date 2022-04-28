@@ -19,7 +19,7 @@ import java.util.stream.IntStream;
 /**
  * A Chest Menu, that provides methods to add list entries without worrying about the last slot.
  */
-public class ListMenu extends InventoryMenu {
+public class ListMenu extends RectInventoryMenu {
 
     public record ListElement<T>(Supplier<ItemStack> itemSupplier,
                                  Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandlers) {
@@ -37,7 +37,7 @@ public class ListMenu extends InventoryMenu {
      * @param listSlots All slots of one page that should be used
      */
     public ListMenu(int rows, Component title, int... listSlots) {
-        super(rows, title);
+        super(title, rows);
         this.listSlots = listSlots.length == 0 ? IntStream.range(0, (rows - 1) * 9).toArray() : listSlots;
         this.listElements = new ArrayList<>();
     }

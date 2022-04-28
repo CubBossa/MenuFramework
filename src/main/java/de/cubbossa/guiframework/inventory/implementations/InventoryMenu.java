@@ -9,7 +9,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 
-import java.util.function.BiFunction;
 import java.util.stream.IntStream;
 
 /**
@@ -17,19 +16,8 @@ import java.util.stream.IntStream;
  */
 public class InventoryMenu extends TopInventoryMenu {
 
-    public final BiFunction<Integer, Integer, Integer> VERT_SCROLL = (slot, row) -> {
-        int i = slot + (9 * offset);
-        if (i >= 36) {
-            i--;
-            i = i % 9;
-        }
-        return i;
-    };
-
-
-    private InventoryType inventoryType = InventoryType.CHEST;
     @Getter
-    private int rows = 0;
+    private final InventoryType inventoryType;
     @Getter
     private final int[] slots;
 
@@ -45,22 +33,8 @@ public class InventoryMenu extends TopInventoryMenu {
         this.slots = IntStream.range(0, inventoryType.getDefaultSize()).toArray();
     }
 
-    /**
-     * Creates an empty Chest Inventory Menu
-     *
-     * @param rows  the row count of the chest inventory
-     * @param title the title component of the chest inventory
-     */
-    public InventoryMenu(int rows, Component title) {
-        super(title, rows * 9);
-        this.rows = rows;
-        this.slots = IntStream.range(0, rows * 9).toArray();
-    }
-
     @Override
     public Inventory createInventory(Player player, int page) {
-        return inventoryType == InventoryType.CHEST ?
-                Bukkit.createInventory(null, rows * 9, ChatUtils.toLegacy(getTitle(page))) :
-                Bukkit.createInventory(null, inventoryType, ChatUtils.toLegacy(getTitle(page)));
+        return Bukkit.createInventory(null, inventoryType, ChatUtils.toLegacy(getTitle(page)));
     }
 }
