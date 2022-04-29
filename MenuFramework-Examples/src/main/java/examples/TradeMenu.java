@@ -49,10 +49,12 @@ public class TradeMenu {
 
 		// Return all items to player inventory if closed
 		menu.setCloseHandler(closeContext -> {
+			aSlots.forEach(integer -> a.getInventory().addItem(menu.getInventory().getItem(integer)));
+			bSlots.forEach(integer -> b.getInventory().addItem(menu.getInventory().getItem(integer)));
 			if (closeContext.getPlayer().equals(a)) {
-				aSlots.forEach(integer -> a.getInventory().addItem(menu.getInventory().getItem(integer)));
-			} else if (closeContext.getPlayer().equals(b)) {
-				bSlots.forEach(integer -> b.getInventory().addItem(menu.getInventory().getItem(integer)));
+				b.closeInventory();
+			} else {
+				a.closeInventory();
 			}
 		});
 
@@ -62,7 +64,7 @@ public class TradeMenu {
 		};
 
 		// Accept Buttons
-		menu.setButton(2, Button.builder()
+		menu.setButton(MenuPresets.XY_TO_INDEX.apply(rows - 1, 2), Button.builder()
 				.withItemStack(() -> aAccepted ? new ItemStack(Material.LIME_CONCRETE) : new ItemStack(Material.RED_CONCRETE))
 				.withClickHandler(Action.LEFT, clickContext -> {
 					if (bAccepted) {
@@ -72,7 +74,7 @@ public class TradeMenu {
 						clickContext.getMenu().refresh(clickContext.getSlot());
 					}
 				}));
-		menu.setButton(6, Button.builder()
+		menu.setButton(MenuPresets.XY_TO_INDEX.apply(rows - 1, 6), Button.builder()
 				.withItemStack(() -> bAccepted ? new ItemStack(Material.LIME_CONCRETE) : new ItemStack(Material.RED_CONCRETE))
 				.withClickHandler(Action.LEFT, clickContext -> {
 					if (aAccepted) {
