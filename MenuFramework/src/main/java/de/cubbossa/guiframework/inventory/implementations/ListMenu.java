@@ -31,12 +31,11 @@ public class ListMenu extends RectInventoryMenu {
 
     /**
      * Creates a new chest list menu with the given count of rows
-     *
+     *  @param title     The Title of the chest inventory
      * @param rows      The amount of rows for the inventory
-     * @param title     The Title of the chest inventory
      * @param listSlots All slots of one page that should be used
      */
-    public ListMenu(int rows, Component title, int... listSlots) {
+    public ListMenu(Component title, int rows, int... listSlots) {
         super(title, rows);
         this.listSlots = listSlots.length == 0 ? IntStream.range(0, (rows - 1) * 9).toArray() : listSlots;
         this.listElements = new ArrayList<>();

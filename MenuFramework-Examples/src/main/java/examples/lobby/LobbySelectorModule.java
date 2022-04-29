@@ -31,7 +31,7 @@ public class LobbySelectorModule implements CommandExecutor {
     private ListMenu lobbyMenu;
 
     public LobbySelectorModule(JavaPlugin plugin) {
-        lobbyMenu = new ListMenu(4, Component.text("Choose a lobby"), IntStream.range(0, 3 * 9).toArray());
+        lobbyMenu = new ListMenu(Component.text("Choose a lobby"), 4, IntStream.range(0, 3 * 9).toArray());
         lobbyMenu.addPreset(MenuPresets.fillRowOnTop(MenuPresets.FILLER_DARK, 3));
         lobbyMenu.addPreset(MenuPresets.paginationRow(3, 0, 1, true, Action.LEFT, Action.RIGHT));
 

@@ -12,8 +12,8 @@
 
     <modules>
         <module>MenuFramework</module>
-        <module>Testing</module>
-        <module>Examples</module>
+        <module>MenuFramework-Testing</module>
+        <module>MenuFramework-Examples</module>
     </modules>
 
     <properties>

@@ -509,12 +509,12 @@ public abstract class AbstractMenu implements Menu {
         return Integer.max(maxPage, getCurrentPage());
     }
 
-    public Animation playAnimation(int slot, int ticks, Function<AnimationContext, ItemStack> itemUpdater) {
-        return playAnimation(slot, -1, ticks, itemUpdater);
+    public Animation playAnimation(int slot, int ticks) {
+        return playAnimation(slot, -1, ticks);
     }
 
-    public Animation playAnimation(int slot, int intervals, int ticks, Function<AnimationContext, ItemStack> itemUpdater) {
-        Animation animation = new Animation(slot, intervals, ticks, itemUpdater);
+    public Animation playAnimation(int slot, int intervals, int ticks) {
+        Animation animation = new Animation(slot, intervals, ticks);
 
         Collection<Animation> animations = this.animations.getOrDefault(slot, new HashSet<>());
         animations.add(animation);
@@ -543,36 +543,28 @@ public abstract class AbstractMenu implements Menu {
         private final int slot;
         private int intervals = -1;
         private final int ticks;
-        private final Function<AnimationContext, ItemStack> itemUpdater;
-
         private BukkitTask task;
+        @Getter
+        private final AtomicInteger interval = new AtomicInteger(0);
 
-        public Animation(int slot, int ticks, Function<AnimationContext, ItemStack> itemUpdater) {
+        public Animation(int slot, int ticks) {
             this.slot = slot;
             this.ticks = ticks;
-            this.itemUpdater = itemUpdater;
         }
 
-        public Animation(int slot, int intervals, int ticks, Function<AnimationContext, ItemStack> itemUpdater) {
+        public Animation(int slot, int intervals, int ticks) {
             this.slot = slot;
             this.intervals = intervals;
             this.ticks = ticks;
-            this.itemUpdater = itemUpdater;
         }
 
         public void play() {
             Supplier<ItemStack> supplier = itemStacks.get(slot);
             final ItemStack item = supplier != null ? supplier.get() : null;
-            AtomicInteger interval = new AtomicInteger(0);
             task = Bukkit.getScheduler().runTaskTimer(GUIHandler.getInstance().getPlugin(), () -> {
                 if (intervals == -1 || interval.get() < intervals) {
                     if (item != null) {
-                        try {
-                            setItem(slot, itemUpdater.apply(new AnimationContext(slot, intervals, item)));
-                            refresh(slot);
-                        } catch (Throwable t) {
-                            GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error occured while playing animation in inventory menu", t);
-                        }
+                        refresh(slot);
                         interval.addAndGet(1);
                     }
                 } else {

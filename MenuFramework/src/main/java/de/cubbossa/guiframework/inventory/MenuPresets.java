@@ -1,14 +1,14 @@
 package de.cubbossa.guiframework.inventory;
 
 import com.google.common.base.Strings;
+import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.inventory.context.ClickContext;
 import de.cubbossa.guiframework.inventory.context.ContextConsumer;
-import de.cubbossa.guiframework.inventory.implementations.BottomInventoryMenu;
-import de.cubbossa.guiframework.util.ItemStackUtils;
-import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.inventory.context.TargetContext;
+import de.cubbossa.guiframework.inventory.implementations.BottomInventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.ListMenu;
+import de.cubbossa.guiframework.util.ItemStackUtils;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -20,7 +20,6 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.*;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.stream.IntStream;
 
@@ -417,7 +416,7 @@ public class MenuPresets {
      * @return The instance of the list menu
      */
     public static <T> ListMenu newListMenu(Component title, int rows, ListMenuSupplier<T> supplier, Action<? extends TargetContext<?>> action, ContextConsumer<TargetContext<T>> clickHandler) {
-        ListMenu listMenu = new ListMenu(rows, title);
+        ListMenu listMenu = new ListMenu(title, rows);
         listMenu.addPreset(fill(FILLER_LIGHT));
         listMenu.addPreset(fillRow(FILLER_DARK, rows - 1));
         listMenu.addPreset(paginationRow(rows - 1, 0, 1, false, Action.LEFT));
@@ -497,20 +496,16 @@ public class MenuPresets {
             recipeIndex++;
         }
         if (recipes.size() > 1) {
-            for (int i = 0; i < 9; i++) {
-                AtomicInteger index = new AtomicInteger(0);
-                int finalI = i;
-                workbench.setItem(i + 1, animationMap[i][0]);
-                workbench.playAnimation(i + 1, animationSpeed, animationContext -> {
-                    return animationMap[finalI][index.getAndAdd(1) % recipes.size()];
-                });
+            for (int i = 1; i < 10; i++) {
+                final int slot = i;
+                AbstractMenu.Animation anim = workbench.playAnimation(i, animationSpeed);
+                workbench.setItem(i, () -> animationMap[slot - 1][anim.getInterval().get() % recipes.size()]);
             }
         } else {
             for (int slot = 1; slot < 10; slot++) {
                 workbench.setItem(slot, animationMap[slot - 1][0]);
             }
         }
-
         return workbench;
     }
 
@@ -547,15 +542,11 @@ public class MenuPresets {
             recipeIndex++;
         }
         if (recipes.size() > 1) {
-            AtomicInteger index = new AtomicInteger(0);
-            furnace.setItem(inputSlot, animationMap[0]);
-            furnace.playAnimation(inputSlot, animationSpeed, animationContext -> {
-                return animationMap[index.getAndAdd(1) % recipes.size()];
-            });
+            AbstractMenu.Animation animation = furnace.playAnimation(inputSlot, animationSpeed);
+            furnace.setItem(inputSlot, () -> animationMap[animation.getInterval().get() % recipes.size()]);
         } else {
             furnace.setItem(inputSlot, animationMap[0]);
         }
-
         return furnace;
     }
 

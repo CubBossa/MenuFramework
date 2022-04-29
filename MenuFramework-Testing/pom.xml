@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>Testing</artifactId>
+    <artifactId>MenuFramework-Testing</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
