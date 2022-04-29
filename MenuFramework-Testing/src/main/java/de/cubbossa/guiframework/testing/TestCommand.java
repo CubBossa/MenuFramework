@@ -3,10 +3,7 @@ package de.cubbossa.guiframework.testing;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.Subcommand;
-import de.cubbossa.guiframework.inventory.Action;
-import de.cubbossa.guiframework.inventory.Button;
-import de.cubbossa.guiframework.inventory.InventoryRow;
-import de.cubbossa.guiframework.inventory.MenuPresets;
+import de.cubbossa.guiframework.inventory.*;
 import de.cubbossa.guiframework.inventory.implementations.*;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
@@ -105,6 +102,18 @@ public class TestCommand extends BaseCommand {
 	public void closeRectInventoryMenu(Player player) {
 		openRectInventoryMenu.close(player);
 		openRectInventoryMenu.removeAllPresets();
+	}
+
+	@Subcommand("open WorkbenchMenu")
+	public void openWorkBenchMenu(Player player) {
+		Menu menu = MenuPresets.newCraftMenu(Component.text("Crafting:"), player.getInventory().getItemInMainHand(), 20);
+		menu.open(player);
+	}
+
+	@Subcommand("open CookingMenu")
+	public void openCookingMenu(Player player) {
+		Menu menu = MenuPresets.newCookingMenu(Component.text("Cooking:"), player.getInventory().getItemInMainHand(), 20);
+		menu.open(player);
 	}
 
 

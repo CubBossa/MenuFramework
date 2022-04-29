@@ -2,7 +2,10 @@ package de.cubbossa.guiframework.inventory;
 
 import com.google.common.base.Preconditions;
 import de.cubbossa.guiframework.GUIHandler;
-import de.cubbossa.guiframework.inventory.context.*;
+import de.cubbossa.guiframework.inventory.context.CloseContext;
+import de.cubbossa.guiframework.inventory.context.ContextConsumer;
+import de.cubbossa.guiframework.inventory.context.OpenContext;
+import de.cubbossa.guiframework.inventory.context.TargetContext;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -15,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -510,29 +512,38 @@ public abstract class AbstractMenu implements Menu {
         return Integer.max(maxPage, getCurrentPage());
     }
 
-    public Animation playAnimation(int slot, int ticks) {
-        return playAnimation(slot, -1, ticks);
+    public Animation playLoopedAnimation(int ticks, int... slots) {
+        return playAnimation(-1, ticks, slots);
     }
 
-    public Animation playAnimation(int slot, int intervals, int ticks) {
-        Animation animation = new Animation(slot, intervals, ticks);
+    public Animation playAnimation(int intervals, int ticks, int... slots) {
+        Animation animation = new Animation(slots, intervals, ticks);
 
-        Collection<Animation> animations = this.animations.getOrDefault(slot, new HashSet<>());
-        animations.add(animation);
-        this.animations.put(slot, animations);
+        Arrays.stream(slots).forEach(value -> {
+            Collection<Animation> animations = this.animations.getOrDefault(value, new HashSet<>());
+            animations.add(animation);
+            this.animations.put(value, animations);
+        });
         if (inventory != null && viewer.size() > 0) {
             animation.play();
         }
         return animation;
     }
 
-    public void stopAnimation(int... slots) {
+    public Collection<Animation> getAnimations(int... slots) {
+        HashSet<Animation> anims = new HashSet<>();
         for (int slot : slots) {
             Collection<Animation> animations = this.animations.get(slot);
             if (animations != null) {
-                animations.forEach(AbstractMenu.Animation::stop);
+                anims.addAll(animations);
             }
         }
+        return anims;
+    }
+
+    public void stopAnimation(Animation animation) {
+        animation.stop();
+        this.animations.values().forEach(a -> a.remove(animation));
     }
 
     protected int applyOffset(int slot) {
@@ -541,33 +552,29 @@ public abstract class AbstractMenu implements Menu {
 
     public class Animation {
 
-        private final int slot;
+        private final int[] slots;
         private int intervals = -1;
         private final int ticks;
         private BukkitTask task;
         @Getter
         private final AtomicInteger interval = new AtomicInteger(0);
 
-        public Animation(int slot, int ticks) {
-            this.slot = slot;
+        public Animation(int[] slots, int ticks) {
+            this.slots = slots;
             this.ticks = ticks;
         }
 
-        public Animation(int slot, int intervals, int ticks) {
-            this.slot = slot;
+        public Animation(int[] slots, int intervals, int ticks) {
+            this.slots = slots;
             this.intervals = intervals;
             this.ticks = ticks;
         }
 
         public void play() {
-            Supplier<ItemStack> supplier = itemStacks.get(slot);
-            final ItemStack item = supplier != null ? supplier.get() : null;
             task = Bukkit.getScheduler().runTaskTimer(GUIHandler.getInstance().getPlugin(), () -> {
                 if (intervals == -1 || interval.get() < intervals) {
-                    if (item != null) {
-                        refresh(slot);
-                        interval.addAndGet(1);
-                    }
+                    refresh(slots);
+                    interval.addAndGet(1);
                 } else {
                     stop();
                 }

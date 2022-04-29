@@ -496,9 +496,9 @@ public class MenuPresets {
             recipeIndex++;
         }
         if (recipes.size() > 1) {
+            AbstractMenu.Animation anim = workbench.playLoopedAnimation(animationSpeed, IntStream.range(1, 10).toArray());
             for (int i = 1; i < 10; i++) {
                 final int slot = i;
-                AbstractMenu.Animation anim = workbench.playAnimation(i, animationSpeed);
                 workbench.setItem(i, () -> animationMap[slot - 1][anim.getInterval().get() % recipes.size()]);
             }
         } else {
@@ -542,7 +542,7 @@ public class MenuPresets {
             recipeIndex++;
         }
         if (recipes.size() > 1) {
-            AbstractMenu.Animation animation = furnace.playAnimation(inputSlot, animationSpeed);
+            AbstractMenu.Animation animation = furnace.playLoopedAnimation(animationSpeed, inputSlot);
             furnace.setItem(inputSlot, () -> animationMap[animation.getInterval().get() % recipes.size()]);
         } else {
             furnace.setItem(inputSlot, animationMap[0]);
