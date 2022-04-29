@@ -348,6 +348,7 @@ public abstract class AbstractMenu implements Menu {
 
         Player player = context.getPlayer();
         int slot = context.getSlot();
+
         if (Arrays.stream(getSlots()).noneMatch(value -> value == slot)) {
             return false;
         }

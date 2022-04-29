@@ -234,6 +234,14 @@ public interface Menu {
      */
     void closeAll();
 
+    /**
+     * Handles the interaction for a certain action with provided context.
+     *
+     * @param action The action to handle
+     * @param context The context for this action
+     * @param <C> The Context Target Type
+     * @return true, if the interaction should be cancelled
+     */
     <C extends TargetContext<?>> boolean handleInteract(Action<C> action, C context);
 
     /**

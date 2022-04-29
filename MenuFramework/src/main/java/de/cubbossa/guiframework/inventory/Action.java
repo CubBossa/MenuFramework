@@ -9,6 +9,7 @@ import org.bukkit.event.inventory.ClickType;
 public class Action<C extends TargetContext<?>> {
 
     public static final Action<ClickContext> LEFT = new Action<>();
+    public static final Action<ClickContext> SHIFT_INSERT = new Action<>();
     public static final Action<ClickContext> SHIFT_LEFT = new Action<>();
     public static final Action<ClickContext> RIGHT = new Action<>();
     public static final Action<ClickContext> SHIFT_RIGHT = new Action<>();
@@ -16,7 +17,6 @@ public class Action<C extends TargetContext<?>> {
     public static final Action<ClickContext> WINDOW_BORDER_RIGHT = new Action<>();
     public static final Action<ClickContext> MIDDLE = new Action<>();
     public static final Action<ClickContext> NUMBER_KEY = new Action<>();
-    public static final Action<ClickContext> DOUBLE_CLICK = new Action<>();
     public static final Action<ClickContext> INVENTORY_DROP = new Action<>();
     public static final Action<ClickContext> CONTROL_DROP = new Action<>();
     public static final Action<ClickContext> CREATIVE = new Action<>();
@@ -33,12 +33,11 @@ public class Action<C extends TargetContext<?>> {
             case WINDOW_BORDER_RIGHT -> Action.WINDOW_BORDER_RIGHT;
             case MIDDLE -> Action.MIDDLE;
             case NUMBER_KEY -> Action.NUMBER_KEY;
-            case DOUBLE_CLICK -> Action.DOUBLE_CLICK;
             case DROP -> Action.INVENTORY_DROP;
             case CONTROL_DROP -> Action.CONTROL_DROP;
             case CREATIVE -> Action.CREATIVE;
             case SWAP_OFFHAND -> Action.SWAP_OFFHAND;
-            case UNKNOWN -> Action.UNKNOWN;
+            default -> Action.UNKNOWN;
         };
     }
 

@@ -61,7 +61,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>${parent.name}-${parent.version}</finalName>
+                            <finalName>${parent.artifactId}-${parent.version}</finalName>
                             <artifactSet>
                                 <includes>
                                     <include>net.wesjd:anvilgui</include>

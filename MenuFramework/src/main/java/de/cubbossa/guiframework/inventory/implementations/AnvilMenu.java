@@ -1,12 +1,12 @@
 package de.cubbossa.guiframework.inventory.implementations;
 
 import de.cubbossa.guiframework.GUIHandler;
-import de.cubbossa.guiframework.inventory.TopInventoryMenu;
-import de.cubbossa.guiframework.inventory.context.ClickContext;
-import de.cubbossa.guiframework.inventory.context.ContextConsumer;
 import de.cubbossa.guiframework.inventory.Action;
 import de.cubbossa.guiframework.inventory.Menu;
+import de.cubbossa.guiframework.inventory.TopInventoryMenu;
+import de.cubbossa.guiframework.inventory.context.ClickContext;
 import de.cubbossa.guiframework.inventory.context.CloseContext;
+import de.cubbossa.guiframework.inventory.context.ContextConsumer;
 import de.cubbossa.guiframework.inventory.context.TargetContext;
 import de.cubbossa.guiframework.util.ChatUtils;
 import lombok.Getter;
@@ -102,9 +102,12 @@ public class AnvilMenu extends TopInventoryMenu {
 		ItemStack i = inventory.getItem(0);
 		if (startText != null) {
 			if (i == null) {
-				i = new ItemStack(Material.PAPER);
+				i = getItemStack(0);
+				if (i == null) {
+					i = new ItemStack(Material.PAPER);
+				}
 			}
-			ItemMeta paperMeta = this.itemStacks.get(0).get().getItemMeta();
+			ItemMeta paperMeta = i.getItemMeta();
 			paperMeta.setDisplayName(startText);
 			i.setItemMeta(paperMeta);
 			inventory.setItem(0, i);

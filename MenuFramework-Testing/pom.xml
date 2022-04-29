@@ -67,6 +67,10 @@
                             <pattern>co.aikar.locales</pattern>
                             <shadedPattern>de.cubbossa.guiframework.locales</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>net.wesjd.anvilgui</pattern>
+                            <shadedPattern>de.cubbossa.guiframework.anvilgui</shadedPattern>
+                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>
@@ -82,6 +86,7 @@
                                     <include>co.aikar:acf-paper</include>
                                     <include>de.cubbossa:MenuFramework</include>
                                     <include>net.kyori:**</include>
+                                    <include>net.wesjd:anvilgui</include>
                                 </includes>
                             </artifactSet>
                         </configuration>

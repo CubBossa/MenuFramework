@@ -3,6 +3,8 @@ package de.cubbossa.guiframework.testing;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.Subcommand;
+import de.cubbossa.guiframework.inventory.Action;
+import de.cubbossa.guiframework.inventory.Button;
 import de.cubbossa.guiframework.inventory.InventoryRow;
 import de.cubbossa.guiframework.inventory.MenuPresets;
 import de.cubbossa.guiframework.inventory.implementations.*;
@@ -12,7 +14,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 
-@CommandAlias("menuframework test")
+import java.util.stream.IntStream;
+
+@CommandAlias("menuframework")
 public class TestCommand extends BaseCommand {
 
 	/* Test cases
@@ -29,7 +33,6 @@ public class TestCommand extends BaseCommand {
 	- Default Cancelled
 	- ViewModes
 	 */
-
 
 	// Open and close menu types
 
@@ -77,7 +80,10 @@ public class TestCommand extends BaseCommand {
 
 	@Subcommand("open ListMenu")
 	public void openListMenu(Player player) {
-		openListMenu.addPreset(MenuPresets.fill(new ItemStack(Material.DIAMOND)));
+		IntStream.range(3, 3 * 9).forEach(value -> openListMenu.setButton(value, Button.builder()
+				.withItemStack(new ItemStack(Material.DIAMOND, 60))
+				.withClickHandler(Action.SHIFT_INSERT, clickContext -> clickContext.setCancelled(value % 2 == 1))
+				.withClickHandler(Action.LEFT, clickContext -> clickContext.getPlayer().sendMessage("lol"))));
 		openListMenu.open(player);
 	}
 
