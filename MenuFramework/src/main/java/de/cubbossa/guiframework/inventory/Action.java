@@ -55,4 +55,9 @@ public class Action<C extends TargetContext<?>> {
     public Action() {
 
     }
+
+    public static Action<?>[] inventoryValues = new Action<?>[]{
+            LEFT, SHIFT_INSERT, SHIFT_LEFT, RIGHT, SHIFT_RIGHT, WINDOW_BORDER_LEFT, WINDOW_BORDER_RIGHT,
+            MIDDLE, NUMBER_KEY, INVENTORY_DROP, CONTROL_DROP, CREATIVE, SWAP_OFFHAND, UNKNOWN
+    };
 }
