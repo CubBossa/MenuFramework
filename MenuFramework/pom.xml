@@ -5,7 +5,7 @@
     <parent>
         <artifactId>Menu-Framework-Parent</artifactId>
         <groupId>de.cubbossa</groupId>
-        <version>0.1.0</version>
+        <version>0.2.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -61,7 +61,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>${parent.artifactId}-${parent.version}</finalName>
+                            <finalName>${project.parent.artifactId}-${project.parent.version}</finalName>
                             <artifactSet>
                                 <includes>
                                     <include>net.wesjd:anvilgui</include>

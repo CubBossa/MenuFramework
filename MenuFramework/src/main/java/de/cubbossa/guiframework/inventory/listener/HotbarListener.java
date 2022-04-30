@@ -21,23 +21,6 @@ public class HotbarListener implements Listener {
 	}
 
 	@EventHandler
-	public void onCreativeClick(InventoryCreativeEvent event) {
-		if (event.getWhoClicked() instanceof Player player) {
-			if (event.getClickedInventory() == null || event.getClickedInventory().getType() != InventoryType.PLAYER) {
-				return;
-			}
-			int slot = event.getSlot();
-			Menu menu = InvMenuHandler.getInstance().getMenuAtSlot(player, slot);
-
-			if (menu == null) {
-				return;
-			}
-			Action<ClickContext> action = Action.fromClickType(event.getClick());
-			event.setCancelled(menu.handleInteract(action, new ClickContext(player, menu, slot, action, true)));
-		}
-	}
-
-	@EventHandler
 	public void onDrop(PlayerDropItemEvent event) {
 		Player player = event.getPlayer();
 		int slot = player.getInventory().getHeldItemSlot();
@@ -60,6 +43,9 @@ public class HotbarListener implements Listener {
 		int slot = player.getInventory().getHeldItemSlot();
 
 		LayeredMenu menu = InvMenuHandler.getInstance().getMenuAtSlot(player, slot);
+		if(menu == null) {
+			return;
+		}
 
 		switch (event.getAction()) {
 			case LEFT_CLICK_AIR -> event.setCancelled(menu.handleInteract(Action.LEFT_CLICK_AIR, new ClickContext(player, menu, slot, Action.LEFT_CLICK_AIR, true)));

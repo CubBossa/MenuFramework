@@ -512,7 +512,7 @@ public abstract class AbstractMenu implements Menu {
         return Integer.max(maxPage, getCurrentPage());
     }
 
-    public Animation playLoopedAnimation(int ticks, int... slots) {
+    public Animation playEndlessAnimation(int ticks, int... slots) {
         return playAnimation(-1, ticks, slots);
     }
 

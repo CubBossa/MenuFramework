@@ -10,7 +10,6 @@ import examples.system.NetworkServer;
 import examples.system.ServerHandler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
@@ -57,7 +56,7 @@ public class LobbySelectorModule implements CommandExecutor {
                     }));
         }
         // Refresh Menu every second.
-        Bukkit.getScheduler().runTaskTimer(plugin, () -> lobbyMenu.refresh(lobbyMenu.getListSlots()), 20, 20);
+        lobbyMenu.playEndlessAnimation(20, lobbyMenu.getListSlots());
 
         Objects.requireNonNull(plugin.getCommand(COMMAND)).setExecutor(this);
     }

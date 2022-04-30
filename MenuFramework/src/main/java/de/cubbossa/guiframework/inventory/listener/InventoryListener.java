@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -126,6 +127,43 @@ public class InventoryListener implements MenuListener {
 				count -= possibleFill;
 				s.setAmount(s.getMaxStackSize());
 				stack.setAmount(stack.getAmount() - possibleFill);
+			}
+		}
+	}
+
+	private int[] getDoubleClickSlots(ItemStack stack, InventoryView view) {
+
+		List<Integer> slots = new ArrayList<>();
+		ItemStack[] content = view.getTopInventory().getContents();
+
+		for (int i = 0; i < content.length; i++) {
+			ItemStack s = content[i];
+			if (s.isSimilar(stack)) {
+				slots.add(i);
+			}
+		}
+		return slots.stream().mapToInt(Integer::intValue).toArray();
+	}
+
+	private void simulatedDoubleClick(ItemStack stack, Inventory to, long allowedSlots) {
+
+		ItemStack[] content = to.getContents();
+
+		for (int i = 0; i < content.length; i++) {
+			if ((allowedSlots >> i & 1) == 0) {
+				continue;
+			}
+			ItemStack s = content[i];
+			if (s.isSimilar(stack)) {
+				int given = s.getAmount();
+				int free = stack.getMaxStackSize() - stack.getAmount();
+
+				if (given <= free) {
+					stack.setAmount(stack.getAmount() + given);
+					s.setAmount(0);
+				}
+				stack.setAmount(stack.getMaxStackSize());
+				s.setAmount(s.getAmount() - free);
 			}
 		}
 	}

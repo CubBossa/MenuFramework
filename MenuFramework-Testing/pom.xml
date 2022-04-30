@@ -5,7 +5,7 @@
     <parent>
         <artifactId>Menu-Framework-Parent</artifactId>
         <groupId>de.cubbossa</groupId>
-        <version>0.1.0</version>
+        <version>0.2.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -27,7 +27,7 @@
         <dependency>
             <groupId>de.cubbossa</groupId>
             <artifactId>MenuFramework</artifactId>
-            <version>0.1.0</version>
+            <version>0.2.0</version>
         </dependency>
 
         <dependency>
@@ -80,7 +80,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>MenuFramework-Testing-${parent.version}</finalName>
+                            <finalName>MenuFramework-Testing-${project.parent.version}</finalName>
                             <artifactSet>
                                 <includes>
                                     <include>co.aikar:acf-paper</include>
