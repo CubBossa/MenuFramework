@@ -5,13 +5,14 @@
     <parent>
         <artifactId>Menu-Framework-Parent</artifactId>
         <groupId>de.cubbossa</groupId>
-        <version>0.2.0</version>
+        <version>0.2.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>MenuFramework</artifactId>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
