@@ -116,6 +116,26 @@ public class TestCommand extends BaseCommand {
 		menu.open(player);
 	}
 
+	@Subcommand("stacked")
+	public void openStackedMenu(Player player) {
+		RectInventoryMenu m1 = new RectInventoryMenu(Component.text("Yay"), 4);
+		m1.addPreset(MenuPresets.fillRowOnTop(new ItemStack(Material.DIAMOND), 3));
+		m1.setButton(0, Button.builder()
+				.withItemStack(Material.EMERALD)
+				.withClickHandler(Action.LEFT, c -> c.getMenu().openSubMenu(c.getPlayer(), () -> {
+					RectInventoryMenu m2 = new RectInventoryMenu(Component.text("Yay2"), 4);
+					m2.setButton(1, Button.builder()
+							.withItemStack(Material.REDSTONE)
+							.withClickHandler(Action.LEFT, c1 -> c1.getMenu().openSubMenu(c1.getPlayer(), () -> {
+								RectInventoryMenu m3 = new RectInventoryMenu(Component.text("Yay3"), 3);
+								m3.setButton(1, Button.builder()
+										.withItemStack(Material.STONE));
+								return m3;
+							})));
+					return m2;
+				})));
+		m1.open(player);
+	}
 
 	// test all presets
 

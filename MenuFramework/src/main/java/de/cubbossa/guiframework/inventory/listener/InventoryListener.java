@@ -31,15 +31,18 @@ public class InventoryListener implements MenuListener {
 	@Override
 	public void register(Menu menu) {
 		menus.add(menu);
+		System.out.println("Menus registered: " + menus.size());
 	}
 
 	@Override
 	public void unregister(Menu menu) {
 		menus.remove(menu);
+		System.out.println("Menus registered: " + menus.size());
 	}
 
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent event) {
+		System.out.println("Recognized click");
 		if (event.getWhoClicked() instanceof Player player) {
 			if (event.getClickedInventory() == null || player.getOpenInventory() == null) {
 				return;
@@ -78,7 +81,10 @@ public class InventoryListener implements MenuListener {
 				return;
 			}
 
+			System.out.println("Looping " + menus.size() + " menus");
+
 			menus.forEach(menu -> {
+				System.out.println("Comparing: " + event.getClickedInventory() + ", is " + menu.isThisInventory(event.getClickedInventory(), player));
 				if (menu.getViewer().size() == 0 || !menu.isThisInventory(event.getClickedInventory(), player)) {
 					return;
 				}

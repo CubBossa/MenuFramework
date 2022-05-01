@@ -39,6 +39,8 @@ public abstract class AbstractMenu implements Menu {
     protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> dynamicClickHandler;
     protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> dynamicClickHandlerOnTop;
 
+    private final Collection<UUID> expectingSubMenu;
+
     protected final MenuPreset.PresetApplier applier = new MenuPreset.PresetApplier(this) {
         @Override
         public void addItem(int slot, ItemStack itemStack) {
@@ -95,6 +97,7 @@ public abstract class AbstractMenu implements Menu {
         this.clickHandler = new TreeMap<>();
         this.defaultClickHandler = new HashMap<>();
         this.defaultCancelled = new HashMap<>();
+        this.expectingSubMenu = new HashSet<>();
     }
 
 
@@ -105,10 +108,12 @@ public abstract class AbstractMenu implements Menu {
     protected abstract void openInventory(Player player, Inventory inventory);
 
     public void firstOpen() {
+        System.out.println("First open: " + this);
         InvMenuHandler.getInstance().registerMenu(this);
     }
 
     public void lastClose() {
+        System.out.println("Last close: " + this);
         InvMenuHandler.getInstance().unregisterMenu(this);
     }
 
@@ -133,6 +138,9 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public Menu openSubMenu(Player player, Menu menu) {
+        System.out.println("Expecting Sub Menu: " + menu);
+        expectingSubMenu.add(player.getUniqueId());
+        player.closeInventory();
         menu.setPrevious(player, this);
         menu.open(player);
         return menu;
@@ -151,6 +159,8 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public Menu openSubMenu(Player player, Menu menu, ViewMode viewMode, MenuPreset<?> backPreset) {
+        expectingSubMenu.add(player.getUniqueId());
+        player.closeInventory();
         menu.setPrevious(player, this);
         menu.addPreset(backPreset);
         menu.open(player);
@@ -257,7 +267,6 @@ public abstract class AbstractMenu implements Menu {
     public void close(Player viewer) {
         GUIHandler.getInstance().callSynchronized(() -> {
 
-            Menu previous = this.previous.remove(viewer.getUniqueId());
             if (this.viewer.remove(viewer.getUniqueId()) == null) {
                 return;
             }
@@ -272,8 +281,13 @@ public abstract class AbstractMenu implements Menu {
                     GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error while calling CloseHandler", exc);
                 }
             }
-            if (previous != null) {
-                previous.openSync(viewer, ViewMode.MODIFY);
+            System.out.println("Needs to open Previous Menu: " + !expectingSubMenu.contains(viewer.getUniqueId()));
+            if(!expectingSubMenu.remove(viewer.getUniqueId())) {
+                System.out.println("Found no SubMenu Expectation, open previous: " + previous);
+                Menu previous = this.previous.remove(viewer.getUniqueId());
+                if (previous != null) {
+                    previous.openSync(viewer, ViewMode.MODIFY);
+                }
             }
         });
     }

@@ -170,6 +170,6 @@ public class InvMenuHandler {
     }
 
     public void unregisterListener(MenuListener listener) {
-        listeners.add(listener);
+        listeners.remove(listener);
     }
 }

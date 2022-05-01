@@ -51,6 +51,10 @@ public class GUIHandler {
 	}
 
 	public void callSynchronized(Runnable runnable) {
+		if(Bukkit.isPrimaryThread()) {
+			runnable.run();
+			return;
+		}
 		Bukkit.getScheduler().runTask(plugin, runnable);
 	}
 }

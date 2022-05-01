@@ -78,7 +78,7 @@ public class ListMenu extends RectInventoryMenu {
 
     @Override
     public int getMaxPage() {
-        return Integer.max(super.getMaxPage(), (int) Math.ceil((double) listElements.size() / listSlots.length));
+        return Integer.max(super.getMaxPage() , (int)Math.ceil((double) listElements.size() / listSlots.length));
     }
 
     /**
