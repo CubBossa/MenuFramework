@@ -118,29 +118,11 @@ public class AnvilMenu extends TopInventoryMenu {
 	@Override
 	public void close(Player viewer) {
 
-		Menu previous = this.previous.remove(viewer.getUniqueId());
-		if (this.viewer.remove(viewer.getUniqueId()) == null) {
-			return;
-		}
-		if (this.viewer.size() == 0) {
-			animations.forEach((integer, animations1) -> animations1.forEach(Animation::stop));
-			lastClose();
-		}
-
 		WRAPPER.handleInventoryCloseEvent(viewer);
 		WRAPPER.setActiveContainerDefault(viewer);
 		WRAPPER.sendPacketCloseWindow(viewer, containerId);
 		inventory = null;
 
-		if (closeHandler != null) {
-			try {
-				closeHandler.accept(new CloseContext(viewer, getCurrentPage()));
-			} catch (Exception exc) {
-				GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error occured while closing gui for " + viewer.getName(), exc);
-			}
-		}
-		if (previous != null) {
-			previous.openSync(viewer, ViewMode.MODIFY);
-		}
+		handleClose(viewer);
 	}
 }

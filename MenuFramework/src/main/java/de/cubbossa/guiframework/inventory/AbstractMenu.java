@@ -39,7 +39,6 @@ public abstract class AbstractMenu implements Menu {
     protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> dynamicClickHandler;
     protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> dynamicClickHandlerOnTop;
 
-    private final Collection<UUID> expectingSubMenu;
 
     protected final MenuPreset.PresetApplier applier = new MenuPreset.PresetApplier(this) {
         @Override
@@ -74,6 +73,7 @@ public abstract class AbstractMenu implements Menu {
     protected final Map<Integer, Collection<Animation>> animations;
     protected final Map<UUID, ViewMode> viewer;
     protected final Map<UUID, Menu> previous;
+    private final Collection<UUID> expectingSubMenu;
 
     protected final int slotsPerPage;
     //protected int getCurrentPage() = 0;
@@ -108,12 +108,10 @@ public abstract class AbstractMenu implements Menu {
     protected abstract void openInventory(Player player, Inventory inventory);
 
     public void firstOpen() {
-        System.out.println("First open: " + this);
         InvMenuHandler.getInstance().registerMenu(this);
     }
 
     public void lastClose() {
-        System.out.println("Last close: " + this);
         InvMenuHandler.getInstance().unregisterMenu(this);
     }
 
@@ -138,9 +136,8 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public Menu openSubMenu(Player player, Menu menu) {
-        System.out.println("Expecting Sub Menu: " + menu);
         expectingSubMenu.add(player.getUniqueId());
-        player.closeInventory();
+        handleClose(player);
         menu.setPrevious(player, this);
         menu.open(player);
         return menu;
@@ -160,7 +157,6 @@ public abstract class AbstractMenu implements Menu {
 
     public Menu openSubMenu(Player player, Menu menu, ViewMode viewMode, MenuPreset<?> backPreset) {
         expectingSubMenu.add(player.getUniqueId());
-        player.closeInventory();
         menu.setPrevious(player, this);
         menu.addPreset(backPreset);
         menu.open(player);
@@ -211,7 +207,6 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public void openSync(Player viewer, ViewMode viewMode) {
-
         if (viewer.isSleeping()) {
             viewer.wakeup(true);
         }
@@ -265,31 +260,9 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public void close(Player viewer) {
-        GUIHandler.getInstance().callSynchronized(() -> {
-
-            if (this.viewer.remove(viewer.getUniqueId()) == null) {
-                return;
-            }
-            if (this.viewer.size() == 0) {
-                animations.forEach((integer, animations1) -> animations1.forEach(Animation::stop));
-                lastClose();
-            }
-            if (closeHandler != null) {
-                try {
-                    closeHandler.accept(new CloseContext(viewer, getCurrentPage()));
-                } catch (Exception exc) {
-                    GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error while calling CloseHandler", exc);
-                }
-            }
-            System.out.println("Needs to open Previous Menu: " + !expectingSubMenu.contains(viewer.getUniqueId()));
-            if(!expectingSubMenu.remove(viewer.getUniqueId())) {
-                System.out.println("Found no SubMenu Expectation, open previous: " + previous);
-                Menu previous = this.previous.remove(viewer.getUniqueId());
-                if (previous != null) {
-                    previous.openSync(viewer, ViewMode.MODIFY);
-                }
-            }
-        });
+        if (!handleClose(viewer)) {
+            viewer.closeInventory();
+        }
     }
 
     public void closeAll(Collection<Player> viewers) {
@@ -298,6 +271,37 @@ public abstract class AbstractMenu implements Menu {
 
     public void closeAll() {
         closeAll(viewer.keySet().stream().map(Bukkit::getPlayer).collect(Collectors.toSet()));
+    }
+
+    public boolean handleClose(Player viewer) {
+
+        if (this.viewer.remove(viewer.getUniqueId()) == null) {
+            return false;
+        }
+        if (this.viewer.size() == 0) {
+            animations.forEach((integer, animations1) -> animations1.forEach(Animation::stop));
+            lastClose();
+        }
+        if (closeHandler != null) {
+            try {
+                closeHandler.accept(new CloseContext(viewer, getCurrentPage()));
+            } catch (Exception exc) {
+                GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error while calling CloseHandler", exc);
+            }
+        }
+        if (!expectingSubMenu.remove(viewer.getUniqueId())) {
+            Bukkit.getScheduler().runTaskLater(GUIHandler.getInstance().getPlugin(), () -> openPreviousMenu(viewer), 1);
+            return true;
+        }
+        return false;
+    }
+
+    public void openPreviousMenu(Player viewer) {
+
+        Menu previous = this.previous.remove(viewer.getUniqueId());
+        if (previous != null) {
+            previous.open(viewer, ViewMode.MODIFY);
+        }
     }
 
     public MenuPreset<? extends TargetContext<?>> addPreset(MenuPreset<? extends TargetContext<?>> menuPreset) {

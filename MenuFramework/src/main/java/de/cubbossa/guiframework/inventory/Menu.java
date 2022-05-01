@@ -235,11 +235,20 @@ public interface Menu {
     void closeAll();
 
     /**
+     * Handles all logic that has to be run when closed. Don't call except you know what you're doing.
+     * This is meant to be called by the {@link #close(Player)} method or in the InventoryCloseEvent.
+     *
+     * @param viewer The viewer to run the close logic for.
+     * @return true, if the Menu is expected to open a sub menu.
+     */
+    boolean handleClose(Player viewer);
+
+    /**
      * Handles the interaction for a certain action with provided context.
      *
-     * @param action The action to handle
+     * @param action  The action to handle
      * @param context The context for this action
-     * @param <C> The Context Target Type
+     * @param <C>     The Context Target Type
      * @return true, if the interaction should be cancelled
      */
     <C extends TargetContext<?>> boolean handleInteract(Action<C> action, C context);

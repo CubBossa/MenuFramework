@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 @Getter
-public abstract class TopInventoryMenu extends AbstractMenu implements Listener {
+public abstract class TopInventoryMenu extends AbstractMenu {
 
     private Component fallbackTitle;
     private final Map<Integer, Component> pageTitles;
@@ -26,15 +26,6 @@ public abstract class TopInventoryMenu extends AbstractMenu implements Listener 
         super(slotsPerPage);
         this.fallbackTitle = title.asComponent();
         this.pageTitles = new TreeMap<>();
-    }
-
-    @EventHandler
-    public void onCloseInventory(InventoryCloseEvent event) {
-        if (event.getPlayer() instanceof Player player) {
-            if (isThisInventory(event.getInventory(), player)) {
-                close(player);
-            }
-        }
     }
 
     @Override
@@ -74,17 +65,5 @@ public abstract class TopInventoryMenu extends AbstractMenu implements Listener 
     @Override
     protected void openInventory(Player player, Inventory inventory) {
         player.openInventory(inventory);
-    }
-
-    @Override
-    public void firstOpen() {
-        super.firstOpen();
-        Bukkit.getPluginManager().registerEvents(this, GUIHandler.getInstance().getPlugin());
-    }
-
-    @Override
-    public void lastClose() {
-        super.lastClose();
-        InventoryCloseEvent.getHandlerList().unregister(this);
     }
 }
