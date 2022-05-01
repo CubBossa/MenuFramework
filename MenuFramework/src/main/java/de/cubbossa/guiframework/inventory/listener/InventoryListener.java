@@ -3,6 +3,8 @@ package de.cubbossa.guiframework.inventory.listener;
 import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.inventory.*;
 import de.cubbossa.guiframework.inventory.context.ClickContext;
+import de.cubbossa.guiframework.inventory.context.TargetContext;
+import de.cubbossa.guiframework.inventory.implementations.VillagerMenu;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -190,6 +192,23 @@ public class InventoryListener implements MenuListener {
 				}
 				Action<ClickContext> action = Action.fromClickType(type);
 				event.setCancelled(menu.handleInteract(action, new ClickContext(player, menu, slot, action, true)));
+			});
+		}
+	}
+
+	@EventHandler
+	public void onTradeSelect(TradeSelectEvent event) {
+		if (event.getWhoClicked() instanceof Player player) {
+
+			menus.stream().filter(menu -> menu instanceof VillagerMenu).forEach(menu -> {
+				if (menu.getViewer().size() == 0) {
+					return;
+				}
+				if (!menu.isThisInventory(event.getInventory(), player)) {
+					return;
+				}
+				event.setCancelled(menu.handleInteract(VillagerMenu.TRADE_SELECT,
+						new TargetContext<>(player, menu, event.getIndex(), VillagerMenu.TRADE_SELECT, true, event.getInventory().getSelectedRecipe())));
 			});
 		}
 	}
