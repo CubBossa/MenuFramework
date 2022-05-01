@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 public abstract class AbstractMenu implements Menu {
 
     protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> clickHandler;
+    protected @Nullable ContextConsumer<? extends TargetContext<?>> fallbackDefaultClickHandler = null;
     protected final Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> defaultClickHandler;
     protected final Map<Action<?>, Boolean> defaultCancelled;
 
@@ -388,7 +389,11 @@ public abstract class AbstractMenu implements Menu {
         if (result != null) {
             return result;
         }
-        return dynamicClickHandler.getOrDefault(fixedSlot, new HashMap<>()).get(action);
+        result = dynamicClickHandler.getOrDefault(fixedSlot, new HashMap<>()).get(action);
+        if (result != null) {
+            return result;
+        }
+        return defaultClickHandler.getOrDefault(action, fallbackDefaultClickHandler);
     }
 
     public void setButton(int slot, Button button) {
@@ -418,6 +423,10 @@ public abstract class AbstractMenu implements Menu {
     public <C extends TargetContext<?>> void setItemAndClickHandler(int slot, ItemStack item, Action<C> action, ContextConsumer<C> clickHandler) {
         setItem(slot, item);
         setClickHandler(slot, action, clickHandler);
+    }
+
+    public void setDefaultClickHandler(ContextConsumer<? extends TargetContext<?>> clickHandler) {
+
     }
 
     public <C extends TargetContext<?>> void setDefaultClickHandler(Action<C> action, ContextConsumer<C> clickHandler) {

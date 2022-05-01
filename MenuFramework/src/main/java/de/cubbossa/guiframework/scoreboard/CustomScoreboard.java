@@ -5,6 +5,7 @@ import de.cubbossa.guiframework.chat.ChatMenu;
 import de.cubbossa.guiframework.util.ChatUtils;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -28,7 +29,7 @@ public class CustomScoreboard {
     @Getter
     private final String identifier;
     @Getter
-    private Component title;
+    private ComponentLike title;
     private final int lines;
 
     private final Map<Player, Objective> scoreboards;
@@ -41,7 +42,7 @@ public class CustomScoreboard {
      * @param title      the component title of this scoreboard
      * @param lines      the amount of lines for this scoreboard with a maximum of 15
      */
-    public CustomScoreboard(String identifier, Component title, int lines) {
+    public CustomScoreboard(String identifier, ComponentLike title, int lines) {
         this.identifier = identifier;
         this.title = title;
         this.lines = Integer.min(lines, 15);

@@ -5,6 +5,7 @@ import de.cubbossa.guiframework.util.ChatUtils;
 import de.cubbossa.guiframework.util.InventoryUpdate;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -21,9 +22,9 @@ public abstract class TopInventoryMenu extends AbstractMenu implements Listener 
     private Component fallbackTitle;
     private final Map<Integer, Component> pageTitles;
 
-    public TopInventoryMenu(Component title, int slotsPerPage) {
+    public TopInventoryMenu(ComponentLike title, int slotsPerPage) {
         super(slotsPerPage);
-        this.fallbackTitle = title;
+        this.fallbackTitle = title.asComponent();
         this.pageTitles = new TreeMap<>();
     }
 
@@ -46,24 +47,24 @@ public abstract class TopInventoryMenu extends AbstractMenu implements Listener 
         return pageTitles.getOrDefault(page, fallbackTitle);
     }
 
-    public void updateTitle(Component title) {
-        this.fallbackTitle = title;
+    public void updateTitle(ComponentLike title) {
+        this.fallbackTitle = title.asComponent();
         if (!pageTitles.containsKey(getCurrentPage())) {
             updateCurrentInventoryTitle(title);
         }
     }
 
-    public void updateTitle(Component title, int... pages) {
+    public void updateTitle(ComponentLike title, int... pages) {
         int currentPage = getCurrentPage();
         for (int page : pages) {
-            pageTitles.put(page, title);
+            pageTitles.put(page, title.asComponent());
             if (currentPage == page) {
                 updateCurrentInventoryTitle(title);
             }
         }
     }
 
-    private void updateCurrentInventoryTitle(Component title) {
+    private void updateCurrentInventoryTitle(ComponentLike title) {
 
         String name = ChatUtils.toLegacy(title);
         viewer.keySet().stream().map(Bukkit::getPlayer).forEach(player ->

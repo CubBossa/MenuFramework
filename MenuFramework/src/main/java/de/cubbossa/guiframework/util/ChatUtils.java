@@ -5,6 +5,7 @@ import lombok.experimental.UtilityClass;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.api.BinaryTagHolder;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -60,16 +61,16 @@ public class ChatUtils {
 		return LEGACY_SERIALIZER_AMPERSAND.deserialize(legacy);
 	}
 
-	public String toLegacy(Component component) {
-		return LEGACY_SERIALIZER.serialize(component);
+	public String toLegacy(ComponentLike component) {
+		return LEGACY_SERIALIZER.serialize(component.asComponent());
 	}
 
-	public String toPlain(Component component) {
-		return PLAIN_SERIALIZER.serialize(component);
+	public String toPlain(ComponentLike component) {
+		return PLAIN_SERIALIZER.serialize(component.asComponent());
 	}
 
-	public String toGson(Component component) {
-		return GSON_SERIALZIER.serialize(component);
+	public String toGson(ComponentLike component) {
+		return GSON_SERIALZIER.serialize(component.asComponent());
 	}
 
 	public String formatDuration(Duration duration) {

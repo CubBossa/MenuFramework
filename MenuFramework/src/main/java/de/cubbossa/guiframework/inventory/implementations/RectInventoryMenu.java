@@ -7,6 +7,7 @@ import de.cubbossa.guiframework.util.ChatUtils;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
@@ -55,7 +56,7 @@ public class RectInventoryMenu extends TopInventoryMenu {
      * @param rows  the row count of the chest inventory
      * @param title the title component of the chest inventory
      */
-    public RectInventoryMenu(Component title, int rows) {
+    public RectInventoryMenu(ComponentLike title, int rows) {
         super(title, rows * 9);
         this.rows = rows;
         this.slots = IntStream.range(0, rows * 9).toArray();
@@ -67,7 +68,7 @@ public class RectInventoryMenu extends TopInventoryMenu {
      * @param type  the inventory type, which has to be of type CHEST, BARREL, ENDER_CHEST or SHULKER_BOX (every rowed, 9 slot wide top inventory type)
      * @param title the title component of the chest inventory
      */
-    public RectInventoryMenu(Component title, InventoryType type) {
+    public RectInventoryMenu(ComponentLike title, InventoryType type) {
         super(title, 3 * 9);
         if (!VALID_TYPES.contains(type)) {
             GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Only square inventory types are valid for RectInventoryMenu class.", new RuntimeException());

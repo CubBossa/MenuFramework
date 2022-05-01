@@ -6,6 +6,7 @@ import de.cubbossa.guiframework.inventory.context.ContextConsumer;
 import de.cubbossa.guiframework.inventory.context.TargetContext;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class ListMenu extends RectInventoryMenu {
      * @param rows      The amount of rows for the inventory
      * @param listSlots All slots of one page that should be used
      */
-    public ListMenu(Component title, int rows, int... listSlots) {
+    public ListMenu(ComponentLike title, int rows, int... listSlots) {
         super(title, rows);
         this.listSlots = listSlots.length == 0 ? IntStream.range(0, (rows - 1) * 9).toArray() : listSlots;
         this.listElements = new ArrayList<>();

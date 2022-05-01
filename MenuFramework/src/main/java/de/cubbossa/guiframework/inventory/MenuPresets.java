@@ -11,6 +11,7 @@ import de.cubbossa.guiframework.inventory.implementations.ListMenu;
 import de.cubbossa.guiframework.util.ItemStackUtils;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
@@ -398,7 +399,7 @@ public class MenuPresets {
      * @param clickHandler The click handler to run when an object icon is clicked.
      * @return The instance of the list menu
      */
-    public static ListMenu newPlayerListMenu(Component title, int rows, Action<? extends TargetContext<?>> action, ContextConsumer<TargetContext<Player>> clickHandler) {
+    public static ListMenu newPlayerListMenu(ComponentLike title, int rows, Action<? extends TargetContext<?>> action, ContextConsumer<TargetContext<Player>> clickHandler) {
         return newListMenu(title, rows, PLAYER_LIST_SUPPLIER, action, clickHandler);
     }
 
@@ -415,7 +416,7 @@ public class MenuPresets {
      * @param <T>          The type of objects to display in the list menu as itemstacks
      * @return The instance of the list menu
      */
-    public static <T> ListMenu newListMenu(Component title, int rows, ListMenuSupplier<T> supplier, Action<? extends TargetContext<?>> action, ContextConsumer<TargetContext<T>> clickHandler) {
+    public static <T> ListMenu newListMenu(ComponentLike title, int rows, ListMenuSupplier<T> supplier, Action<? extends TargetContext<?>> action, ContextConsumer<TargetContext<T>> clickHandler) {
         ListMenu listMenu = new ListMenu(title, rows);
         listMenu.addPreset(fill(FILLER_LIGHT));
         listMenu.addPreset(fillRow(FILLER_DARK, rows - 1));
@@ -463,7 +464,7 @@ public class MenuPresets {
      * @param animationSpeed The tick count to wait before displaying the next recipe for this item
      * @return The menu instance
      */
-    public static InventoryMenu newCraftMenu(Component title, ItemStack stack, int animationSpeed) {
+    public static InventoryMenu newCraftMenu(ComponentLike title, ItemStack stack, int animationSpeed) {
 
         InventoryMenu workbench = new InventoryMenu(InventoryType.WORKBENCH, title);
         workbench.setItem(0, stack);
@@ -519,7 +520,7 @@ public class MenuPresets {
      * @param animationSpeed The amount of ticks to wait before displaying the next recipe if the stack has multiple cooking recipes
      * @return The instance of the menu
      */
-    public static InventoryMenu newCookingMenu(Component title, ItemStack stack, int animationSpeed) {
+    public static InventoryMenu newCookingMenu(ComponentLike title, ItemStack stack, int animationSpeed) {
 
         int inputSlot = 0;
         InventoryMenu furnace = new InventoryMenu(InventoryType.FURNACE, title);

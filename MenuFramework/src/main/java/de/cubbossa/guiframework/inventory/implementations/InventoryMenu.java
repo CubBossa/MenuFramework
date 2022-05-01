@@ -4,6 +4,7 @@ import de.cubbossa.guiframework.inventory.TopInventoryMenu;
 import de.cubbossa.guiframework.util.ChatUtils;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
@@ -27,7 +28,7 @@ public class InventoryMenu extends TopInventoryMenu {
      * @param type  the inventory type of the top inventory
      * @param title the title component of the top inventory
      */
-    public InventoryMenu(InventoryType type, Component title) {
+    public InventoryMenu(InventoryType type, ComponentLike title) {
         super(title, type.getDefaultSize());
         this.inventoryType = type;
         this.slots = IntStream.range(0, inventoryType.getDefaultSize()).toArray();

@@ -12,6 +12,7 @@ import de.cubbossa.guiframework.util.ChatUtils;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
 import net.wesjd.anvilgui.AnvilGUI;
 import net.wesjd.anvilgui.version.VersionMatcher;
 import net.wesjd.anvilgui.version.VersionWrapper;
@@ -49,7 +50,7 @@ public class AnvilMenu extends TopInventoryMenu {
 
 	private int containerId;
 
-	public AnvilMenu(Component title, String startText) {
+	public AnvilMenu(ComponentLike title, String startText) {
 		super(title, 3);
 		this.startText = startText;
 	}
