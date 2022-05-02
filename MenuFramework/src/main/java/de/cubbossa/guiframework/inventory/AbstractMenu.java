@@ -137,9 +137,11 @@ public abstract class AbstractMenu implements Menu {
 
     public Menu openSubMenu(Player player, Menu menu) {
         expectingSubMenu.add(player.getUniqueId());
-        handleClose(player);
-        menu.setPrevious(player, this);
-        menu.open(player);
+        GUIHandler.getInstance().callSynchronized(() -> {
+            handleClose(player);
+            menu.setPrevious(player, this);
+            menu.open(player);
+        });
         return menu;
     }
 
@@ -260,9 +262,11 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public void close(Player viewer) {
-        if (!handleClose(viewer)) {
-            viewer.closeInventory();
-        }
+        GUIHandler.getInstance().callSynchronized(() -> {
+            if (!handleClose(viewer)) {
+                viewer.closeInventory();
+            }
+        });
     }
 
     public void closeAll(Collection<Player> viewers) {
@@ -290,14 +294,13 @@ public abstract class AbstractMenu implements Menu {
             }
         }
         if (!expectingSubMenu.remove(viewer.getUniqueId())) {
-            Bukkit.getScheduler().runTaskLater(GUIHandler.getInstance().getPlugin(), () -> openPreviousMenu(viewer), 1);
+            openPreviousMenu(viewer);
             return true;
         }
         return false;
     }
 
     public void openPreviousMenu(Player viewer) {
-
         Menu previous = this.previous.remove(viewer.getUniqueId());
         if (previous != null) {
             previous.open(viewer, ViewMode.MODIFY);
