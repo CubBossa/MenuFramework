@@ -45,17 +45,6 @@ public class InvMenuHandler {
         return (Stack<LayeredMenu>) navigationBottomMap.get(player.getUniqueId()).clone();
     }
 
-    public void closeAllMenus() {
-        for (Stack<LayeredMenu> stack : navigationBottomMap.values()) {
-            while (stack.isEmpty()) {
-                LayeredMenu layered = stack.peek();
-                if (layered instanceof AbstractMenu menu) {
-                    menu.closeAll();
-                }
-            }
-        }
-    }
-
     public void registerBottomInventory(Player player, LayeredMenu menu) {
         Stack<LayeredMenu> stack = navigationBottomMap.getOrDefault(player.getUniqueId(), new Stack<>());
         //Remove from stack to put it back on top

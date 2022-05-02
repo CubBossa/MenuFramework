@@ -11,7 +11,7 @@ import org.bukkit.inventory.ItemStack;
  */
 public interface MenuPreset<C extends TargetContext<?>> {
 
-	void placeDynamicEntries(PresetApplier buttonHandler);
+	void placeDynamicEntries(PresetApplier buttonHandler) throws Throwable;
 
 	@RequiredArgsConstructor
 	abstract class PresetApplier {

@@ -134,16 +134,20 @@ public class MenuPresets {
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
     public static <C extends TargetContext<?>> MenuPreset<C> back(int row, int slot, Action<C>... actions) {
-        return back(XY_TO_INDEX.apply(row, slot), actions);
+        return back(XY_TO_INDEX.apply(slot, row), actions);
     }
 
     public static <C extends TargetContext<?>> MenuPreset<C> back(int slot, Action<C>... actions) {
         return applier -> {
+            if (!(applier.getMenu() instanceof TopInventoryMenu)) {
+                return;
+            }
+
             applier.addItemOnTop(slot, BACK);
             for (Action<?> action : actions) {
                 applier.addClickHandlerOnTop(slot, action, c -> {
                     if (applier.getMenu().getPrevious(c.getPlayer()) != null) {
-                        c.getMenu().handleClose(c.getPlayer());
+                        ((TopInventoryMenu) c.getMenu()).openPreviousMenu(c.getPlayer());
                     }
                 });
             }

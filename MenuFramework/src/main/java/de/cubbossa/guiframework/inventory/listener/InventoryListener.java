@@ -46,7 +46,7 @@ public class InventoryListener implements MenuListener {
 			}
 			if (event.getPlayer() instanceof Player player) {
 				if (menu.isThisInventory(event.getInventory(), player)) {
-					menu.handleClose(player);
+					((TopInventoryMenu) menu).openPreviousMenu(player);
 					break;
 				}
 			}

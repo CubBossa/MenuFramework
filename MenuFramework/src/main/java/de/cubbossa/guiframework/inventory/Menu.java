@@ -146,6 +146,8 @@ public interface Menu {
      */
     Menu openSubMenu(Player player, Supplier<Menu> menuSupplier, ViewMode viewMode, MenuPreset<?> backPreset);
 
+    void openPreviousMenu(Player player);
+
     /**
      * @param previous The menu that will reappear once this menu closes
      */
@@ -222,26 +224,15 @@ public interface Menu {
      */
     void close(Player viewer);
 
-    /**
-     * Close this menu for multiple players.
-     *
-     * @param viewers the players to close this menu for.
-     */
-    void closeAll(Collection<Player> viewers);
-
-    /**
-     * Close all player views for this menu.
-     */
-    void closeAll();
+    void closeKeepInventory(Player viewer);
 
     /**
      * Handles all logic that has to be run when closed. Don't call except you know what you're doing.
      * This is meant to be called by the {@link #close(Player)} method or in the InventoryCloseEvent.
      *
-     * @param viewer The viewer to run the close logic for.
-     * @return true, if the Menu is expected to open a sub menu.
+     * @param viewer       The viewer to run the close logic for.
      */
-    boolean handleClose(Player viewer);
+    void handleClose(Player viewer);
 
     /**
      * Handles the interaction for a certain action with provided context.

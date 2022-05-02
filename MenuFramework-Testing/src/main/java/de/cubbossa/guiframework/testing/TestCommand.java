@@ -116,6 +116,17 @@ public class TestCommand extends BaseCommand {
 		menu.open(player);
 	}
 
+	@Subcommand("open VillagerMenu")
+	public void openVillagerMenu(Player player) {
+		VillagerMenu menu = new VillagerMenu(Component.text("Hallo"));
+		menu.addMerchantOffer(VillagerMenu.MerchantBuilder.builder()
+				.withUses(0, 1000)
+				.withRightCost(new ItemStack(Material.DIAMOND)).build(), Button.builder()
+				.withClickHandler(VillagerMenu.TRADE_SELECT, c -> c.getPlayer().sendMessage("Trade selected"))
+				.withClickHandler(VillagerMenu.ATTEMPT_BUY, c -> c.getPlayer().sendMessage("Trade bought")));
+		menu.open(player);
+	}
+
 	@Subcommand("stacked")
 	public void openStackedMenu(Player player) {
 		RectInventoryMenu m1 = new RectInventoryMenu(Component.text("Yay"), 4);

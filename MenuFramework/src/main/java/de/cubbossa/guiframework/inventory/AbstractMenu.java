@@ -20,7 +20,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 @Getter
 public abstract class AbstractMenu implements Menu {
@@ -73,7 +72,6 @@ public abstract class AbstractMenu implements Menu {
     protected final Map<Integer, Collection<Animation>> animations;
     protected final Map<UUID, ViewMode> viewer;
     protected final Map<UUID, Menu> previous;
-    private final Collection<UUID> expectingSubMenu;
 
     protected final int slotsPerPage;
     //protected int getCurrentPage() = 0;
@@ -97,7 +95,6 @@ public abstract class AbstractMenu implements Menu {
         this.clickHandler = new TreeMap<>();
         this.defaultClickHandler = new HashMap<>();
         this.defaultCancelled = new HashMap<>();
-        this.expectingSubMenu = new HashSet<>();
     }
 
 
@@ -136,7 +133,6 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public Menu openSubMenu(Player player, Menu menu) {
-        expectingSubMenu.add(player.getUniqueId());
         GUIHandler.getInstance().callSynchronized(() -> {
             handleClose(player);
             menu.setPrevious(player, this);
@@ -158,10 +154,12 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public Menu openSubMenu(Player player, Menu menu, ViewMode viewMode, MenuPreset<?> backPreset) {
-        expectingSubMenu.add(player.getUniqueId());
-        menu.setPrevious(player, this);
-        menu.addPreset(backPreset);
-        menu.open(player);
+        GUIHandler.getInstance().callSynchronized(() -> {
+            handleClose(player);
+            menu.setPrevious(player, this);
+            menu.addPreset(backPreset);
+            menu.open(player);
+        });
         return menu;
     }
 
@@ -252,35 +250,35 @@ public abstract class AbstractMenu implements Menu {
         refreshDynamicItemSuppliers();
 
         for (int slot : getSlots()) {
-            ItemStack item = getItemStack(slot + offset);
-            if (item == null) {
-                continue;
+            try {
+                ItemStack item = getItemStack(slot + offset);
+                if (item == null) {
+                    continue;
+                }
+
+                //TODO apply nbt tag to prevent from stacking
+                inventory.setItem(slot, item.clone());
+
+            } catch (Throwable t) {
+                GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Could not place menu item.", t);
             }
-            //TODO apply nbt tag to prevent from stacking
-            inventory.setItem(slot, item.clone());
         }
     }
 
     public void close(Player viewer) {
-        GUIHandler.getInstance().callSynchronized(() -> {
-            if (!handleClose(viewer)) {
-                viewer.closeInventory();
-            }
-        });
+        handleClose(viewer);
+        viewer.closeInventory();
     }
 
-    public void closeAll(Collection<Player> viewers) {
-        viewers.forEach(this::close);
+    @Override
+    public void closeKeepInventory(Player viewer) {
+        handleClose(viewer);
     }
 
-    public void closeAll() {
-        closeAll(viewer.keySet().stream().map(Bukkit::getPlayer).collect(Collectors.toSet()));
-    }
-
-    public boolean handleClose(Player viewer) {
+    public void handleClose(Player viewer) {
 
         if (this.viewer.remove(viewer.getUniqueId()) == null) {
-            return false;
+            return;
         }
         if (this.viewer.size() == 0) {
             animations.forEach((integer, animations1) -> animations1.forEach(Animation::stop));
@@ -293,14 +291,11 @@ public abstract class AbstractMenu implements Menu {
                 GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error while calling CloseHandler", exc);
             }
         }
-        if (!expectingSubMenu.remove(viewer.getUniqueId())) {
-            openPreviousMenu(viewer);
-            return true;
-        }
-        return false;
     }
 
     public void openPreviousMenu(Player viewer) {
+        handleClose(viewer);
+
         Menu previous = this.previous.remove(viewer.getUniqueId());
         if (previous != null) {
             previous.open(viewer, ViewMode.MODIFY);
@@ -361,6 +356,9 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public void refresh(int... slots) {
+        if (inventory == null) {
+            return;
+        }
         int page = getCurrentPage();
         for (int slot : slots) {
             int realIndex = page * slotsPerPage + slot;
@@ -507,7 +505,11 @@ public abstract class AbstractMenu implements Menu {
         dynamicClickHandlerOnTop.clear();
 
         for (MenuPreset<?> processor : dynamicProcessors) {
-            processor.placeDynamicEntries(applier);
+            try {
+                processor.placeDynamicEntries(applier);
+            } catch (Throwable t) {
+                GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Could not place dynamic menu item.", t);
+            }
         }
     }
 
