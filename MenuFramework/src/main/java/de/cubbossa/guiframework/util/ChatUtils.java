@@ -1,6 +1,5 @@
 package de.cubbossa.guiframework.util;
 
-import de.tr7zw.changeme.nbtapi.NBTItem;
 import lombok.experimental.UtilityClass;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.api.BinaryTagHolder;
@@ -103,33 +102,5 @@ public class ChatUtils {
 
 	public String wordWrap(String toWrap, String newLine, int length) {
 		return WordUtils.wrap(toWrap, length, newLine, false);
-	}
-
-	/**
-	 * @param itemStack the itemstack to display as a text component with hover text.
-	 * @return the displayname of the itemstack with the nbt data as hover text.
-	 */
-	public Component toComponent(ItemStack itemStack, boolean hover) {
-		if (!hover) {
-			return itemStack.getItemMeta() != null && itemStack.getItemMeta().hasDisplayName() ?
-					fromLegacy(itemStack.getItemMeta().getDisplayName()) :
-					toTranslatable(itemStack.getType());
-		}
-		return (itemStack.getItemMeta() != null && itemStack.getItemMeta().hasDisplayName() ?
-				fromLegacy(itemStack.getItemMeta().getDisplayName()) :
-				toTranslatable(itemStack.getType()))
-				.hoverEvent(HoverEvent.showItem(HoverEvent.ShowItem.of(Key.key(itemStack.getType().getKey().toString()),
-						1, BinaryTagHolder.binaryTagHolder(new NBTItem(itemStack).toString()))));
-	}
-
-	public Component toComponent(ItemStack itemStack) {
-		return toComponent(itemStack, true);
-	}
-
-	public Component toTranslatable(Material material) {
-		if (material.isBlock()) {
-			return Component.translatable("block.minecraft." + String.valueOf(material).toLowerCase());
-		}
-		return Component.translatable("item.minecraft." + String.valueOf(material).toLowerCase());
 	}
 }

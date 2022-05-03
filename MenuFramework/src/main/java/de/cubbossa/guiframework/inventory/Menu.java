@@ -360,12 +360,23 @@ public interface Menu {
      * Sets a click handler, that is called if a player interacts with the given slot and the actions are equal.
      *
      * @param slot         The absolute slot to insert the clickHandler at. {@code ((current_page * slots_per_page) + page_slot)}
-     * @param item         The item stack to insert at the slit.
+     * @param item         The item stack to insert at the slot.
      * @param action       The action to run this click handler for.
      * @param clickHandler An instance of the actual click handler interface, you might want to use lambda expressions.
      * @param <C>          The click context type of the action and click handler.
      */
     <C extends TargetContext<?>> void setItemAndClickHandler(int slot, ItemStack item, Action<C> action, ContextConsumer<C> clickHandler);
+
+    /**
+     * Sets a click handler, that is called if a player interacts with the given slot and the actions are equal.
+     *
+     * @param slot         The absolute slot to insert the clickHandler at. {@code ((current_page * slots_per_page) + page_slot)}
+     * @param itemSupplier The item supplier to insert into the inventory. The supplier is called every time the slot gets refreshed.
+     * @param action       The action to run this click handler for.
+     * @param clickHandler An instance of the actual click handler interface, you might want to use lambda expressions.
+     * @param <C>          The click context type of the action and click handler.
+     */
+    <C extends TargetContext<?>> void setItemAndClickHandler(int slot, Supplier<ItemStack> itemSupplier, Action<C> action, ContextConsumer<C> clickHandler);
 
     /**
      * Sets a default click handler to run on a certain action

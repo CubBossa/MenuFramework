@@ -5,15 +5,13 @@ import de.cubbossa.guiframework.inventory.Button;
 import de.cubbossa.guiframework.inventory.LayeredMenu;
 import de.cubbossa.guiframework.inventory.context.ContextConsumer;
 import de.cubbossa.guiframework.inventory.context.TargetContext;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import net.kyori.adventure.text.Component;
+import lombok.Setter;
 import net.kyori.adventure.text.ComponentLike;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -23,70 +21,101 @@ import java.util.stream.IntStream;
  */
 public class ListMenu extends RectInventoryMenu {
 
-    public record ListElement<T>(Supplier<ItemStack> itemSupplier,
-                                 Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandlers) {
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    public static class ListElement {
+        private Supplier<ItemStack> itemSupplier;
+        private Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandlers;
     }
 
     @Getter
     private final int[] listSlots;
     private final long listSlotMask;
-    private final List<ListElement<?>> listElements;
+    private final List<ListElement> listElements;
 
     /**
      * Creates a new chest list menu with the given count of rows
-     *  @param title     The Title of the chest inventory
+     *
+     * @param title     The Title of the chest inventory
      * @param rows      The amount of rows for the inventory
      * @param listSlots All slots of one page that should be used
      */
     public ListMenu(ComponentLike title, int rows, int... listSlots) {
         super(title, rows);
         this.listSlots = listSlots.length == 0 ? IntStream.range(0, (rows - 1) * 9).toArray() : listSlots;
-        listSlotMask = LayeredMenu.getMaskFromSlots(this.listSlots);
+        this.listSlotMask = LayeredMenu.getMaskFromSlots(this.listSlots);
         this.listElements = new ArrayList<>();
     }
 
     private boolean isListSlot(int slot) {
-        return (listSlotMask >> (slot - offset) & 1) == 1;
+        return (listSlotMask >> (slot % slotsPerPage) & 1) == 1;
     }
 
-    private ListElement<?> getElement(int slot) {
+    private int toListSlot(int slot) {
+        return slot - (slot / slotsPerPage) * (slotsPerPage - getListSlots().length);
+    }
 
-        int index = -1;
-        int pageSlot = slot - offset;
-        for (int i = 0; i < listSlots.length; i++) {
-            if (listSlots[i] == pageSlot) {
-                index = i;
-            }
-        }
-        if (index == -1) {
+    @Override
+    protected ItemStack getStaticItemStack(int slot) {
+        if(!isListSlot(slot)) {
             return null;
         }
-        return index + offset >= listElements.size() ? null : listElements.get(index + offset / slotsPerPage * listSlots.length);
+        int s = toListSlot(slot);
+        if(s >= listElements.size()) {
+            return null;
+        }
+        ListElement element = listElements.get(s);
+        if (element == null || element.itemSupplier == null) {
+            return null;
+        }
+        return element.itemSupplier.get();
     }
 
     @Override
-    public ItemStack getItemStack(int slot) {
-        var ret = super.getItemStack(slot);
-        if (ret == null) {
-            var element = getElement(slot);
-            ret = element == null ? null : element.itemSupplier.get();
+    protected ContextConsumer<? extends TargetContext<?>> getStaticClickHandler(int slot, Action<?> action) {
+        if(!isListSlot(slot)) {
+            return null;
         }
-        return ret;
+        int s = toListSlot(slot);
+        if(s >= listElements.size()) {
+            return null;
+        }
+        ListElement element = listElements.get(s);
+        if (element == null || element.clickHandlers == null) {
+            return null;
+        }
+        return element.clickHandlers.get(action);
     }
 
     @Override
-    public ContextConsumer<? extends TargetContext<?>> getClickHandler(int slot, Action<?> action) {
-        var ret = super.getClickHandler(slot, action);
-        if (ret == null) {
-            var element = getElement(slot);
-            ret = element == null ? null : element.clickHandlers.get(action);
+    public void setItem(int slot, Supplier<ItemStack> itemSupplier) {
+        int s = toListSlot(slot);
+        ListElement element = listElements.get(s);
+        if (element == null) {
+            element = new ListElement(itemSupplier, new HashMap<>());
+            listElements.add(s, element);
+        } else {
+            element.itemSupplier = itemSupplier;
         }
-        return ret;
+    }
+
+    @Override
+    public void setClickHandler(int slot, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler) {
+        super.setClickHandler(slot, clickHandler);
+        int s = toListSlot(slot);
+        ListElement element = listElements.get(s);
+        if (element == null) {
+            element = new ListElement(null, clickHandler);
+            listElements.add(s, element);
+        } else {
+            element.clickHandlers = clickHandler;
+        }
     }
 
     @Override
     public int getMaxPage() {
-        return Integer.max(super.getMaxPage() , (int)Math.ceil((double) listElements.size() / listSlots.length));
+        return (int) Math.floor((double) listElements.size() / listSlots.length);
     }
 
     /**
@@ -96,21 +125,21 @@ public class ListMenu extends RectInventoryMenu {
      * @param buttonBuilder a button to insert.
      * @return the reference to the stored object Pair. Can be used to remove list elements
      */
-    public <T> ListElement<T> addListEntry(Button buttonBuilder) {
-        ListElement<T> element = new ListElement<>(buttonBuilder.getStackSupplier(), buttonBuilder.getClickHandler());
+    public <T> ListElement addListEntry(Button buttonBuilder) {
+        ListElement element = new ListElement(buttonBuilder.getStackSupplier(), buttonBuilder.getClickHandler());
         listElements.add(element);
         return element;
     }
 
-    public <T> List<ListElement<T>> addListEntries(Collection<T> elements, Function<T, ItemStack> itemSupplier, Action<?> action, ContextConsumer<TargetContext<T>> clickHandler) {
+    public <T> List<ListElement> addListEntries(Collection<T> elements, Function<T, ItemStack> itemSupplier, Action<?> action, ContextConsumer<TargetContext<T>> clickHandler) {
         return addListEntries(elements, itemSupplier, Map.of(action, clickHandler));
     }
 
 
-    public <T> List<ListElement<T>> addListEntries(Collection<T> elements, Function<T, ItemStack> itemSupplier, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler) {
-        List<ListElement<T>> ret = new ArrayList<>();
+    public <T> List<ListElement> addListEntries(Collection<T> elements, Function<T, ItemStack> itemSupplier, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler) {
+        List<ListElement> ret = new ArrayList<>();
         for (T element : elements) {
-            ListElement<T> e = new ListElement<T>(() -> itemSupplier.apply(element), clickHandler);
+            ListElement e = new ListElement(() -> itemSupplier.apply(element), clickHandler);
             this.listElements.add(e);
             ret.add(e);
         }
@@ -129,7 +158,7 @@ public class ListMenu extends RectInventoryMenu {
      *
      * @param entry The instance to remove - store it when calling {@link #addListEntry(Button)}
      */
-    public void removeListEntry(ListElement<?> entry) {
+    public void removeListEntry(ListElement entry) {
         listElements.remove(entry);
     }
 

@@ -1,6 +1,5 @@
 package de.cubbossa.guiframework.inventory;
 
-import com.google.common.base.Preconditions;
 import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.inventory.context.CloseContext;
 import de.cubbossa.guiframework.inventory.context.ContextConsumer;
@@ -317,6 +316,9 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public void clearContent() {
+        if (inventory == null) {
+            return;
+        }
         for (int slot : getSlots()) {
             inventory.setItem(slot, null);
         }
@@ -328,16 +330,20 @@ public abstract class AbstractMenu implements Menu {
         if (stack != null) {
             return tagStack(stack);
         }
-        Supplier<ItemStack> supplier = itemStacks.get(slot + offset);
-        stack = supplier != null ? supplier.get() : null;
+        stack = getStaticItemStack(slot);
         if (stack != null) {
             return tagStack(stack);
         }
         return tagStack(dynamicItemStacks.get(staticSlot));
     }
 
+    protected ItemStack getStaticItemStack(int slot) {
+        Supplier<ItemStack> supplier = itemStacks.get(slot);
+        return supplier == null ? null : supplier.get();
+    }
+
     private ItemStack tagStack(@Nullable ItemStack stack) {
-        if(stack == null) {
+        if (stack == null) {
             return null;
         }
         ItemMeta meta = stack.getItemMeta();
@@ -356,14 +362,11 @@ public abstract class AbstractMenu implements Menu {
 
     public void removeItem(int... slots) {
         for (int slot : slots) {
-            inventory.setItem(slot, null);
+            if (inventory != null) {
+                inventory.setItem(slot, null);
+            }
             itemStacks.remove(slot);
         }
-    }
-
-    public void setDynamicItem(int slot, ItemStack item) {
-        Preconditions.checkArgument(slotsPerPage <= slot || slot < 0, "Slot must be on first page.");
-        dynamicItemStacks.put(slot, item);
     }
 
     public void refresh(int... slots) {
@@ -415,7 +418,7 @@ public abstract class AbstractMenu implements Menu {
         if (result != null) {
             return result;
         }
-        result = clickHandler.getOrDefault(slot + offset, new HashMap<>()).get(action);
+        result = getStaticClickHandler(slot, action);
         if (result != null) {
             return result;
         }
@@ -424,6 +427,10 @@ public abstract class AbstractMenu implements Menu {
             return result;
         }
         return defaultClickHandler.getOrDefault(action, fallbackDefaultClickHandler);
+    }
+
+    protected ContextConsumer<? extends TargetContext<?>> getStaticClickHandler(int slot, Action<?> action) {
+        return clickHandler.getOrDefault(slot + offset, new HashMap<>()).get(action);
     }
 
     public void setButton(int slot, Button button) {
@@ -439,9 +446,7 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public <C extends TargetContext<?>> void setClickHandler(int slot, Action<C> action, ContextConsumer<C> clickHandler) {
-        Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> map = this.clickHandler.getOrDefault(slot, new HashMap<>());
-        map.put(action, clickHandler);
-        this.clickHandler.put(slot, map);
+        setClickHandler(slot, Map.of(action, clickHandler));
     }
 
     public void setClickHandler(int slot, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler) {
@@ -451,6 +456,11 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public <C extends TargetContext<?>> void setItemAndClickHandler(int slot, ItemStack item, Action<C> action, ContextConsumer<C> clickHandler) {
+        setItem(slot, item);
+        setClickHandler(slot, action, clickHandler);
+    }
+
+    public <C extends TargetContext<?>> void setItemAndClickHandler(int slot, Supplier<ItemStack> item, Action<C> action, ContextConsumer<C> clickHandler) {
         setItem(slot, item);
         setClickHandler(slot, action, clickHandler);
     }
