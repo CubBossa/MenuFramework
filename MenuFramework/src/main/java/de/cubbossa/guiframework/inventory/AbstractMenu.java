@@ -9,9 +9,12 @@ import de.cubbossa.guiframework.inventory.context.TargetContext;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
 
@@ -255,8 +258,6 @@ public abstract class AbstractMenu implements Menu {
                 if (item == null) {
                     continue;
                 }
-
-                //TODO apply nbt tag to prevent from stacking
                 inventory.setItem(slot, item.clone());
 
             } catch (Throwable t) {
@@ -325,14 +326,24 @@ public abstract class AbstractMenu implements Menu {
         int staticSlot = slot - offset;
         ItemStack stack = dynamicItemStacksOnTop.get(staticSlot);
         if (stack != null) {
-            return stack;
+            return tagStack(stack);
         }
         Supplier<ItemStack> supplier = itemStacks.get(slot + offset);
         stack = supplier != null ? supplier.get() : null;
         if (stack != null) {
-            return stack;
+            return tagStack(stack);
         }
-        return dynamicItemStacks.get(staticSlot);
+        return tagStack(dynamicItemStacks.get(staticSlot));
+    }
+
+    private ItemStack tagStack(@Nullable ItemStack stack) {
+        if(stack == null) {
+            return null;
+        }
+        ItemMeta meta = stack.getItemMeta();
+        meta.getPersistentDataContainer().set(new NamespacedKey(GUIHandler.getInstance().getPlugin(), "prevent_pickup"), PersistentDataType.SHORT, (short) 0);
+        stack.setItemMeta(meta);
+        return stack;
     }
 
     public void setItem(int slot, ItemStack item) {

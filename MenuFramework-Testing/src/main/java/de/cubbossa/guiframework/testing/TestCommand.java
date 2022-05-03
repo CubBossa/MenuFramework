@@ -3,13 +3,18 @@ package de.cubbossa.guiframework.testing;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.Subcommand;
+import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.inventory.*;
 import de.cubbossa.guiframework.inventory.implementations.*;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Tag;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.stream.IntStream;
 
@@ -147,6 +152,25 @@ public class TestCommand extends BaseCommand {
 					return m2;
 				})));
 		m1.open(player);
+	}
+
+	@Subcommand("persistentDataContainer")
+	public void onPersistentDataContainer(Player player) {
+		ItemStack i = new ItemStack(Material.DIAMOND);
+		ItemMeta meta = i.getItemMeta();
+		meta.getPersistentDataContainer().set(new NamespacedKey(GUIHandler.getInstance().getPlugin(), "my_key"), PersistentDataType.INTEGER, 0);
+		i.setItemMeta(meta);
+		player.getInventory().addItem(i);
+	}
+
+	@Subcommand("listmenu_pagination")
+	public void onListMenuPagination(Player player) {
+		ListMenu listMenu = new ListMenu(Component.text("lol"), 3, IntStream.range(0, 2 * 9).toArray());
+		Tag.CORAL_BLOCKS.getValues().forEach(material -> listMenu.addListEntry(Button.builder().withItemStack(material)));
+		Tag.STAIRS.getValues().forEach(material -> listMenu.addListEntry(Button.builder().withItemStack(material)));
+		listMenu.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 2));
+		listMenu.addPreset(MenuPresets.paginationRow(2, 0, 1, false, Action.LEFT));
+		listMenu.open(player);
 	}
 
 	// test all presets

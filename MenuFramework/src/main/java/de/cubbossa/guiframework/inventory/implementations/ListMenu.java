@@ -2,6 +2,7 @@ package de.cubbossa.guiframework.inventory.implementations;
 
 import de.cubbossa.guiframework.inventory.Action;
 import de.cubbossa.guiframework.inventory.Button;
+import de.cubbossa.guiframework.inventory.LayeredMenu;
 import de.cubbossa.guiframework.inventory.context.ContextConsumer;
 import de.cubbossa.guiframework.inventory.context.TargetContext;
 import lombok.Getter;
@@ -28,6 +29,7 @@ public class ListMenu extends RectInventoryMenu {
 
     @Getter
     private final int[] listSlots;
+    private final long listSlotMask;
     private final List<ListElement<?>> listElements;
 
     /**
@@ -39,10 +41,16 @@ public class ListMenu extends RectInventoryMenu {
     public ListMenu(ComponentLike title, int rows, int... listSlots) {
         super(title, rows);
         this.listSlots = listSlots.length == 0 ? IntStream.range(0, (rows - 1) * 9).toArray() : listSlots;
+        listSlotMask = LayeredMenu.getMaskFromSlots(this.listSlots);
         this.listElements = new ArrayList<>();
     }
 
+    private boolean isListSlot(int slot) {
+        return (listSlotMask >> (slot - offset) & 1) == 1;
+    }
+
     private ListElement<?> getElement(int slot) {
+
         int index = -1;
         int pageSlot = slot - offset;
         for (int i = 0; i < listSlots.length; i++) {
@@ -53,7 +61,7 @@ public class ListMenu extends RectInventoryMenu {
         if (index == -1) {
             return null;
         }
-        return index + offset >= listElements.size() ? null : listElements.get(index + offset);
+        return index + offset >= listElements.size() ? null : listElements.get(index + offset / slotsPerPage * listSlots.length);
     }
 
     @Override
