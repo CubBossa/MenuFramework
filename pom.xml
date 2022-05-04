@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.cubbossa</groupId>
-    <name>Menu-Framework</name>
-    <artifactId>Menu-Framework-Parent</artifactId>
+    <artifactId>MenuFramework-Parent</artifactId>
     <packaging>pom</packaging>
     <version>0.3.0</version>
 
     <modules>
         <module>MenuFramework</module>
+        <module>MenuFramework-Plugin</module>
         <module>MenuFramework-Testing</module>
         <module>MenuFramework-Examples</module>
     </modules>

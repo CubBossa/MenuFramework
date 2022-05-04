@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>MenuFramework</artifactId>
+    <artifactId>MenuFramework-Plugin</artifactId>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -19,9 +19,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>net.wesjd</groupId>
-            <artifactId>anvilgui</artifactId>
-            <version>1.5.3-SNAPSHOT</version>
+            <groupId>de.cubbossa</groupId>
+            <artifactId>MenuFramework</artifactId>
+            <version>0.3.0</version>
         </dependency>
     </dependencies>
 
@@ -39,6 +39,10 @@
                 <configuration>
                     <relocations>
                         <relocation>
+                            <pattern>net.kyori</pattern>
+                            <shadedPattern>de.cubbossa.guiframework</shadedPattern>
+                        </relocation>
+                        <relocation>
                             <pattern>net.wesjd.anvilgui</pattern>
                             <shadedPattern>de.cubbossa.guiframework.anvilgui</shadedPattern>
                         </relocation>
@@ -53,6 +57,8 @@
                         <configuration>
                             <artifactSet>
                                 <includes>
+                                    <include>de.cubbossa:MenuFramework</include>
+                                    <include>net.kyori:**</include>
                                     <include>net.wesjd:anvilgui</include>
                                 </includes>
                             </artifactSet>
@@ -62,4 +68,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>
