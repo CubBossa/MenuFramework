@@ -1,6 +1,7 @@
 package de.cubbossa.guiframework.util;
 
 import de.cubbossa.guiframework.GUIHandler;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -8,10 +9,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
+@Getter
 public class Animation {
 
     private final int[] indices;
     private final int intervals;
+    private final AtomicInteger interval = new AtomicInteger(0);
     private final int ticks;
     private final Consumer<int[]> updateTask;
 
@@ -35,7 +38,6 @@ public class Animation {
      * Starts the animation
      */
     public void play() {
-        AtomicInteger interval = new AtomicInteger(0);
         task = Bukkit.getScheduler().runTaskTimer(GUIHandler.getInstance().getPlugin(), () -> {
             if (intervals == -1 || interval.get() < intervals) {
                 try {

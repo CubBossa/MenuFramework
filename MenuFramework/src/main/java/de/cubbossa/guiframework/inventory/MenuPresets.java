@@ -8,6 +8,7 @@ import de.cubbossa.guiframework.inventory.context.TargetContext;
 import de.cubbossa.guiframework.inventory.implementations.BottomInventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
 import de.cubbossa.guiframework.inventory.implementations.ListMenu;
+import de.cubbossa.guiframework.util.Animation;
 import de.cubbossa.guiframework.util.ItemStackUtils;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
@@ -505,7 +506,7 @@ public class MenuPresets {
             recipeIndex++;
         }
         if (recipes.size() > 1) {
-            AbstractMenu.Animation anim = workbench.playEndlessAnimation(animationSpeed, IntStream.range(1, 10).toArray());
+            Animation anim = workbench.playEndlessAnimation(animationSpeed, IntStream.range(1, 10).toArray());
             for (int i = 1; i < 10; i++) {
                 final int slot = i;
                 workbench.setItem(i, () -> animationMap[slot - 1][anim.getInterval().get() % recipes.size()]);
@@ -551,7 +552,7 @@ public class MenuPresets {
             recipeIndex++;
         }
         if (recipes.size() > 1) {
-            AbstractMenu.Animation animation = furnace.playEndlessAnimation(animationSpeed, inputSlot);
+            Animation animation = furnace.playEndlessAnimation(animationSpeed, inputSlot);
             furnace.setItem(inputSlot, () -> animationMap[animation.getInterval().get() % recipes.size()]);
         } else {
             furnace.setItem(inputSlot, animationMap[0]);
