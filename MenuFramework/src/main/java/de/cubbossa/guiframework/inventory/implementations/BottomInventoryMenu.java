@@ -5,6 +5,7 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
 import java.util.List;
@@ -60,9 +61,9 @@ public class BottomInventoryMenu extends AbstractMenu implements LayeredMenu {
     }
 
     @Override
-    public void close(Player viewer) {
-        super.close(viewer);
+    public void handleClose(Player viewer) {
         InvMenuHandler.getInstance().closeBottomMenu(viewer, this);
+        super.handleClose(viewer);
     }
 
     @Override
@@ -75,7 +76,7 @@ public class BottomInventoryMenu extends AbstractMenu implements LayeredMenu {
             viewer.keySet().stream().map(Bukkit::getPlayer).filter(Objects::nonNull).forEach(player -> {
                 for (int slot : slots) {
                     if (InvMenuHandler.getInstance().getMenuAtSlot(player, slot) != this) {
-                        return;
+                        continue;
                     }
                     player.getInventory().setItem(slot, getItemStack(slot + offset));
                 }

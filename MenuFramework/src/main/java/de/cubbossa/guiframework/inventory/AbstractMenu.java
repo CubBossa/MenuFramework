@@ -27,7 +27,6 @@ public abstract class AbstractMenu implements Menu {
     protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> clickHandler;
     protected @Nullable ContextConsumer<? extends TargetContext<?>> fallbackDefaultClickHandler = null;
     protected final Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> defaultClickHandler;
-    protected final Map<Action<?>, Boolean> defaultCancelled;
 
     protected final SortedMap<Integer, Supplier<ItemStack>> itemStacks;
     protected final SortedMap<Integer, Consumer<Player>> soundPlayer;
@@ -94,7 +93,6 @@ public abstract class AbstractMenu implements Menu {
         this.slotsPerPage = slotsPerPage;
         this.clickHandler = new TreeMap<>();
         this.defaultClickHandler = new HashMap<>();
-        this.defaultCancelled = new HashMap<>();
     }
 
 
@@ -284,7 +282,7 @@ public abstract class AbstractMenu implements Menu {
         }
         if (closeHandler != null) {
             try {
-                closeHandler.accept(new CloseContext(viewer, getCurrentPage()));
+                closeHandler.accept(new CloseContext(viewer, this, getCurrentPage()));
             } catch (Exception exc) {
                 GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error while calling CloseHandler", exc);
             }
@@ -432,8 +430,8 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public void setButton(int slot, Button button) {
-        if (button.getStack() != null) {
-            setItem(slot, button.getStack());
+        if (button.getStackSupplier() != null) {
+            setItem(slot, button.getStackSupplier());
         }
         if (button.getSound() != null) {
             soundPlayer.put(slot, player -> player.playSound(player.getLocation(), button.getSound(), button.getVolume(), button.getPitch()));
@@ -464,7 +462,7 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public void setDefaultClickHandler(ContextConsumer<? extends TargetContext<?>> clickHandler) {
-
+        fallbackDefaultClickHandler = clickHandler;
     }
 
     public <C extends TargetContext<?>> void setDefaultClickHandler(Action<C> action, ContextConsumer<C> clickHandler) {

@@ -41,7 +41,7 @@ public class InventoryListener implements MenuListener {
 	@EventHandler
 	public void onClose(InventoryCloseEvent event) {
 		for(Menu menu : new ArrayList<>(menus)) {
-			if (event.getPlayer() instanceof Player player) {
+			if (event.getPlayer() instanceof Player player && menu instanceof TopInventoryMenu) {
 				menu.handleClose(player);
 			}
 		}

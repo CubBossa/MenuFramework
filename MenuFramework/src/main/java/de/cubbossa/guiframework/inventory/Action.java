@@ -25,7 +25,7 @@ public class Action<C extends TargetContext<?>> {
 
     public static Action<ClickContext> fromClickType(ClickType clickType) {
         return switch (clickType) {
-            case LEFT -> Action.LEFT;
+            case LEFT, CREATIVE -> Action.LEFT;
             case SHIFT_LEFT -> Action.SHIFT_LEFT;
             case RIGHT -> Action.RIGHT;
             case SHIFT_RIGHT -> Action.SHIFT_RIGHT;
@@ -35,7 +35,6 @@ public class Action<C extends TargetContext<?>> {
             case NUMBER_KEY -> Action.NUMBER_KEY;
             case DROP -> Action.INVENTORY_DROP;
             case CONTROL_DROP -> Action.CONTROL_DROP;
-            case CREATIVE -> Action.CREATIVE;
             case SWAP_OFFHAND -> Action.SWAP_OFFHAND;
             default -> Action.UNKNOWN;
         };

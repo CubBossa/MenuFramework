@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.Random;
 import java.util.stream.IntStream;
 
 @CommandAlias("menuframework")
@@ -172,6 +173,19 @@ public class TestCommand extends BaseCommand {
 		listMenu.addPreset(MenuPresets.paginationRow(2, 0, 1, false, Action.LEFT));
 		listMenu.open(player);
 	}
+
+
+	@Subcommand("refresh_bottom_menu")
+	public void onRefreshBottomMenu(Player player) {
+		BottomInventoryMenu refreshMenu = new BottomInventoryMenu(0);
+		refreshMenu.setButton(0, Button.builder()
+				.withItemStack(() -> new ItemStack(Material.values()[new Random().nextInt(Material.values().length)]))
+				.withClickHandler(Action.LEFT, c -> c.getMenu().refresh(c.getSlot())));
+		refreshMenu.setOpenHandler(o -> o.getPlayer().sendMessage("open"));
+		refreshMenu.setCloseHandler(o -> o.getPlayer().sendMessage("close"));
+		refreshMenu.open(player);
+	}
+
 
 	// test all presets
 

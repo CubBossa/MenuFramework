@@ -14,6 +14,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.logging.Level;
+
 public class HotbarListener implements Listener {
 
 	public HotbarListener() {

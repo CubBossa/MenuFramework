@@ -104,6 +104,10 @@ public class InvMenuHandler {
         Stack<LayeredMenu> menuStack = navigationBottomMap.get(player.getUniqueId());
 
         int index = menuStack.indexOf(bottomMenu);
+        if (index == -1) {
+            return;
+        }
+
         // Create mask for all menus above
         long upperInventoryMask = 0;
         if (menuStack.size() > index + 1) {

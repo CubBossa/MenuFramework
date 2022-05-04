@@ -74,9 +74,6 @@ public class AnvilMenu extends TopInventoryMenu {
 		final Object container = WRAPPER.newContainerAnvil(player, title);
 		Inventory inventory = WRAPPER.toBukkitInventory(container);
 
-		WRAPPER.handleInventoryCloseEvent(player);
-		WRAPPER.setActiveContainerDefault(player);
-
 		containerId = WRAPPER.getNextContainerId(player, container);
 		WRAPPER.sendPacketOpenWindow(player, containerId, title);
 		WRAPPER.setActiveContainer(player, container);
