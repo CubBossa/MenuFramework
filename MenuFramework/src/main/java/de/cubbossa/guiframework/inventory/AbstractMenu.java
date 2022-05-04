@@ -5,20 +5,18 @@ import de.cubbossa.guiframework.inventory.context.CloseContext;
 import de.cubbossa.guiframework.inventory.context.ContextConsumer;
 import de.cubbossa.guiframework.inventory.context.OpenContext;
 import de.cubbossa.guiframework.inventory.context.TargetContext;
+import de.cubbossa.guiframework.util.Animation;
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -565,12 +563,16 @@ public abstract class AbstractMenu implements Menu {
         return Integer.max(maxPage, getCurrentPage());
     }
 
+    protected int applyOffset(int slot) {
+        return slot + offset;
+    }
+
     public Animation playEndlessAnimation(int ticks, int... slots) {
         return playAnimation(-1, ticks, slots);
     }
 
     public Animation playAnimation(int intervals, int ticks, int... slots) {
-        Animation animation = new Animation(slots, intervals, ticks);
+        Animation animation = new Animation(slots, intervals, ticks, this::refresh);
 
         Arrays.stream(slots).forEach(value -> {
             Collection<Animation> animations = this.animations.getOrDefault(value, new HashSet<>());
@@ -597,51 +599,5 @@ public abstract class AbstractMenu implements Menu {
     public void stopAnimation(Animation animation) {
         animation.stop();
         this.animations.values().forEach(a -> a.remove(animation));
-    }
-
-    protected int applyOffset(int slot) {
-        return slot + offset;
-    }
-
-    public class Animation {
-
-        private final int[] slots;
-        private int intervals = -1;
-        private final int ticks;
-        private BukkitTask task;
-        @Getter
-        private final AtomicInteger interval = new AtomicInteger(0);
-
-        public Animation(int[] slots, int ticks) {
-            this.slots = slots;
-            this.ticks = ticks;
-        }
-
-        public Animation(int[] slots, int intervals, int ticks) {
-            this.slots = slots;
-            this.intervals = intervals;
-            this.ticks = ticks;
-        }
-
-        public void play() {
-            task = Bukkit.getScheduler().runTaskTimer(GUIHandler.getInstance().getPlugin(), () -> {
-                if (intervals == -1 || interval.get() < intervals) {
-                    refresh(slots);
-                    interval.addAndGet(1);
-                } else {
-                    stop();
-                }
-            }, 0, ticks);
-        }
-
-        public void stop() {
-            if (task != null && !task.isCancelled()) {
-                task.cancel();
-            }
-        }
-
-        public boolean isRunning() {
-            return !task.isCancelled();
-        }
     }
 }

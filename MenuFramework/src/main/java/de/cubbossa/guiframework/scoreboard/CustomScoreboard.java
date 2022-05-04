@@ -1,7 +1,7 @@
 package de.cubbossa.guiframework.scoreboard;
 
-import de.cubbossa.guiframework.GUIHandler;
 import de.cubbossa.guiframework.chat.ChatMenu;
+import de.cubbossa.guiframework.util.Animation;
 import de.cubbossa.guiframework.util.ChatUtils;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
@@ -10,20 +10,17 @@ import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 
 public class CustomScoreboard {
 
-    public record ScoreboardEntry(String key, Supplier<Component> componentSupplier) {
+    public record ScoreboardEntry(String key, Supplier<ComponentLike> componentSupplier) {
     }
 
     @Getter
@@ -33,7 +30,7 @@ public class CustomScoreboard {
     private final int lines;
 
     private final Map<Player, Objective> scoreboards;
-    private final Map<Integer, Component> staticEntries;
+    private final Map<Integer, ComponentLike> staticEntries;
     private final Map<Integer, ScoreboardEntry> dynamicEntries;
     private final Map<Integer, Collection<Animation>> animations;
 
@@ -71,7 +68,7 @@ public class CustomScoreboard {
             int line = lines - i;
             String lineHex = Integer.toHexString(line);
             String scoreString = "§" + lineHex + ChatColor.WHITE;
-            Component staticEntry = staticEntries.get(i);
+            ComponentLike staticEntry = staticEntries.get(i);
 
             obj.getScore(scoreString).setScore(line);
 
@@ -178,7 +175,7 @@ public class CustomScoreboard {
         if (team == null) {
             team = objective.getScoreboard().registerNewTeam(dynamicEntry.key);
         }
-        Component toSet = dynamicEntry.componentSupplier.get();
+        ComponentLike toSet = dynamicEntry.componentSupplier.get();
         team.addEntry("§" + lineHex + ChatColor.WHITE + "");
         team.setPrefix(ChatUtils.toLegacy(toSet));
         objective.getScore("§" + lineHex + ChatColor.WHITE + "").setScore(line);
@@ -215,7 +212,7 @@ public class CustomScoreboard {
      * @param line  the line to insert this entry to
      * @param entry the component to display
      */
-    public void setLine(int line, Component entry) {
+    public void setLine(int line, ComponentLike entry) {
         this.staticEntries.put(line, entry);
     }
 
@@ -266,12 +263,12 @@ public class CustomScoreboard {
      * Registers a static line that cannot be changed later on.
      * If you want dynamic text that can be changed, use {@link #setLine(int, Supplier)} instead.
      * <br>
-     * Places the {@link ChatMenu} as multiple lines until it reaches either the end of the scoreboard or the end of the menu.
+     * Places a list of components as multiple lines until it reaches either the end of the scoreboard or the end of the list.
      *
      * @return the index of the next free line
      */
-    public int setLine(int line, ChatMenu<?> menu) {
-        return setLine(line, menu, 14);
+    public int setLine(int line, List<ComponentLike> componentLikes) {
+        return setLine(line, componentLikes, 14);
     }
 
     /**
@@ -280,14 +277,14 @@ public class CustomScoreboard {
      * <br>
      * Places the {@link ChatMenu} as multiple lines until it reaches either the given limit or the end of the menu.
      *
-     * @param line  the line to start placing the menu at
-     * @param menu  the {@link ChatMenu} to place on the scoreboard
-     * @param limit the first line after the start line that is not filled with menu content
+     * @param line           the line to start placing the menu at
+     * @param componentLikes the component lines to place on the scoreboard
+     * @param limit          the first line after the start line that is not filled with menu content
      * @return the index of the next free line
      */
-    public int setLine(int line, ChatMenu<?> menu, int limit) {
+    public int setLine(int line, List<ComponentLike> componentLikes, int limit) {
         int i = line;
-        for (Component component : menu.toComponents()) {
+        for (ComponentLike component : componentLikes) {
             if (i >= limit) {
                 return limit;
             }
@@ -303,7 +300,7 @@ public class CustomScoreboard {
      * @param line  the line to place the entry on
      * @param entry the supplier that will be called once the line is updated
      */
-    public void setLine(int line, Supplier<Component> entry) {
+    public void setLine(int line, Supplier<ComponentLike> entry) {
         this.dynamicEntries.put(line, new ScoreboardEntry(identifier + line, entry));
     }
 
@@ -312,7 +309,7 @@ public class CustomScoreboard {
      *
      * @param component the title component
      */
-    public void setTitle(Component component) {
+    public void setTitle(ComponentLike component) {
         this.title = component;
         for (Objective objective : scoreboards.values()) {
             objective.setDisplayName(ChatUtils.toLegacy(component));
@@ -331,30 +328,27 @@ public class CustomScoreboard {
     }
 
     /**
-     * Play an animation on a scoreboard line.
+     * Play an animation on a scoreboard line. Use {@link #setLine(int, Supplier)} first.
      *
      * @param line        the line to play the animation on
      * @param ticks       the time in ticks to wait before updating the animation
-     * @param lineUpdater the supplier that returns the component for the animation. To achieve a component that
-     *                    is changing over time, you may want to use the system millis or the current Bukkit tick.
      * @return the Animation instance
      */
-    public Animation playAnimation(int line, int ticks, Supplier<Component> lineUpdater) {
-        return playAnimation(line, -1, ticks, lineUpdater);
+    public Animation playAnimation(int line, int ticks) {
+        return playAnimation(line, -1, ticks);
     }
 
     /**
-     * Play an animation on a scoreboard line.
+     * Play an animation on a scoreboard line. Use {@link #setLine(int, Supplier)} first.
      *
      * @param line        the line to play the animation on
      * @param intervals   the amount of intervals to run this animation for. The animation will stop automatically after the given amount of intervals.
      * @param ticks       the time in ticks to wait before updating the animation
-     * @param lineUpdater the supplier that returns the component for the animation. To achieve a component that
-     *                    is changing over time, you may want to use the system millis or the current Bukkit tick.
+
      * @return the Animation instance
      */
-    public Animation playAnimation(int line, int intervals, int ticks, Supplier<Component> lineUpdater) {
-        Animation animation = new Animation(line, intervals, ticks, lineUpdater);
+    public Animation playAnimation(int line, int intervals, int ticks) {
+        Animation animation = new Animation(new int[] {line}, intervals, ticks, integer -> Arrays.stream(integer).forEach(t -> updateLine(getViewers(), t)));
 
         Collection<Animation> animations = this.animations.get(line);
         if (animations == null) {
@@ -378,67 +372,6 @@ public class CustomScoreboard {
                 animations.forEach(Animation::stop);
             }
             this.animations.remove(line);
-        }
-    }
-
-    public class Animation {
-
-        private final int line;
-        private int intervals = -1;
-        private final int ticks;
-        private final Supplier<Component> lineUpdater;
-
-        private BukkitTask task;
-
-        public Animation(int line, int ticks, Supplier<Component> lineUpdater) {
-            this.line = line;
-            this.ticks = ticks;
-            this.lineUpdater = lineUpdater;
-        }
-
-        public Animation(int line, int intervals, int ticks, Supplier<Component> lineUpdater) {
-            this.line = line;
-            this.intervals = intervals;
-            this.ticks = ticks;
-            this.lineUpdater = lineUpdater;
-        }
-
-        /**
-         * Starts the animation
-         */
-        public void play() {
-            AtomicInteger interval = new AtomicInteger(0);
-            setLine(line, lineUpdater);
-            task = Bukkit.getScheduler().runTaskTimer(GUIHandler.getInstance().getPlugin(), () -> {
-                if (intervals == -1 || interval.get() < intervals) {
-                    try {
-                        updateLine(scoreboards.keySet(), line);
-                    } catch (Throwable t) {
-                        GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error occured while playing animation in scoreboard", t);
-                    }
-                    interval.addAndGet(1);
-                } else {
-                    stop();
-                }
-            }, 0, ticks);
-        }
-
-        /**
-         * Stops the animation
-         */
-        public void stop() {
-            if (task != null && !task.isCancelled()) {
-                task.cancel();
-            }
-        }
-
-        /**
-         * Checks if the animation is running
-         *
-         * @return true if the animation is running
-         */
-        public boolean isRunning() {
-            return !task.isCancelled();
         }
     }
 }
