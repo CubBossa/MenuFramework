@@ -99,9 +99,9 @@ disable it in the onDisable method:
 
 If you don't want to read the whole documentation but want to get started,
 check out the classes:
-- [Menu.java](https://github.com/CubBossa/Minecraft-GUI-Framework/blob/master/src/main/java/de/cubbossa/guiframework/inventory/Menu.java) for a method overview
-- [InventoryMenu.java](https://github.com/CubBossa/Minecraft-GUI-Framework/blob/master/src/main/java/de/cubbossa/guiframework/inventory/implementations/InventoryMenu.java) as basic menu implementation
-- [MenuPresets.java](https://github.com/CubBossa/Minecraft-GUI-Framework/blob/master/src/main/java/de/cubbossa/guiframework/inventory/MenuPresets.java) for predefined inventories and presets
+- [Menu.java](https://github.com/CubBossa/MenuFramework/blob/master/MenuFramework/src/main/java/de/cubbossa/menuframework/inventory/Menu.java) for a method overview
+- [InventoryMenu.java](https://github.com/CubBossa/MenuFramework/blob/master/MenuFramework/src/main/java/de/cubbossa/menuframework/inventory/implementations/InventoryMenu.java) as basic menu implementation
+- [MenuPresets.java](https://github.com/CubBossa/MenuFramework/blob/master/MenuFramework/src/main/java/de/cubbossa/menuframework/inventory/MenuPresets.java) for predefined inventories and presets
 
 ## Inventory Menus
 
