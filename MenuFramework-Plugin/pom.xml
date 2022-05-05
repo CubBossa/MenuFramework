@@ -40,11 +40,11 @@
                     <relocations>
                         <relocation>
                             <pattern>net.kyori</pattern>
-                            <shadedPattern>de.cubbossa.guiframework</shadedPattern>
+                            <shadedPattern>de.cubbossa.menuframework</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>net.wesjd.anvilgui</pattern>
-                            <shadedPattern>de.cubbossa.guiframework.anvilgui</shadedPattern>
+                            <shadedPattern>de.cubbossa.menuframework.anvilgui</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>

@@ -1,10 +1,9 @@
 package examples.lobby;
 
-import de.cubbossa.guiframework.inventory.implementations.RectInventoryMenu;
+import de.cubbossa.menuframework.inventory.implementations.RectInventoryMenu;
 import examples.system.ServerHandler;
-import de.cubbossa.guiframework.inventory.Button;
-import de.cubbossa.guiframework.inventory.MenuPresets;
-import de.cubbossa.guiframework.inventory.implementations.InventoryMenu;
+import de.cubbossa.menuframework.inventory.Button;
+import de.cubbossa.menuframework.inventory.MenuPresets;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;

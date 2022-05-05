@@ -40,7 +40,7 @@
                     <relocations>
                         <relocation>
                             <pattern>net.wesjd.anvilgui</pattern>
-                            <shadedPattern>de.cubbossa.guiframework.anvilgui</shadedPattern>
+                            <shadedPattern>de.cubbossa.menuframework.anvilgui</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>

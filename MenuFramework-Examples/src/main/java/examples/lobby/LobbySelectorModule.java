@@ -1,11 +1,11 @@
 package examples.lobby;
 
 import com.google.common.collect.Lists;
-import de.cubbossa.guiframework.inventory.Action;
-import de.cubbossa.guiframework.inventory.Button;
-import de.cubbossa.guiframework.inventory.MenuPresets;
-import de.cubbossa.guiframework.inventory.implementations.ListMenu;
-import de.cubbossa.guiframework.util.ChatUtils;
+import de.cubbossa.menuframework.inventory.Action;
+import de.cubbossa.menuframework.inventory.Button;
+import de.cubbossa.menuframework.inventory.MenuPresets;
+import de.cubbossa.menuframework.inventory.implementations.ListMenu;
+import de.cubbossa.menuframework.util.ChatUtils;
 import examples.system.NetworkServer;
 import examples.system.ServerHandler;
 import net.kyori.adventure.text.Component;

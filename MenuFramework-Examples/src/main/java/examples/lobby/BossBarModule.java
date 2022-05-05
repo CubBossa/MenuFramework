@@ -1,8 +1,8 @@
 package examples.lobby;
 
-import de.cubbossa.guiframework.util.Animations;
-import de.cubbossa.guiframework.GUIHandler;
-import de.cubbossa.guiframework.bossbar.CustomBossBar;
+import de.cubbossa.menuframework.util.Animations;
+import de.cubbossa.menuframework.GUIHandler;
+import de.cubbossa.menuframework.bossbar.CustomBossBar;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;

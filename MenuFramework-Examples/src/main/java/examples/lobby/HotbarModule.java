@@ -1,8 +1,8 @@
 package examples.lobby;
 
-import de.cubbossa.guiframework.inventory.Action;
-import de.cubbossa.guiframework.inventory.MenuPresets;
-import de.cubbossa.guiframework.inventory.implementations.BottomInventoryMenu;
+import de.cubbossa.menuframework.inventory.Action;
+import de.cubbossa.menuframework.inventory.MenuPresets;
+import de.cubbossa.menuframework.inventory.implementations.BottomInventoryMenu;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

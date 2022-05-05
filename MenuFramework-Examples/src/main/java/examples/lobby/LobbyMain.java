@@ -1,8 +1,8 @@
 package examples.lobby;
 
-import de.cubbossa.guiframework.GUIHandler;
-import de.cubbossa.guiframework.inventory.InvMenuHandler;
-import de.cubbossa.guiframework.scoreboard.CustomScoreboardHandler;
+import de.cubbossa.menuframework.GUIHandler;
+import de.cubbossa.menuframework.inventory.InvMenuHandler;
+import de.cubbossa.menuframework.scoreboard.CustomScoreboardHandler;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class LobbyMain extends JavaPlugin {

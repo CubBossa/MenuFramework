@@ -1,9 +1,9 @@
 package examples;
 
-import de.cubbossa.guiframework.inventory.Action;
-import de.cubbossa.guiframework.inventory.Button;
-import de.cubbossa.guiframework.inventory.MenuPresets;
-import de.cubbossa.guiframework.inventory.implementations.RectInventoryMenu;
+import de.cubbossa.menuframework.inventory.Action;
+import de.cubbossa.menuframework.inventory.Button;
+import de.cubbossa.menuframework.inventory.MenuPresets;
+import de.cubbossa.menuframework.inventory.implementations.RectInventoryMenu;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

@@ -3,7 +3,7 @@ package examples.lobby;
 import examples.system.BalanceChangeEvent;
 import examples.system.NetworkPlayer;
 import examples.system.ServerHandler;
-import de.cubbossa.guiframework.scoreboard.CustomScoreboard;
+import de.cubbossa.menuframework.scoreboard.CustomScoreboard;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;

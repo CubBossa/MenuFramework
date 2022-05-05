@@ -54,19 +54,19 @@
                     <relocations>
                         <relocation>
                             <pattern>net.kyori</pattern>
-                            <shadedPattern>de.cubbossa.guiframework</shadedPattern>
+                            <shadedPattern>de.cubbossa.menuframework</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>co.aikar.commands</pattern>
-                            <shadedPattern>de.cubbossa.guiframework.acf</shadedPattern>
+                            <shadedPattern>de.cubbossa.menuframework.acf</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>co.aikar.locales</pattern>
-                            <shadedPattern>de.cubbossa.guiframework.locales</shadedPattern>
+                            <shadedPattern>de.cubbossa.menuframework.locales</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>net.wesjd.anvilgui</pattern>
-                            <shadedPattern>de.cubbossa.guiframework.anvilgui</shadedPattern>
+                            <shadedPattern>de.cubbossa.menuframework.anvilgui</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
