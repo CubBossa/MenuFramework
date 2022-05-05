@@ -49,20 +49,14 @@ You can shade both this library and adventure like so:
                 <goal>shade</goal>
             </goals>
             <configuration>
-                <filters>
-                    <filter>
-                        <artifact>net.kyori:adventure-api</artifact>
-                        <includes>
-                            <include>**</include>
-                        </includes>
-                    </filter>
-                    <filter>
-                        <artifact>de.cubbossa.menuframeworkde.cubbossa.menuframework</artifact>
-                        <includes>
-                            <include>**</include>
-                        </includes>
-                    </filter>
-                </filters>
+                <artifactSet>
+                    <includes>
+                        <include>net.kyori:**</include>
+                        <include>com.github.CubBossa.MenuFramework:MenuFramework</include>
+                        <include>net.wesjd:anvilgui</include>
+                        <include>de.cubbossa:MenuFramework</include>
+                    </includes>
+                </artifactSet>
                 <relocations>
                     <relocation>
                         <pattern>net.kyori</pattern>
