@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-public class BottomInventoryMenu extends AbstractMenu implements LayeredMenu {
+public class BottomInventoryMenu extends AbstractMenu implements BottomMenu {
 
     @Getter
     private final int[] slots;
@@ -31,7 +31,7 @@ public class BottomInventoryMenu extends AbstractMenu implements LayeredMenu {
     public BottomInventoryMenu(int... slots) {
         super(slots.length);
         this.slots = Arrays.stream(slots).filter(s -> s >= 0 && s < 9 * 4).distinct().sorted().toArray();
-        this.slotMask = LayeredMenu.getMaskFromSlots(slots);
+        this.slotMask = BottomMenu.getMaskFromSlots(slots);
         addPreset(MenuPresets.fill(MenuPresets.FILLER_LIGHT));
     }
 
@@ -91,6 +91,6 @@ public class BottomInventoryMenu extends AbstractMenu implements LayeredMenu {
 
     @Override
     public void restoreSlots(long mask) {
-        refresh(false, LayeredMenu.getSlotsFromMask(mask));
+        refresh(false, BottomMenu.getSlotsFromMask(mask));
     }
 }

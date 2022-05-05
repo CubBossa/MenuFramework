@@ -1,5 +1,6 @@
 package de.cubbossa.menuframework.inventory;
 
+import net.kyori.adventure.text.ComponentLike;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -84,5 +85,26 @@ public interface TopMenu extends Menu {
      * @return The previous menu for the given player of null if none was found.
      */
     @Nullable TopMenu getPrevious(Player player);
+
+    /**
+     * @param page The page to return the title for.
+     * @return The title for the given page. Fallback title if no title was found.
+     */
+    ComponentLike getTitle(int page);
+
+    /**
+     * Updates the title of this inventory.
+     *
+     * @param title The new title to set
+     */
+    void updateTitle(ComponentLike title);
+
+    /**
+     * Sets the title for all given pages and updates the current pages if it is contained in the pages array.
+     *
+     * @param title The title to set for the given pages.
+     * @param pages The pages to affect.
+     */
+    void updateTitle(ComponentLike title, int... pages);
 
 }

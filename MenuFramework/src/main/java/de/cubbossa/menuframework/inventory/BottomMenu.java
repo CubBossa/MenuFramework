@@ -3,7 +3,7 @@ package de.cubbossa.menuframework.inventory;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface LayeredMenu extends Menu {
+public interface BottomMenu extends Menu {
 
 	/**
 	 * sum of (slot²) for each menu slot

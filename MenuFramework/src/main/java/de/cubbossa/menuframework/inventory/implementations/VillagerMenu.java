@@ -61,7 +61,7 @@ public class VillagerMenu extends InventoryMenu {
 
     @Override
     public Inventory createInventory(Player player, int page) {
-        merchant = Bukkit.createMerchant(ChatUtils.toLegacy(getFallbackTitle()));
+        merchant = Bukkit.createMerchant(ChatUtils.toLegacy(getTitle()));
         merchant.setRecipes(offers.stream().map(TradeButton::recipe).collect(Collectors.toList()));
         return player.openMerchant(merchant, true).getTopInventory();
     }

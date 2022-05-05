@@ -64,7 +64,7 @@ public class AnvilMenu extends TopInventoryMenu {
 
 	@Override
 	protected Inventory createInventory(Player player, int page) {
-		String title = ChatUtils.toLegacy(getFallbackTitle());
+		String title = ChatUtils.toLegacy(getTitle());
 
 		final Object container = WRAPPER.newContainerAnvil(player, title);
 		Inventory inventory = WRAPPER.toBukkitInventory(container);

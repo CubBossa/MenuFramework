@@ -2,7 +2,7 @@ package de.cubbossa.menuframework.inventory.implementations;
 
 import de.cubbossa.menuframework.inventory.Action;
 import de.cubbossa.menuframework.inventory.Button;
-import de.cubbossa.menuframework.inventory.LayeredMenu;
+import de.cubbossa.menuframework.inventory.BottomMenu;
 import de.cubbossa.menuframework.inventory.context.ContextConsumer;
 import de.cubbossa.menuframework.inventory.context.TargetContext;
 import lombok.AllArgsConstructor;
@@ -44,7 +44,7 @@ public class ListMenu extends RectInventoryMenu {
     public ListMenu(ComponentLike title, int rows, int... listSlots) {
         super(title, rows);
         this.listSlots = listSlots.length == 0 ? IntStream.range(0, (rows - 1) * 9).toArray() : listSlots;
-        this.listSlotMask = LayeredMenu.getMaskFromSlots(this.listSlots);
+        this.listSlotMask = BottomMenu.getMaskFromSlots(this.listSlots);
         this.listElements = new ArrayList<>();
     }
 

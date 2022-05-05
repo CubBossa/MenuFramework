@@ -73,7 +73,7 @@ public class InventoryListener implements MenuListener {
 									allowedSlots.add(slot);
 								}
 							}
-							long mask = LayeredMenu.getMaskFromSlots(allowedSlots.stream().mapToInt(Integer::intValue).toArray());
+							long mask = BottomMenu.getMaskFromSlots(allowedSlots.stream().mapToInt(Integer::intValue).toArray());
 							simulatedShiftClick(event.getCurrentItem(), player.getOpenInventory().getTopInventory(), mask);
 						}, 1);
 					});

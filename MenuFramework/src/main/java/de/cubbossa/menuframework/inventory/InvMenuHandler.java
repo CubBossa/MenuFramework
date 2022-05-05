@@ -13,7 +13,7 @@ public class InvMenuHandler {
     @Getter
     private static InvMenuHandler instance;
 
-    private final Map<UUID, Stack<LayeredMenu>> navigationBottomMap;
+    private final Map<UUID, Stack<BottomMenu>> navigationBottomMap;
     private final Map<UUID, ItemStack[]> coveredInventories;
 
     private final Set<MenuListener> listeners;
@@ -26,8 +26,8 @@ public class InvMenuHandler {
         this.listeners = new HashSet<>();
     }
 
-    public Collection<LayeredMenu> getBottomMenus() {
-        Set<LayeredMenu> set = new HashSet<>();
+    public Collection<BottomMenu> getBottomMenus() {
+        Set<BottomMenu> set = new HashSet<>();
         navigationBottomMap.forEach((uuid, menus) -> set.addAll(menus));
         return set;
     }
@@ -38,28 +38,28 @@ public class InvMenuHandler {
         return set;
     }
 
-    public Stack<LayeredMenu> getBottomMenus(Player player) {
+    public Stack<BottomMenu> getBottomMenus(Player player) {
         if (!navigationBottomMap.containsKey(player.getUniqueId())) {
             return new Stack<>();
         }
-        return (Stack<LayeredMenu>) navigationBottomMap.get(player.getUniqueId()).clone();
+        return (Stack<BottomMenu>) navigationBottomMap.get(player.getUniqueId()).clone();
     }
 
-    public void registerBottomInventory(Player player, LayeredMenu menu) {
-        Stack<LayeredMenu> stack = navigationBottomMap.getOrDefault(player.getUniqueId(), new Stack<>());
+    public void registerBottomInventory(Player player, BottomMenu menu) {
+        Stack<BottomMenu> stack = navigationBottomMap.getOrDefault(player.getUniqueId(), new Stack<>());
         //Remove from stack to put it back on top
         stack.remove(menu);
 
         // Create masks for all items that are already saved
         long maskBelowMenus = 0;
-        for (LayeredMenu layered : stack) {
+        for (BottomMenu layered : stack) {
             maskBelowMenus = maskBelowMenus | layered.getSlotMask();
         }
         // Find all slots that still need to be saved
         long storeItemsMask = (maskBelowMenus ^ INVENTORY_MASK) & menu.getSlotMask();
         // Save all required slots
         ItemStack[] inventory = coveredInventories.getOrDefault(player.getUniqueId(), new ItemStack[9 * 4]);
-        for (int slot : LayeredMenu.getSlotsFromMask(storeItemsMask)) {
+        for (int slot : BottomMenu.getSlotsFromMask(storeItemsMask)) {
             inventory[slot] = player.getInventory().getItem(slot);
         }
         coveredInventories.put(player.getUniqueId(), inventory);
@@ -72,7 +72,7 @@ public class InvMenuHandler {
     }
 
     public void closeAllBottomMenus(Player player) {
-        Stack<LayeredMenu> stack = navigationBottomMap.get(player.getUniqueId());
+        Stack<BottomMenu> stack = navigationBottomMap.get(player.getUniqueId());
         if (stack == null) {
             return;
         }
@@ -89,19 +89,19 @@ public class InvMenuHandler {
         if (!navigationBottomMap.containsKey(player.getUniqueId())) {
             return;
         }
-        Stack<LayeredMenu> stack = navigationBottomMap.get(player.getUniqueId());
+        Stack<BottomMenu> stack = navigationBottomMap.get(player.getUniqueId());
         if (stack.isEmpty()) {
             return;
         }
         closeBottomMenu(player, navigationBottomMap.get(player.getUniqueId()).peek());
     }
 
-    public void closeBottomMenu(Player player, LayeredMenu bottomMenu) {
+    public void closeBottomMenu(Player player, BottomMenu bottomMenu) {
         // filter all slots of the menu that were not covered by other menus.
         // loop through each lower menu and restore the corresponding slot and reduce mask
         // after all menus restore actual inventory if mask is still not 0
 
-        Stack<LayeredMenu> menuStack = navigationBottomMap.get(player.getUniqueId());
+        Stack<BottomMenu> menuStack = navigationBottomMap.get(player.getUniqueId());
 
         int index = menuStack.indexOf(bottomMenu);
         if (index == -1) {
@@ -111,16 +111,16 @@ public class InvMenuHandler {
         // Create mask for all menus above
         long upperInventoryMask = 0;
         if (menuStack.size() > index + 1) {
-            for (LayeredMenu layered : menuStack.subList(index + 1, menuStack.size())) {
+            for (BottomMenu layered : menuStack.subList(index + 1, menuStack.size())) {
                 upperInventoryMask = upperInventoryMask | layered.getSlotMask();
             }
         }
         // Filter all slots that are not covered
         long uncoveredMenuSlots = (upperInventoryMask ^ INVENTORY_MASK) & bottomMenu.getSlotMask();
         // Iterate all Menus beneath and restore
-        List<LayeredMenu> menusBeneath = menuStack.subList(0, index);
+        List<BottomMenu> menusBeneath = menuStack.subList(0, index);
         Collections.reverse(menusBeneath);
-        for (LayeredMenu layered : menusBeneath) {
+        for (BottomMenu layered : menusBeneath) {
             layered.restoreSlots(uncoveredMenuSlots);
             uncoveredMenuSlots = uncoveredMenuSlots & (layered.getSlotMask() ^ INVENTORY_MASK);
             if (uncoveredMenuSlots == 0) {
@@ -129,20 +129,20 @@ public class InvMenuHandler {
         }
         //Restore player inventory with remaining slots
         ItemStack[] inventory = coveredInventories.getOrDefault(player.getUniqueId(), new ItemStack[9 * 4]);
-        for (int slot : LayeredMenu.getSlotsFromMask(uncoveredMenuSlots)) {
+        for (int slot : BottomMenu.getSlotsFromMask(uncoveredMenuSlots)) {
             player.getInventory().setItem(slot, inventory[slot]);
         }
 
         menuStack.remove(bottomMenu);
     }
 
-    public LayeredMenu getMenuAtSlot(Player player, int slot) {
-        Stack<LayeredMenu> stack = navigationBottomMap.get(player.getUniqueId());
+    public BottomMenu getMenuAtSlot(Player player, int slot) {
+        Stack<BottomMenu> stack = navigationBottomMap.get(player.getUniqueId());
         if (stack == null || stack.isEmpty()) {
             return null;
         }
         for (int index = stack.size() - 1; index >= 0; index--) {
-            LayeredMenu menu = stack.get(index);
+            BottomMenu menu = stack.get(index);
             if (((menu.getSlotMask() >> slot) & 1) == 1) {
                 return menu;
             }

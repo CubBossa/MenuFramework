@@ -26,7 +26,7 @@ public class HotbarListener implements Listener {
 		int slot = player.getInventory().getHeldItemSlot();
 		ItemStack stack = event.getItemDrop().getItemStack();
 
-		LayeredMenu menu = InvMenuHandler.getInstance().getMenuAtSlot(player, slot);
+		BottomMenu menu = InvMenuHandler.getInstance().getMenuAtSlot(player, slot);
 		if(menu == null) {
 			return;
 		}
@@ -42,7 +42,7 @@ public class HotbarListener implements Listener {
 		Player player = event.getPlayer();
 		int slot = player.getInventory().getHeldItemSlot();
 
-		LayeredMenu menu = InvMenuHandler.getInstance().getMenuAtSlot(player, slot);
+		BottomMenu menu = InvMenuHandler.getInstance().getMenuAtSlot(player, slot);
 		if(menu == null) {
 			return;
 		}
