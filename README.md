@@ -65,6 +65,10 @@ You can shade both this library and adventure like so:
                         <pattern>de.cubbossa.menuframeworkde.cubbossa.menuframework</pattern>
                         <shadedPattern>[YOUR_PLUGIN_PATH].guiframework</shadedPattern>
                     </relocation>
+                    <relocation>
+                        <pattern>net.wesjd</pattern>
+                        <shadedPattern>de.bossascrew</shadedPattern>
+                    </relocation>
                 </relocations>
             </configuration>
         </execution>
