@@ -54,7 +54,6 @@ You can shade both this library and adventure like so:
                         <include>net.kyori:**</include>
                         <include>com.github.CubBossa.MenuFramework:MenuFramework</include>
                         <include>net.wesjd:anvilgui</include>
-                        <include>de.cubbossa:MenuFramework</include>
                     </includes>
                 </artifactSet>
                 <relocations>
