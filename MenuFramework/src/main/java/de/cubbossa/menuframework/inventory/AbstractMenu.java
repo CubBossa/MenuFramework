@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 
 @Getter
-public abstract class AbstractMenu implements Menu {
+public abstract class AbstractMenu implements Menu, TopMenu {
 
     protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> clickHandler;
     protected @Nullable ContextConsumer<? extends TargetContext<?>> fallbackDefaultClickHandler = null;
@@ -70,7 +70,7 @@ public abstract class AbstractMenu implements Menu {
 
     protected final Map<Integer, Collection<Animation>> animations;
     protected final Map<UUID, ViewMode> viewer;
-    protected final Map<UUID, Menu> previous;
+    protected final Map<UUID, TopMenu> previous;
 
     protected final int slotsPerPage;
     //protected int getCurrentPage() = 0;
@@ -130,7 +130,7 @@ public abstract class AbstractMenu implements Menu {
         });
     }
 
-    public Menu openSubMenu(Player player, Menu menu) {
+    public TopMenu openSubMenu(Player player, TopMenu menu) {
         GUIHandler.getInstance().callSynchronized(() -> {
             handleClose(player);
             menu.setPrevious(player, this);
@@ -139,19 +139,19 @@ public abstract class AbstractMenu implements Menu {
         return menu;
     }
 
-    public Menu openSubMenu(Player player, Supplier<Menu> menuSupplier) {
+    public TopMenu openSubMenu(Player player, Supplier<TopMenu> menuSupplier) {
         return openSubMenu(player, menuSupplier.get());
     }
 
-    public Menu openSubMenu(Player player, Menu menu, MenuPreset<?> backPreset) {
+    public TopMenu openSubMenu(Player player, TopMenu menu, MenuPreset<?> backPreset) {
         return openSubMenu(player, menu, ViewMode.MODIFY, backPreset);
     }
 
-    public Menu openSubMenu(Player player, Supplier<Menu> menuSupplier, MenuPreset<?> backPreset) {
+    public TopMenu openSubMenu(Player player, Supplier<TopMenu> menuSupplier, MenuPreset<?> backPreset) {
         return openSubMenu(player, menuSupplier.get(), ViewMode.MODIFY, backPreset);
     }
 
-    public Menu openSubMenu(Player player, Menu menu, ViewMode viewMode, MenuPreset<?> backPreset) {
+    public TopMenu openSubMenu(Player player, TopMenu menu, ViewMode viewMode, MenuPreset<?> backPreset) {
         GUIHandler.getInstance().callSynchronized(() -> {
             handleClose(player);
             menu.setPrevious(player, this);
@@ -161,17 +161,17 @@ public abstract class AbstractMenu implements Menu {
         return menu;
     }
 
-    public Menu openSubMenu(Player player, Supplier<Menu> menuSupplier, ViewMode viewMode, MenuPreset<?> backPreset) {
+    public TopMenu openSubMenu(Player player, Supplier<TopMenu> menuSupplier, ViewMode viewMode, MenuPreset<?> backPreset) {
         return openSubMenu(player, menuSupplier.get(), viewMode, backPreset);
     }
 
     @Override
-    public void setPrevious(Player player, Menu previous) {
+    public void setPrevious(Player player, TopMenu previous) {
         this.previous.put(player.getUniqueId(), previous);
     }
 
     @Override
-    public @Nullable Menu getPrevious(Player player) {
+    public @Nullable TopMenu getPrevious(Player player) {
         return this.previous.get(player.getUniqueId());
     }
 

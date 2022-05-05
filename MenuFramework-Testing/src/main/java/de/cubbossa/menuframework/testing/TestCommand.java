@@ -139,12 +139,12 @@ public class TestCommand extends BaseCommand {
 		m1.addPreset(MenuPresets.fillRowOnTop(new ItemStack(Material.DIAMOND), 3));
 		m1.setButton(0, Button.builder()
 				.withItemStack(Material.EMERALD)
-				.withClickHandler(Action.LEFT, c -> c.getMenu().openSubMenu(c.getPlayer(), () -> {
+				.withClickHandler(Action.LEFT, c -> m1.openSubMenu(c.getPlayer(), () -> {
 					RectInventoryMenu m2 = new RectInventoryMenu(Component.text("Yay2"), 4);
 					m2.addPreset(MenuPresets.back(1, 1, Action.LEFT));
 					m2.setButton(1, Button.builder()
 							.withItemStack(Material.REDSTONE)
-							.withClickHandler(Action.LEFT, c1 -> c1.getMenu().openSubMenu(c1.getPlayer(), () -> {
+							.withClickHandler(Action.LEFT, c1 -> m2.openSubMenu(c1.getPlayer(), () -> {
 								RectInventoryMenu m3 = new RectInventoryMenu(Component.text("Yay3"), 3);
 								m3.setButton(1, Button.builder()
 										.withItemStack(Material.STONE));
