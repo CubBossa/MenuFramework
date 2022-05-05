@@ -57,7 +57,7 @@ You can shade both this library and adventure like so:
                         </includes>
                     </filter>
                     <filter>
-                        <artifact>de.cubbossa.menuframeworkde.cubbossa.menuframework</artifact>
+                        <artifact>de.cubbossa.menuframework</artifact>
                         <includes>
                             <include>**</include>
                         </includes>
@@ -69,8 +69,8 @@ You can shade both this library and adventure like so:
                         <shadedPattern>[YOUR_PLUGIN_PATH].kyori</shadedPattern>
                     </relocation>
                     <relocation>
-                        <pattern>de.cubbossa.menuframeworkde.cubbossa.menuframework</pattern>
-                        <shadedPattern>[YOUR_PLUGIN_PATH].guiframework</shadedPattern>
+                        <pattern>de.cubbossa.menuframework</pattern>
+                        <shadedPattern>[YOUR_PLUGIN_PATH].menuframework</shadedPattern>
                     </relocation>
                 </relocations>
             </configuration>
