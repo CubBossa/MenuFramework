@@ -66,8 +66,8 @@ You can shade both this library and adventure like so:
                         <shadedPattern>[YOUR_PLUGIN_PATH].guiframework</shadedPattern>
                     </relocation>
                     <relocation>
-                        <pattern>net.wesjd</pattern>
-                        <shadedPattern>de.bossascrew</shadedPattern>
+                        <pattern>net.wesjd.anvilgui</pattern>
+                        <shadedPattern>[YOUR_PLUGIN_PATH].anvilgui</shadedPattern>
                     </relocation>
                 </relocations>
             </configuration>
