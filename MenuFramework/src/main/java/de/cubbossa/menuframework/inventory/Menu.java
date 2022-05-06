@@ -13,6 +13,24 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+/**
+ * The abstract menu class for all types of inventory menus.
+ * Menus are slot based, so you can bind an {@link ItemStack} or click handlers to an inventory slot and the item will be
+ * rendered and the click handler will be called if the item was clicked in the provided way.
+ * An {@link Action} must be provided for each click handler. Actions are used to define the way, the viewer interacts
+ * with the slot. By default, most fields of the ClickType enum are translated to actions. For hotbar menus you can also
+ * use Actions like {@link Action#LEFT_CLICK_BLOCK}. {@link de.cubbossa.menuframework.inventory.implementations.AnvilMenu} and
+ * {@link de.cubbossa.menuframework.inventory.implementations.VillagerMenu} provide additional Actions.
+ * To use custom actions, add a listener with {@link InvMenuHandler#registerListener(MenuListener)}.
+ * See also {@link de.cubbossa.menuframework.inventory.listener.InventoryListener} for inspiration
+ * <br>
+ *
+ * @see de.cubbossa.menuframework.inventory.implementations.AnvilMenu AnvilMenu - for an Anvil Menu impelementation
+ * @see de.cubbossa.menuframework.inventory.implementations.BottomInventoryMenu BottomInventoryMenu - for a Hotbar and Bottom Inventory implementation
+ * @see de.cubbossa.menuframework.inventory.implementations.InventoryMenu InventoryMenu - for the basic implementation of all inventory types
+ * @see de.cubbossa.menuframework.inventory.implementations.RectInventoryMenu RectInventoryMenu - for a more advanced chest based menu implementation
+ * @see de.cubbossa.menuframework.inventory.implementations.VillagerMenu VillagerMenu - for a Trader Menu implementation
+ */
 public interface Menu {
 
     /**
