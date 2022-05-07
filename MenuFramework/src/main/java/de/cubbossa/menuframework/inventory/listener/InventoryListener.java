@@ -57,6 +57,38 @@ public class InventoryListener implements MenuListener {
 	}
 
 	@EventHandler
+	public void onInventoryClickBottom(InventoryClickEvent event) {
+		if (event.getWhoClicked() instanceof Player player) {
+			// Bottom Inventory
+			if (event.getClickedInventory() != null && event.getClickedInventory().getType() == InventoryType.PLAYER) {
+				AbstractMenu menu = (AbstractMenu) InvMenuHandler.getInstance().getMenuAtSlot(player, event.getSlot());
+				if (menu == null) {
+					return;
+				}
+				Action<ClickContext> action = Action.fromClickType(event.getClick());
+				event.setCancelled(menu.handleInteract(action, new ClickContext(player, menu, event.getSlot(), action, true)));
+			}
+		}
+	}
+
+	@EventHandler
+	public void onInventoryDragBottom(InventoryDragEvent event) {
+		if (event.getWhoClicked() instanceof Player player) {
+			ClickType type = event.getType() == DragType.EVEN ? ClickType.LEFT : ClickType.RIGHT;
+			int slot = event.getInventorySlots().stream().findAny().get();
+
+			if (event.getInventory().getType() == InventoryType.PLAYER && event.getInventorySlots().size() == 1) {
+				AbstractMenu menu = ((AbstractMenu) InvMenuHandler.getInstance().getMenuAtSlot(player, slot));
+				if (menu == null) {
+					return;
+				}
+				Action<ClickContext> action = Action.fromClickType(type);
+				event.setCancelled(menu.handleInteract(Action.fromClickType(type), new ClickContext(player, menu, slot, action, true)));
+			}
+		}
+	}
+
+	@EventHandler
 	public void onInventoryClick(InventoryClickEvent event) {
 		if (event.getWhoClicked() instanceof Player player) {
 			if (event.getClickedInventory() == null || player.getOpenInventory() == null) {
@@ -96,7 +128,7 @@ public class InventoryListener implements MenuListener {
 				return;
 			}
 
-			new ArrayList<>(menus).forEach(menu -> {
+			new ArrayList<>(menus).stream().filter(menu -> menu instanceof TopMenu).forEach(menu -> {
 				if (menu.getViewer().size() == 0 || !menu.isThisInventory(event.getClickedInventory(), player)) {
 					return;
 				}
@@ -205,7 +237,7 @@ public class InventoryListener implements MenuListener {
 				return;
 			}
 
-			menus.forEach(menu -> {
+			new ArrayList<>(menus).stream().filter(menu -> menu instanceof TopMenu).forEach(menu -> {
 				if (menu.getViewer().size() == 0 || event.getInventorySlots().size() > 1) {
 					return;
 				}
@@ -222,7 +254,7 @@ public class InventoryListener implements MenuListener {
 	public void onTradeSelect(TradeSelectEvent event) {
 		if (event.getWhoClicked() instanceof Player player) {
 
-			menus.stream().filter(menu -> menu instanceof VillagerMenu).forEach(menu -> {
+			new ArrayList<>(menus).stream().filter(menu -> menu instanceof VillagerMenu).forEach(menu -> {
 				if (menu.getViewer().size() == 0) {
 					return;
 				}
