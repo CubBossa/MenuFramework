@@ -56,38 +56,6 @@ public class HotbarListener implements Listener {
 	}
 
 	@EventHandler
-	public void onInventoryClick(InventoryClickEvent event) {
-		if (event.getWhoClicked() instanceof Player player) {
-			// Bottom Inventory
-			if (event.getClickedInventory() != null && event.getClickedInventory().getType() == InventoryType.PLAYER) {
-				AbstractMenu menu = (AbstractMenu) InvMenuHandler.getInstance().getMenuAtSlot(player, event.getSlot());
-				if (menu == null) {
-					return;
-				}
-				Action<ClickContext> action = Action.fromClickType(event.getClick());
-				event.setCancelled(menu.handleInteract(action, new ClickContext(player, menu, event.getSlot(), action, true)));
-			}
-		}
-	}
-
-	@EventHandler
-	public void onInventoryDrag(InventoryDragEvent event) {
-		if (event.getWhoClicked() instanceof Player player) {
-			ClickType type = event.getType() == DragType.EVEN ? ClickType.LEFT : ClickType.RIGHT;
-			int slot = event.getInventorySlots().stream().findAny().get();
-
-			if (event.getInventory().getType() == InventoryType.PLAYER && event.getInventorySlots().size() == 1) {
-				AbstractMenu menu = ((AbstractMenu) InvMenuHandler.getInstance().getMenuAtSlot(player, slot));
-				if (menu == null) {
-					return;
-				}
-				Action<ClickContext> action = Action.fromClickType(type);
-				event.setCancelled(menu.handleInteract(Action.fromClickType(type), new ClickContext(player, menu, slot, action, true)));
-			}
-		}
-	}
-
-	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		Player player = event.getPlayer();
 		InvMenuHandler.getInstance().closeAllBottomMenus(player);

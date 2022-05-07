@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class InventoryListener implements MenuListener {
 
@@ -38,9 +39,17 @@ public class InventoryListener implements MenuListener {
 		menus.remove(menu);
 	}
 
+	public void onServerStop() {
+		for (Menu menu : new ArrayList<>(menus)) {
+			for (Player player : menu.getViewer().keySet().stream().map(Bukkit::getPlayer).collect(Collectors.toSet())) {
+				menu.close(player);
+			}
+		}
+	}
+
 	@EventHandler
 	public void onClose(InventoryCloseEvent event) {
-		for(Menu menu : new ArrayList<>(menus)) {
+		for (Menu menu : new ArrayList<>(menus)) {
 			if (event.getPlayer() instanceof Player player && menu instanceof TopInventoryMenu) {
 				menu.handleClose(player);
 			}
@@ -92,9 +101,13 @@ public class InventoryListener implements MenuListener {
 					return;
 				}
 				Action<ClickContext> action = Action.fromClickType(event.getClick());
-				event.setCancelled(menu.handleInteract(action, new ClickContext(player, menu, event.getSlot(), action, true)));
-			});
 
+				ClickContext c = new ClickContext(player, menu, event.getSlot(), action, true);
+				event.setCancelled(menu.handleInteract(action, c));
+				if (event.getClick().equals(ClickType.CREATIVE) && event.isCancelled()) {
+					player.updateInventory();
+				}
+			});
 		}
 	}
 

@@ -4,6 +4,7 @@ import de.cubbossa.menuframework.inventory.context.CloseContext;
 import de.cubbossa.menuframework.inventory.context.ContextConsumer;
 import de.cubbossa.menuframework.inventory.context.OpenContext;
 import de.cubbossa.menuframework.inventory.context.TargetContext;
+import de.cubbossa.menuframework.inventory.listener.MenuListener;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;

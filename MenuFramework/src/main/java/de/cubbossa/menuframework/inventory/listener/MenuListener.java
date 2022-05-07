@@ -1,5 +1,6 @@
-package de.cubbossa.menuframework.inventory;
+package de.cubbossa.menuframework.inventory.listener;
 
+import de.cubbossa.menuframework.inventory.Menu;
 import org.bukkit.event.Listener;
 
 public interface MenuListener extends Listener {

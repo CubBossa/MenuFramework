@@ -1,5 +1,6 @@
 package de.cubbossa.menuframework.inventory;
 
+import de.cubbossa.menuframework.inventory.listener.MenuListener;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

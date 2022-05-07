@@ -22,6 +22,8 @@ public class GUIHandler {
 	@Getter
 	private BukkitAudiences audiences;
 
+	private InventoryListener listener;
+
 	public GUIHandler(JavaPlugin plugin) {
 		instance = this;
 		this.plugin = plugin;
@@ -37,12 +39,16 @@ public class GUIHandler {
 	}
 
 	public void disable() {
+		if(listener != null) {
+			listener.onServerStop();
+		}
+
 		this.audiences.close();
 		this.audiences = null;
 	}
 
 	public void registerDefaultListeners() {
-		new InventoryListener();
+		listener = new InventoryListener();
 		new HotbarListener();
 	}
 

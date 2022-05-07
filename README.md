@@ -1,4 +1,4 @@
-# Minecraft GUI Framework
+# MenuFramework
 
 ## Content
 
