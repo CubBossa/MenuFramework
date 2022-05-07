@@ -217,7 +217,7 @@ public class InventoryListener implements MenuListener {
 					return;
 				}
 				event.setCancelled(menu.handleInteract(VillagerMenu.TRADE_SELECT,
-						new TargetContext<>(player, menu, event.getIndex(), VillagerMenu.TRADE_SELECT, true, event.getInventory().getSelectedRecipe())));
+						new TargetContext<>(player, menu, event.getIndex(), VillagerMenu.TRADE_SELECT, false, event.getMerchant().getRecipe(event.getIndex()))));
 			});
 		}
 	}

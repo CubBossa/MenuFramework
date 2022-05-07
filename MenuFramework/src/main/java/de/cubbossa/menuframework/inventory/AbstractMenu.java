@@ -44,8 +44,18 @@ public abstract class AbstractMenu implements Menu {
             dynamicItemStacks.put(slot, itemStack);
         }
 
+        @Override
+        public void addItem(int slot, Supplier<ItemStack> itemStack) {
+            dynamicItemStacks.put(slot, itemStack.get());
+        }
+
         public void addItemOnTop(int slot, ItemStack itemStack) {
             dynamicItemStacksOnTop.put(slot, itemStack);
+        }
+
+        @Override
+        public void addItemOnTop(int slot, Supplier<ItemStack> itemStack) {
+            dynamicItemStacksOnTop.put(slot, itemStack.get());
         }
 
         @Override

@@ -1,5 +1,6 @@
 package de.cubbossa.menuframework.inventory.implementations;
 
+import de.cubbossa.menuframework.GUIHandler;
 import de.cubbossa.menuframework.inventory.Action;
 import de.cubbossa.menuframework.inventory.Button;
 import de.cubbossa.menuframework.inventory.context.ContextConsumer;
@@ -17,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class VillagerMenu extends InventoryMenu {
@@ -33,7 +35,7 @@ public class VillagerMenu extends InventoryMenu {
     private final Stack<TradeButton> offers;
 
     public VillagerMenu(ComponentLike title) {
-        super(InventoryType.MERCHANT, title);
+        super(InventoryType.MERCHANT, title, new int[]{0, 1, 2});
         this.offers = new Stack<>();
     }
 
@@ -63,24 +65,48 @@ public class VillagerMenu extends InventoryMenu {
     public Inventory createInventory(Player player, int page) {
         merchant = Bukkit.createMerchant(ChatUtils.toLegacy(getTitle()));
         merchant.setRecipes(offers.stream().map(TradeButton::recipe).collect(Collectors.toList()));
-        return player.openMerchant(merchant, true).getTopInventory();
+
+        InventoryView view = player.openMerchant(merchant, true);
+        return view == null ? null : view.getInventory(0);
     }
 
     @Override
     protected void openInventory(Player player, Inventory inventory) {
-        if(merchant != null) {
-            player.openMerchant(merchant, true).getTopInventory();
+        if (merchant != null) {
+            this.inventory = player.openMerchant(merchant, true).getTopInventory();
         }
     }
 
     @Override
     public <C extends TargetContext<?>> boolean handleInteract(Action<C> action, C context) {
-        MerchantRecipe selected = ((MerchantInventory) inventory).getSelectedRecipe();
-        if (context.getSlot() == 2 && selected != null) {
-            int index = ((MerchantInventory) inventory).getSelectedRecipeIndex();
-            return super.handleInteract(ATTEMPT_BUY, new TargetContext<>(context.getPlayer(), context.getMenu(), index, ATTEMPT_BUY, context.isCancelled(), selected));
+
+        Action<TargetContext<MerchantRecipe>> a = action == TRADE_SELECT ? TRADE_SELECT : null;
+        if (a == null && context.getSlot() == 2) {
+            a = ATTEMPT_BUY;
         }
-        return super.handleInteract(action, context);
+        if (a != null) {
+            int selected = ((MerchantInventory) inventory).getSelectedRecipeIndex();
+            TradeButton btn = offers.get(selected);
+
+            if (btn == null) {
+                return context.isCancelled();
+            }
+            MerchantRecipe target = merchant == null ? null : merchant.getRecipe(selected);
+            if (target == null) {
+                return context.isCancelled();
+            }
+            TargetContext<MerchantRecipe> tContext = new TargetContext<>(context.getPlayer(), context.getMenu(), selected, a, context.isCancelled(), target);
+            try {
+                ContextConsumer<TargetContext<MerchantRecipe>> handler = (ContextConsumer<TargetContext<MerchantRecipe>>) btn.clickHandler.get(a);
+                handler.accept(tContext);
+            } catch (Throwable t) {
+                context.setCancelled(true);
+                GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error while handling GUI interaction of player " + context.getPlayer().getName(), t);
+            }
+            return tContext.isCancelled();
+        } else {
+            return super.handleInteract(action, context);
+        }
     }
 
     public static class MerchantBuilder {

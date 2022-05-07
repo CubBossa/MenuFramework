@@ -129,7 +129,10 @@ public class TestCommand extends BaseCommand {
 				.withUses(0, 1000)
 				.withRightCost(new ItemStack(Material.DIAMOND)).build(), Button.builder()
 				.withClickHandler(VillagerMenu.TRADE_SELECT, c -> c.getPlayer().sendMessage("Trade selected"))
-				.withClickHandler(VillagerMenu.ATTEMPT_BUY, c -> c.getPlayer().sendMessage("Trade bought")));
+				.withClickHandler(VillagerMenu.ATTEMPT_BUY, c -> {
+					c.getPlayer().sendMessage("Trade bought");
+					c.setCancelled(false);
+				}));
 		menu.open(player);
 	}
 

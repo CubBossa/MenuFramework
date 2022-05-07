@@ -33,6 +33,19 @@ public class InventoryMenu extends TopInventoryMenu {
         this.slots = IntStream.range(0, inventoryType.getDefaultSize()).toArray();
     }
 
+    /**
+     * Creates an empty Inventory Menu.
+     *
+     * @param type  The inventory type of the top inventory.
+     * @param title The title component of the top inventory.
+     * @param slots All valid slots of this menu.
+     */
+    public InventoryMenu(InventoryType type, ComponentLike title, int[] slots) {
+        super(title, type.getDefaultSize());
+        this.inventoryType = type;
+        this.slots = slots;
+    }
+
     @Override
     public Inventory createInventory(Player player, int page) {
         return Bukkit.createInventory(null, inventoryType, ChatUtils.toLegacy(getTitle(page)));
