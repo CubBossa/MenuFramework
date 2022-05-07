@@ -1,6 +1,6 @@
 author: CubBossa
 name: minecraft-gui-framework
-version: 1.0.0
+version: 1.0.1
 main: de.cubbossa.menuframework.testing.TestMain
 api-version: 1.18
 
