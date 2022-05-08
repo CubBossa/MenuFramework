@@ -12,6 +12,7 @@ import de.cubbossa.menuframework.inventory.Menu;
 import de.cubbossa.menuframework.inventory.context.TargetContext;
 import de.cubbossa.menuframework.inventory.implementations.AnvilMenu;
 import de.cubbossa.menuframework.inventory.listener.MenuListener;
+import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -25,8 +26,18 @@ import java.util.logging.Level;
 public class ProtocolLibListener extends PacketAdapter implements MenuListener {
 
 	private static final int REPAIR_COST_PROPERTY = 0;
+	@Getter
+	private static ProtocolLibListener instance;
 
 	private final Collection<AnvilMenu> menus = new HashSet<>();
+
+	public ProtocolLibListener(Plugin plugin) {
+		super(plugin, PacketType.Play.Client.ITEM_NAME, PacketType.Play.Client.WINDOW_CLICK, PacketType.Play.Client.CLOSE_WINDOW);
+		instance = this;
+		addPacketListerner();
+
+		InvMenuHandler.getInstance().registerListener(this);
+	}
 
 	@Override
 	public void register(Menu menu) {
@@ -38,13 +49,6 @@ public class ProtocolLibListener extends PacketAdapter implements MenuListener {
 	@Override
 	public void unregister(Menu menu) {
 		menus.remove(menu);
-	}
-
-	public ProtocolLibListener(Plugin plugin) {
-		super(plugin, PacketType.Play.Client.ITEM_NAME, PacketType.Play.Client.WINDOW_CLICK, PacketType.Play.Client.CLOSE_WINDOW);
-  		addPacketListerner();
-
-		InvMenuHandler.getInstance().registerListener(this);
 	}
 
 	@Override

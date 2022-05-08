@@ -28,8 +28,15 @@ to your pom.xml.
 <dependencies>
     <dependency>
         <groupId>com.github.CubBossa</groupId>
-        <artifactId>Minecraft-GUI-Framework</artifactId>
+        <artifactId>MenuFramework</artifactId>
         <version>[VERSION]</version>
+    </dependency>
+
+    <!-- optional for anvil gui. Requires ProtocolLib on your server! -->
+    <dependency>
+        <groupId>com.github.CubBossa.MenuFramework</groupId>
+        <artifactId>MenuFramework-Protocol-Extension</artifactId>
+      <version>[VERSION]</version>
     </dependency>
 </dependencies>
 ```
@@ -62,8 +69,8 @@ You can shade both this library and adventure like so:
                         <shadedPattern>[YOUR_PLUGIN_PATH].kyori</shadedPattern>
                     </relocation>
                     <relocation>
-                        <pattern>de.cubbossa.menuframeworkde.cubbossa.menuframework</pattern>
-                        <shadedPattern>[YOUR_PLUGIN_PATH].guiframework</shadedPattern>
+                        <pattern>de.cubbossa.menuframework</pattern>
+                        <shadedPattern>[YOUR_PLUGIN_PATH].menuframework</shadedPattern>
                     </relocation>
                     <relocation>
                         <pattern>net.wesjd.anvilgui</pattern>
@@ -86,11 +93,17 @@ disable it in the onDisable method:
     public void onEnable() {
         GUIHandler guiHandler = new GUIHandler(this);
         guiHandler.enable();
+        
+        // optional if used with protocol extension and ProtocolLib:
+        new ProtocolLibListener();
     }
 
     @Override
     public void onDisable() {
         GUIHandler.getInstance().disable();
+        
+        // optional if used with protocol extension and ProtocolLib:
+        ProtocolLibListener.getInstance().removePacketListener();
     }
 ```
 
