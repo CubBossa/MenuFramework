@@ -5,7 +5,7 @@
     <parent>
         <artifactId>MenuFramework-Parent</artifactId>
         <groupId>de.cubbossa</groupId>
-        <version>1.0.2</version>
+        <version>1.1.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -21,7 +21,7 @@
         <dependency>
             <groupId>de.cubbossa</groupId>
             <artifactId>MenuFramework</artifactId>
-            <version>1.0.2</version>
+            <version>1.1.0</version>
         </dependency>
     </dependencies>
 
