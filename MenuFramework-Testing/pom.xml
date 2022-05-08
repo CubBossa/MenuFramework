@@ -37,6 +37,12 @@
             <version>0.5.1-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>de.cubbossa</groupId>
+            <artifactId>MenuFramework-Protocol-Extension</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -82,6 +88,7 @@
                                 <includes>
                                     <include>co.aikar:acf-paper</include>
                                     <include>de.cubbossa:MenuFramework</include>
+                                    <include>de.cubbossa:MenuFramework-Protocol-Extension</include>
                                     <include>net.kyori:**</include>
                                     <include>net.wesjd:anvilgui</include>
                                 </includes>

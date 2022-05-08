@@ -71,6 +71,12 @@ public class TestCommand extends BaseCommand {
 
 	@Subcommand("open AnvilMenu")
 	public void openAnvilMenu(Player player) {
+		openAnvilMenu.setItem(1, new ItemStack(Material.DIAMOND));
+		openAnvilMenu.setClickHandler(0, AnvilMenu.WRITE, c -> {
+			c.getPlayer().sendMessage(c.getTarget());
+			openAnvilMenu.setItem(2, new ItemStack(Material.CARROT_ON_A_STICK));
+			openAnvilMenu.refresh(2);
+		});
 		openAnvilMenu.open(player);
 	}
 

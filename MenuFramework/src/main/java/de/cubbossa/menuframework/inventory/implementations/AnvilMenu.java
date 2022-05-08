@@ -43,6 +43,11 @@ public class AnvilMenu extends TopInventoryMenu {
 	@Setter
 	private Map<Action<TargetContext<String>>, ContextConsumer<TargetContext<String>>> outputClickHandler;
 
+	@Getter
+	@Setter
+	private int xpCosts = 0;
+
+	@Getter
 	private int containerId;
 
 	public AnvilMenu(ComponentLike title, String startText) {

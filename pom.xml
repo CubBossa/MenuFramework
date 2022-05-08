@@ -14,6 +14,7 @@
         <module>MenuFramework-Plugin</module>
         <module>MenuFramework-Testing</module>
         <module>MenuFramework-Examples</module>
+        <module>MenuFramework-Protocol-Extension</module>
     </modules>
 
     <properties>
