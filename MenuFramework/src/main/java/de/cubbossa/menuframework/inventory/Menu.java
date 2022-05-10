@@ -382,11 +382,35 @@ public interface Menu {
     void setOpenHandler(ContextConsumer<OpenContext> openHandler);
 
     /**
+     * Removes a open handler
+     *
+     * @param openHandler The open handler instance
+     */
+    void removeOpenHandler(ContextConsumer<OpenContext> openHandler);
+
+    /**
+     * Removes all open handlers
+     */
+    void clearOpenHandlers();
+
+    /**
      * Sets a close handler that is called when the inventory has been closed.
      *
      * @param closeHandler The close handler instance
      */
     void setCloseHandler(ContextConsumer<CloseContext> closeHandler);
+
+    /**
+     * Removes a close handler
+     *
+     * @param closeHandler The close handler instance
+     */
+    void removeCloseHandler(ContextConsumer<CloseContext> closeHandler);
+
+    /**
+     * Removes all close handlers
+     */
+    void clearCloseHandlers();
 
     /**
      * Checks if a certain inventory is equal to the current instance of this menu inventory.

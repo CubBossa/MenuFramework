@@ -7,7 +7,6 @@ import de.cubbossa.menuframework.inventory.context.OpenContext;
 import de.cubbossa.menuframework.inventory.context.TargetContext;
 import de.cubbossa.menuframework.util.Animation;
 import lombok.Getter;
-import lombok.Setter;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -73,10 +72,8 @@ public abstract class AbstractMenu implements Menu {
         }
     };
 
-    @Setter
-    protected ContextConsumer<OpenContext> openHandler;
-    @Setter
-    protected ContextConsumer<CloseContext> closeHandler;
+    protected List<ContextConsumer<OpenContext>> openHandlers;
+    protected List<ContextConsumer<CloseContext>> closeHandlers;
 
     protected final Map<Integer, Collection<Animation>> animations;
     protected final Map<UUID, ViewMode> viewer;
@@ -101,6 +98,8 @@ public abstract class AbstractMenu implements Menu {
         this.slotsPerPage = slotsPerPage;
         this.clickHandler = new TreeMap<>();
         this.defaultClickHandler = new HashMap<>();
+        this.openHandlers = new ArrayList<>();
+        this.closeHandlers = new ArrayList<>();
     }
 
 
@@ -188,13 +187,13 @@ public abstract class AbstractMenu implements Menu {
         if (this.viewer.size() == 1) {
             firstOpen();
         }
-        if (this.openHandler != null) {
+        openHandlers.forEach(c -> {
             try {
-                openHandler.accept(new OpenContext(viewer, this));
+                c.accept(new OpenContext(viewer, this));
             } catch (Exception e) {
                 GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error while calling OpenHandler.", e);
             }
-        }
+        });
     }
 
     public void render(Player viewer, boolean clear) {
@@ -243,13 +242,13 @@ public abstract class AbstractMenu implements Menu {
             animations.forEach((integer, animations1) -> animations1.forEach(Animation::stop));
             lastClose();
         }
-        if (closeHandler != null) {
+        closeHandlers.forEach(c -> {
             try {
-                closeHandler.accept(new CloseContext(viewer, this, getCurrentPage()));
+                c.accept(new CloseContext(viewer, this, getCurrentPage()));
             } catch (Exception exc) {
                 GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error while calling CloseHandler", exc);
             }
-        }
+        });
     }
 
     public MenuPreset<? extends TargetContext<?>> addPreset(MenuPreset<? extends TargetContext<?>> menuPreset) {
@@ -421,6 +420,32 @@ public abstract class AbstractMenu implements Menu {
 
     public <C extends TargetContext<?>> void setDefaultClickHandler(Action<C> action, ContextConsumer<C> clickHandler) {
         defaultClickHandler.put(action, clickHandler);
+    }
+
+    public void setOpenHandler(ContextConsumer<OpenContext> openHandler) {
+        openHandlers.add(openHandler);
+    }
+
+    public void removeOpenHandler(ContextConsumer<OpenContext> openHandler) {
+        openHandlers.remove(openHandler);
+    }
+
+    public void clearOpenHandlers() {
+        openHandlers.clear();
+    }
+
+    public void setCloseHandler(ContextConsumer<CloseContext> closeHandler) {
+        closeHandlers.add(closeHandler);
+    }
+
+    @Override
+    public void removeCloseHandler(ContextConsumer<CloseContext> closeHandler) {
+        closeHandlers.remove(closeHandler);
+    }
+
+    @Override
+    public void clearCloseHandlers() {
+        closeHandlers.clear();
     }
 
     public void removeClickHandler(int... slots) {

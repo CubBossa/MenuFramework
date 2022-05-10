@@ -98,7 +98,9 @@ public class VillagerMenu extends InventoryMenu {
             TargetContext<MerchantRecipe> tContext = new TargetContext<>(context.getPlayer(), context.getMenu(), selected, a, context.isCancelled(), target);
             try {
                 ContextConsumer<TargetContext<MerchantRecipe>> handler = (ContextConsumer<TargetContext<MerchantRecipe>>) btn.clickHandler.get(a);
-                handler.accept(tContext);
+                if (handler != null) {
+                    handler.accept(tContext);
+                }
             } catch (Throwable t) {
                 context.setCancelled(true);
                 GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error while handling GUI interaction of player " + context.getPlayer().getName(), t);
