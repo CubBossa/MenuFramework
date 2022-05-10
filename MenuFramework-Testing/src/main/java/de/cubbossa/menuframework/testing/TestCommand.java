@@ -144,6 +144,8 @@ public class TestCommand extends BaseCommand {
 
 	@Subcommand("stacked")
 	public void openStackedMenu(Player player) {
+		// testing parent child relations of menus and opening multiple parent menus.
+
 		RectInventoryMenu m1 = new RectInventoryMenu(Component.text("Yay"), 4);
 		m1.addPreset(MenuPresets.fillRowOnTop(new ItemStack(Material.DIAMOND), 3));
 		m1.setButton(0, Button.builder()
@@ -166,6 +168,8 @@ public class TestCommand extends BaseCommand {
 
 	@Subcommand("persistentDataContainer")
 	public void onPersistentDataContainer(Player player) {
+		// only testing if the PersistentDataContainer prevents stacking with untagged stacks.
+
 		ItemStack i = new ItemStack(Material.DIAMOND);
 		ItemMeta meta = i.getItemMeta();
 		meta.getPersistentDataContainer().set(new NamespacedKey(GUIHandler.getInstance().getPlugin(), "my_key"), PersistentDataType.INTEGER, 0);
@@ -186,6 +190,8 @@ public class TestCommand extends BaseCommand {
 
 	@Subcommand("refresh_bottom_menu")
 	public void onRefreshBottomMenu(Player player) {
+		// testing the refreshment of bottom menu items if player is in creative mode.
+
 		BottomInventoryMenu refreshMenu = new BottomInventoryMenu(0);
 		refreshMenu.setButton(0, Button.builder()
 				.withItemStack(() -> new ItemStack(Material.values()[new Random().nextInt(Material.values().length)]))
