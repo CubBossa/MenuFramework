@@ -2,7 +2,6 @@ package de.cubbossa.menuframework.inventory;
 
 import com.google.common.base.Strings;
 import de.cubbossa.menuframework.GUIHandler;
-import de.cubbossa.menuframework.inventory.context.ClickContext;
 import de.cubbossa.menuframework.inventory.context.ContextConsumer;
 import de.cubbossa.menuframework.inventory.context.TargetContext;
 import de.cubbossa.menuframework.inventory.implementations.BottomInventoryMenu;
@@ -132,14 +131,13 @@ public class MenuPresets {
      * @param row     the row to place the back icon at.
      * @param slot    the slot to place the back icon at.
      * @param actions all valid actions to run the back handler.
-     * @param <C>     the ClickContext type
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static <C extends TargetContext<?>> MenuPreset<C> back(int row, int slot, Action<C>... actions) {
+    public static MenuPreset<?> back(int row, int slot, Action<?>... actions) {
         return back(XY_TO_INDEX.apply(slot, row), actions);
     }
 
-    public static <C extends TargetContext<?>> MenuPreset<C> back(int slot, Action<C>... actions) {
+    public static MenuPreset<?> back(int slot, Action<?>... actions) {
         return applier -> {
             if (applier.getMenu() instanceof TopInventoryMenu topMenu) {
                 applier.addItemOnTop(slot, BACK);
@@ -165,10 +163,9 @@ public class MenuPresets {
      * @param hideDisabled if the previous and next page buttons should be invisible if no previous or next page exists.
      *                     Otherwise, {@link #LEFT_DISABLED} and {@link #RIGHT_DISABLED} will be rendered.
      * @param actions      the actions to run the clickhandlers with.
-     * @param <C>          the ClickContext type
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static <C extends ClickContext> MenuPreset<C> paginationRow(int row, int leftSlot, int rightSlot, boolean hideDisabled, Action<C>... actions) {
+    public static MenuPreset<?> paginationRow(int row, int leftSlot, int rightSlot, boolean hideDisabled, Action<?>... actions) {
         return applier -> {
 
             boolean leftLimit = applier.getMenu().getCurrentPage() <= applier.getMenu().getMinPage();
@@ -196,7 +193,7 @@ public class MenuPresets {
         };
     }
 
-    public static <C extends ClickContext> MenuPreset<C> scrollingVertically(int leftSlot, int rightSlot, boolean hideDisabled, Action<C>... actions) {
+    public static MenuPreset<?> scrollingVertically(int leftSlot, int rightSlot, boolean hideDisabled, Action<?>... actions) {
         return applier -> {
 
             boolean leftLimit = applier.getMenu().getCurrentPage() <= applier.getMenu().getMinPage();
@@ -237,10 +234,9 @@ public class MenuPresets {
      * @param hideDisabled if the previous and next page buttons should be invisible if no previous or next page exists.
      *                     Otherwise, {@link #LEFT_DISABLED} and {@link #RIGHT_DISABLED} will be rendered.
      * @param actions      the actions to run the clickhandlers with.
-     * @param <C>          the ClickContext type
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static <C extends TargetContext<?>> MenuPreset<C> paginationRow(Menu otherMenu, int row, int leftSlot, int rightSlot, boolean hideDisabled, Action<C>... actions) {
+    public static MenuPreset<?> paginationRow(Menu otherMenu, int row, int leftSlot, int rightSlot, boolean hideDisabled, Action<?>... actions) {
         return applier -> {
             Menu menu = applier.getMenu();
 
@@ -286,10 +282,9 @@ public class MenuPresets {
      * @param hideDisabled if the previous and next page buttons should be invisible if no previous or next page exists.
      *                     Otherwise, {@link #UP_DISABLED} and {@link #DOWN_DISABLED} will be rendered.
      * @param actions      the actions to run the clickhandlers with.
-     * @param <C>          the ClickContext type
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static <C extends TargetContext<?>> MenuPreset<C> paginationColumn(int column, int upSlot, int downSlot, boolean hideDisabled, Action<C>... actions) {
+    public static MenuPreset<?> paginationColumn(int column, int upSlot, int downSlot, boolean hideDisabled, Action<?>... actions) {
         return applier -> {
             Menu menu = applier.getMenu();
             boolean upperLimit = menu.getCurrentPage() == menu.getMinPage();
@@ -356,7 +351,7 @@ public class MenuPresets {
      * @param column the column to fill
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static MenuPreset<? extends TargetContext<?>> fillColumn(ItemStack stack, int column) {
+    public static MenuPreset<?> fillColumn(ItemStack stack, int column) {
         return applier -> {
             IntStream.range(0, applier.getMenu().getSlotsPerPage()).filter(value -> value % 9 == column).forEach(value -> applier.addItem(value, stack));
         };
@@ -369,7 +364,7 @@ public class MenuPresets {
      * @param column the column to fill
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static MenuPreset<? extends TargetContext<?>> fillColumnOnTop(ItemStack stack, int column) {
+    public static MenuPreset<?> fillColumnOnTop(ItemStack stack, int column) {
         return applier -> IntStream.range(0, applier.getMenu().getSlotsPerPage()).filter(value -> value % 9 == column).forEach(value -> applier.addItemOnTop(value, stack));
     }
 
@@ -379,7 +374,7 @@ public class MenuPresets {
      * @param stack the stack to place
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static MenuPreset<? extends TargetContext<?>> fillFrame(ItemStack stack) {
+    public static MenuPreset<?> fillFrame(ItemStack stack) {
         return applier -> {
             IntStream.range(0, applier.getMenu().getSlotsPerPage())
                     .filter(value -> value % 9 == 0 || value % 9 == 8 || value < 9 || value >= applier.getMenu().getSlotsPerPage() - 9)
@@ -393,7 +388,7 @@ public class MenuPresets {
      * @param stack the stack to place
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static MenuPreset<? extends TargetContext<?>> fillFrameOnTop(ItemStack stack) {
+    public static MenuPreset<?> fillFrameOnTop(ItemStack stack) {
         return applier -> IntStream.range(0, applier.getMenu().getSlotsPerPage())
                 .filter(value -> value % 9 == 0 || value % 9 == 8 || value < 9 || value >= applier.getMenu().getSlotsPerPage() - 9)
                 .forEach(value -> applier.addItemOnTop(value, stack));
