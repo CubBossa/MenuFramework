@@ -76,6 +76,24 @@ public abstract class TopInventoryMenu extends AbstractMenu implements TopMenu {
         return this.previous.get(player.getUniqueId());
     }
 
+    @Override
+    public boolean isPrevious(TopMenu menu, Player player) {
+
+        TopMenu current = this.getPrevious(player);
+        while (current != null && current.getPrevious(player) != null) {
+            if (current.equals(menu)) {
+                return true;
+            }
+            current = current.getPrevious(player);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isSubMenu(TopMenu menu, Player player) {
+        return menu.isPrevious(this, player);
+    }
+
     public void openPreviousMenu(Player viewer) {
         handleClose(viewer);
 

@@ -86,6 +86,10 @@ public interface TopMenu extends Menu {
      */
     @Nullable TopMenu getPrevious(Player player);
 
+    boolean isPrevious(TopMenu menu, Player player);
+
+    boolean isSubMenu(TopMenu menu, Player player);
+
     /**
      * @param page The page to return the title for.
      * @return The title for the given page. Fallback title if no title was found.
