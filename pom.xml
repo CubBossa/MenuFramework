@@ -7,7 +7,7 @@
     <groupId>de.cubbossa</groupId>
     <artifactId>MenuFramework-Parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
 
     <modules>
         <module>MenuFramework</module>
@@ -16,6 +16,17 @@
         <module>MenuFramework-Examples</module>
         <module>MenuFramework-Protocol-Extension</module>
     </modules>
+
+    <name>MenuFramework-Parent</name>
+    <description>Spigot library for anvil/trader/inventory menus, hotbars and scoreboards</description>
+    <url>https://github.com/CubBossa/MenuFramework</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://www.opensource.org/licenses/mit-license.php</url>
+        </license>
+    </licenses>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

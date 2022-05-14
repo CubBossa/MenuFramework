@@ -85,14 +85,19 @@ public class TestCommand extends BaseCommand {
 		openAnvilMenu.close(player);
 	}
 
-	ListMenu openListMenu = new ListMenu(Component.text("Yay"), 3);
+	ListMenu openListMenu = new ListMenu(Component.text("Yay"), 3, IntStream.range(9, 18).toArray());
 
 	@Subcommand("open ListMenu")
 	public void openListMenu(Player player) {
-		IntStream.range(3, 3 * 9).forEach(value -> openListMenu.setButton(value, Button.builder()
+		openListMenu.clearListEntries();
+		openListMenu.removeAllPresets();
+		openListMenu.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 2));
+		openListMenu.addPreset(MenuPresets.paginationRow(2, 0, 1, false, Action.LEFT));
+		IntStream.range(3, 2 * 9).forEach(value -> openListMenu.addListEntry(Button.builder()
 				.withItemStack(new ItemStack(Material.DIAMOND, 60))
 				.withClickHandler(Action.SHIFT_INSERT, clickContext -> clickContext.setCancelled(value % 2 == 1))
 				.withClickHandler(Action.LEFT, clickContext -> clickContext.getPlayer().sendMessage("lol"))));
+		openListMenu.addListEntry(Button.builder().withItemStack(Material.REDSTONE).withClickHandler(Action.LEFT, c -> c.getPlayer().sendMessage("xD")));
 		openListMenu.open(player);
 	}
 

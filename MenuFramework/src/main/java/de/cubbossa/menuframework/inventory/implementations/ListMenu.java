@@ -1,20 +1,25 @@
 package de.cubbossa.menuframework.inventory.implementations;
 
+import de.cubbossa.menuframework.GUIHandler;
 import de.cubbossa.menuframework.inventory.Action;
-import de.cubbossa.menuframework.inventory.Button;
 import de.cubbossa.menuframework.inventory.BottomMenu;
+import de.cubbossa.menuframework.inventory.Button;
 import de.cubbossa.menuframework.inventory.context.ContextConsumer;
 import de.cubbossa.menuframework.inventory.context.TargetContext;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.ComponentLike;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
+import java.util.logging.Level;
 
 /**
  * A Chest Menu, that provides methods to add list entries without worrying about the last slot.
@@ -33,6 +38,7 @@ public class ListMenu extends RectInventoryMenu {
     private final int[] listSlots;
     private final long listSlotMask;
     private final List<ListElement> listElements;
+    private int listSlotCount;
 
     /**
      * Creates a new chest list menu with the given count of rows
@@ -43,29 +49,41 @@ public class ListMenu extends RectInventoryMenu {
      */
     public ListMenu(ComponentLike title, int rows, int... listSlots) {
         super(title, rows);
-        this.listSlots = listSlots.length == 0 ? IntStream.range(0, (rows - 1) * 9).toArray() : listSlots;
-        this.listSlotMask = BottomMenu.getMaskFromSlots(this.listSlots);
+        this.listSlotMask = BottomMenu.getMaskFromSlots(listSlots);
+        this.listSlotCount = listSlots.length;
+        this.listSlots = new int[rows * 9];
+        this.setupListTable();
         this.listElements = new ArrayList<>();
+    }
+
+    private void setupListTable() {
+        // -1 = no list slot, every other number means how many slots to subtract
+        int sub = 0;
+        for (int i = 0; i < listSlots.length; i++) {
+            if (isListSlot(i)) {
+                listSlots[i] = sub++;
+            } else {
+                listSlots[i] = -1;
+            }
+        }
     }
 
     private boolean isListSlot(int slot) {
         return (listSlotMask >> (slot % slotsPerPage) & 1) == 1;
     }
 
-    private int toListSlot(int slot) {
-        return slot - (slot / slotsPerPage) * (slotsPerPage - getListSlots().length);
+    private ListElement getListElement(int slot) {
+        int listSlots = listSlotCount * (offset / slotsPerPage);
+        int listSlot = this.listSlots[slot % slotsPerPage];
+        return listSlot == -1 || listSlot + listSlots >= listElements.size() ? null : listElements.get(listSlot + listSlots);
     }
 
     @Override
     protected ItemStack getStaticItemStack(int slot) {
-        if(!isListSlot(slot)) {
+        if (!isListSlot(slot)) {
             return null;
         }
-        int s = toListSlot(slot);
-        if(s >= listElements.size()) {
-            return null;
-        }
-        ListElement element = listElements.get(s);
+        ListElement element = getListElement(slot);
         if (element == null || element.itemSupplier == null) {
             return null;
         }
@@ -77,11 +95,7 @@ public class ListMenu extends RectInventoryMenu {
         if(!isListSlot(slot)) {
             return null;
         }
-        int s = toListSlot(slot);
-        if(s >= listElements.size()) {
-            return null;
-        }
-        ListElement element = listElements.get(s);
+        ListElement element = getListElement(slot);
         if (element == null || element.clickHandlers == null) {
             return null;
         }
@@ -90,32 +104,17 @@ public class ListMenu extends RectInventoryMenu {
 
     @Override
     public void setItem(int slot, Supplier<ItemStack> itemSupplier) {
-        int s = toListSlot(slot);
-        ListElement element = listElements.get(s);
-        if (element == null) {
-            element = new ListElement(itemSupplier, new HashMap<>());
-            listElements.add(s, element);
-        } else {
-            element.itemSupplier = itemSupplier;
-        }
+        GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Don't use #setClickHandler or #setItem on ListMenus. Instead, append with #addListEntry");
     }
 
     @Override
     public void setClickHandler(int slot, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler) {
-        super.setClickHandler(slot, clickHandler);
-        int s = toListSlot(slot);
-        ListElement element = listElements.get(s);
-        if (element == null) {
-            element = new ListElement(null, clickHandler);
-            listElements.add(s, element);
-        } else {
-            element.clickHandlers = clickHandler;
-        }
+        GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Don't use #setClickHandler or #setItem on ListMenus. Instead, append with #addListEntry");
     }
 
     @Override
     public int getMaxPage() {
-        return (int) Math.floor((double) listElements.size() / listSlots.length);
+        return (int) Math.floor((double) listElements.size() / listSlotCount);
     }
 
     /**
@@ -125,7 +124,7 @@ public class ListMenu extends RectInventoryMenu {
      * @param buttonBuilder a button to insert.
      * @return the reference to the stored object Pair. Can be used to remove list elements
      */
-    public <T> ListElement addListEntry(Button buttonBuilder) {
+    public ListElement addListEntry(Button buttonBuilder) {
         ListElement element = new ListElement(buttonBuilder.getStackSupplier(), buttonBuilder.getClickHandler());
         listElements.add(element);
         return element;

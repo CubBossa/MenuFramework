@@ -346,7 +346,7 @@ public abstract class AbstractMenu implements Menu {
             soundPlayer.get(actualSlot).accept(context.getPlayer());
         }
 
-        ContextConsumer<C> clickHandler = (ContextConsumer<C>) getClickHandler(slot, action);
+        ContextConsumer<C> clickHandler = (ContextConsumer<C>) getClickHandler(actualSlot, action);
 
         if (clickHandler != null) {
             //execute and catch exceptions so users can't dupe itemstacks.
@@ -379,7 +379,7 @@ public abstract class AbstractMenu implements Menu {
     }
 
     protected ContextConsumer<? extends TargetContext<?>> getStaticClickHandler(int slot, Action<?> action) {
-        return clickHandler.getOrDefault(slot + offset, new HashMap<>()).get(action);
+        return clickHandler.getOrDefault(slot, new HashMap<>()).get(action);
     }
 
     public void setButton(int slot, Button button) {
@@ -510,7 +510,6 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public int getCurrentPage() {
-
         return (int) Math.floor((double) offset / slotsPerPage);
     }
 
