@@ -10,7 +10,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.ComponentLike;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -20,6 +19,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
+import java.util.stream.IntStream;
 
 /**
  * A Chest Menu, that provides methods to add list entries without worrying about the last slot.
@@ -49,6 +49,9 @@ public class ListMenu extends RectInventoryMenu {
      */
     public ListMenu(ComponentLike title, int rows, int... listSlots) {
         super(title, rows);
+        if (listSlots.length == 0) {
+            listSlots = IntStream.range(0, (rows - 1) * 9).toArray();
+        }
         this.listSlotMask = BottomMenu.getMaskFromSlots(listSlots);
         this.listSlotCount = listSlots.length;
         this.listSlots = new int[rows * 9];
