@@ -27,7 +27,7 @@ to your pom.xml.
 
 <dependencies>
     <dependency>
-        <groupId>com.github.CubBossa</groupId>
+        <groupId>com.github.CubBossa.MenuFramework</groupId>
         <artifactId>MenuFramework</artifactId>
         <version>[VERSION]</version>
     </dependency>
