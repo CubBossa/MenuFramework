@@ -1,14 +1,23 @@
 package de.cubbossa.menuframework;
 
 import de.cubbossa.menuframework.inventory.InvMenuHandler;
+import de.cubbossa.menuframework.inventory.exception.CloseMenuException;
+import de.cubbossa.menuframework.inventory.exception.ItemPlaceException;
+import de.cubbossa.menuframework.inventory.exception.MenuHandlerException;
+import de.cubbossa.menuframework.inventory.exception.OpenMenuException;
 import de.cubbossa.menuframework.inventory.listener.HotbarListener;
 import de.cubbossa.menuframework.inventory.listener.InventoryListener;
 import de.cubbossa.menuframework.scoreboard.CustomScoreboardHandler;
 import lombok.Getter;
+import lombok.Setter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GUIHandler {
@@ -23,6 +32,22 @@ public class GUIHandler {
 	private BukkitAudiences audiences;
 
 	private InventoryListener listener;
+	@Getter
+	@Setter
+	private Consumer<Exception> exceptionHandler = t -> {
+		if (t instanceof MenuHandlerException e) {
+			e.getContext().setCancelled(true);
+			audiences.player(e.getContext().getPlayer()).sendMessage(Component.text("Something went wrong when executing this button action. Please contact an administrator.", NamedTextColor.RED));
+			getLogger().log(Level.SEVERE, "Error occured while interacting with menu " + e.getMenu().getClass() + " at slot " + e.getContext().getSlot(), t);
+		} else if (t instanceof OpenMenuException e) {
+			audiences.player(e.getContext().getPlayer()).sendMessage(Component.text("Something went wrong when opening a menu. Please contact an administrator.", NamedTextColor.RED));
+			getLogger().log(Level.SEVERE, "Error occured while opening menu " + e.getMenu().getClass(), t);
+		} else if (t instanceof ItemPlaceException e) {
+			getLogger().log(Level.SEVERE, "Error occured while filling menu " + e.getMenu().getClass() + " at slot " + e.getSlot() + " for player " + e.getPlayer(), t);
+		} else if (t instanceof CloseMenuException e) {
+			getLogger().log(Level.SEVERE, "Error occured while closing menu " + e.getMenu().getClass(), t);
+		}
+	};
 
 	public GUIHandler(JavaPlugin plugin) {
 		instance = this;

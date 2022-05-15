@@ -1,5 +1,5 @@
 author: CubBossa
 name: menu-framework
-version: 1.1.2
+version: 1.1.4
 main: de.cubbossa.guiframework.plugin.MenuFramework
 api-version: 1.18

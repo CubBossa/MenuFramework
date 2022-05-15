@@ -5,6 +5,7 @@ import de.cubbossa.menuframework.inventory.Action;
 import de.cubbossa.menuframework.inventory.Button;
 import de.cubbossa.menuframework.inventory.context.ContextConsumer;
 import de.cubbossa.menuframework.inventory.context.TargetContext;
+import de.cubbossa.menuframework.inventory.exception.MenuHandlerException;
 import de.cubbossa.menuframework.util.ChatUtils;
 import lombok.Getter;
 import net.kyori.adventure.text.ComponentLike;
@@ -18,7 +19,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class VillagerMenu extends InventoryMenu {
@@ -102,8 +102,7 @@ public class VillagerMenu extends InventoryMenu {
                     handler.accept(tContext);
                 }
             } catch (Throwable t) {
-                context.setCancelled(true);
-                GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error while handling GUI interaction of player " + context.getPlayer().getName(), t);
+                GUIHandler.getInstance().getExceptionHandler().accept(new MenuHandlerException(context, t));
             }
             return tContext.isCancelled();
         } else {

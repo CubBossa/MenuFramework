@@ -5,6 +5,10 @@ import de.cubbossa.menuframework.inventory.context.CloseContext;
 import de.cubbossa.menuframework.inventory.context.ContextConsumer;
 import de.cubbossa.menuframework.inventory.context.OpenContext;
 import de.cubbossa.menuframework.inventory.context.TargetContext;
+import de.cubbossa.menuframework.inventory.exception.CloseMenuException;
+import de.cubbossa.menuframework.inventory.exception.ItemPlaceException;
+import de.cubbossa.menuframework.inventory.exception.MenuHandlerException;
+import de.cubbossa.menuframework.inventory.exception.OpenMenuException;
 import de.cubbossa.menuframework.util.Animation;
 import lombok.Getter;
 import org.bukkit.NamespacedKey;
@@ -18,7 +22,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 
 @Getter
 public abstract class AbstractMenu implements Menu {
@@ -151,7 +154,11 @@ public abstract class AbstractMenu implements Menu {
 
     public void setOffset(Player player, int offset) {
         this.offset = offset;
-        render(player, true);
+        try {
+            render(player, true);
+        } catch (ItemPlaceException e) {
+            GUIHandler.getInstance().getExceptionHandler().accept(e);
+        }
     }
 
     public void addOffset(Player player, int offset) {
@@ -171,7 +178,11 @@ public abstract class AbstractMenu implements Menu {
             viewer.wakeup(true);
         }
 
-        render(viewer, true);
+        try {
+            render(viewer, true);
+        } catch (ItemPlaceException e) {
+            GUIHandler.getInstance().getExceptionHandler().accept(e);
+        }
         openInventory(viewer, inventory);
 
         if (this.viewer.isEmpty()) {
@@ -187,16 +198,18 @@ public abstract class AbstractMenu implements Menu {
         if (this.viewer.size() == 1) {
             firstOpen();
         }
-        openHandlers.forEach(c -> {
+
+        OpenContext openContext = new OpenContext(viewer, this);
+        for (var c : openHandlers) {
             try {
-                c.accept(new OpenContext(viewer, this));
+                c.accept(openContext);
             } catch (Exception e) {
-                GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error while calling OpenHandler.", e);
+                GUIHandler.getInstance().getExceptionHandler().accept(new OpenMenuException(openContext, e));
             }
-        });
+        }
     }
 
-    public void render(Player viewer, boolean clear) {
+    public void render(Player viewer, boolean clear) throws ItemPlaceException {
 
         int page = getCurrentPage();
         if (inventory == null) {
@@ -218,7 +231,7 @@ public abstract class AbstractMenu implements Menu {
                 inventory.setItem(slot, item.clone());
 
             } catch (Throwable t) {
-                GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Could not place menu item.", t);
+                throw new ItemPlaceException(this, viewer, slot, t);
             }
         }
     }
@@ -242,13 +255,14 @@ public abstract class AbstractMenu implements Menu {
             animations.forEach((integer, animations1) -> animations1.forEach(Animation::stop));
             lastClose();
         }
-        closeHandlers.forEach(c -> {
+        CloseContext closeContext = new CloseContext(viewer, this, getCurrentPage());
+        for (var c : closeHandlers) {
             try {
-                c.accept(new CloseContext(viewer, this, getCurrentPage()));
+                c.accept(closeContext);
             } catch (Exception exc) {
-                GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error while calling CloseHandler", exc);
+                GUIHandler.getInstance().getExceptionHandler().accept(new CloseMenuException(closeContext, exc));
             }
-        });
+        }
     }
 
     public MenuPreset<? extends TargetContext<?>> addPreset(MenuPreset<? extends TargetContext<?>> menuPreset) {
@@ -353,8 +367,7 @@ public abstract class AbstractMenu implements Menu {
             try {
                 clickHandler.accept(context);
             } catch (Exception exc) {
-                context.setCancelled(true);
-                GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Error while handling GUI interaction of player " + player.getName(), exc);
+                GUIHandler.getInstance().getExceptionHandler().accept(new MenuHandlerException(context, exc));
             }
         }
         return context.isCancelled();
@@ -494,7 +507,7 @@ public abstract class AbstractMenu implements Menu {
         return getMaxPage() - getMinPage();
     }
 
-    public void refreshDynamicItemSuppliers() {
+    public void refreshDynamicItemSuppliers() throws ItemPlaceException {
         dynamicItemStacks.clear();
         dynamicClickHandler.clear();
         dynamicItemStacksOnTop.clear();
@@ -504,7 +517,7 @@ public abstract class AbstractMenu implements Menu {
             try {
                 processor.placeDynamicEntries(applier);
             } catch (Throwable t) {
-                GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Could not place dynamic menu item.", t);
+                throw new ItemPlaceException(this, t);
             }
         }
     }

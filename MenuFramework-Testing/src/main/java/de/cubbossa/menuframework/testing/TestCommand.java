@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.Arrays;
 import java.util.Random;
 import java.util.stream.IntStream;
 
@@ -206,6 +207,38 @@ public class TestCommand extends BaseCommand {
 		refreshMenu.open(player);
 	}
 
+	@Subcommand("exception open")
+	public void onExceptionOpen(Player player) {
+		Menu menu = new InventoryMenu(InventoryType.BREWING, Component.text("hi"));
+		menu.setOpenHandler(openContext -> Integer.parseInt("xyz"));
+		menu.open(player);
+	}
+
+	@Subcommand("exception close")
+	public void onExceptionClose(Player player) {
+		Menu menu = new BottomInventoryMenu(InventoryRow.values());
+		Arrays.stream(menu.getSlots()).forEach(s -> menu.setButton(s, Button.builder()
+				.withItemStack(Material.RED_CONCRETE)
+				.withClickHandler(Action.LEFT, c -> menu.close(c.getPlayer()))));
+		menu.setCloseHandler(closeContext -> Integer.parseInt("xyz"));
+		menu.open(player);
+	}
+
+	@Subcommand("exception setitem")
+	public void onExceptionItem(Player player) {
+		Menu menu = new InventoryMenu(InventoryType.BREWING, Component.text("hi"));
+		menu.setItem(1, () -> new ItemStack(Material.valueOf("lol")));
+		menu.open(player);
+	}
+
+	@Subcommand("exception click")
+	public void onExceptionClick(Player player) {
+		Menu menu = new InventoryMenu(InventoryType.BREWING, Component.text("hi"));
+		menu.setButton(1, Button.builder()
+				.withItemStack(Material.DIAMOND)
+				.withClickHandler(Action.LEFT, c -> Integer.parseInt("abc")));
+		menu.open(player);
+	}
 
 	// test all presets
 
