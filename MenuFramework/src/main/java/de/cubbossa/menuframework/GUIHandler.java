@@ -46,6 +46,8 @@ public class GUIHandler {
 			getLogger().log(Level.SEVERE, "Error occured while filling menu " + e.getMenu().getClass() + " at slot " + e.getSlot() + " for player " + e.getPlayer(), t);
 		} else if (t instanceof CloseMenuException e) {
 			getLogger().log(Level.SEVERE, "Error occured while closing menu " + e.getMenu().getClass(), t);
+		} else {
+			t.printStackTrace();
 		}
 	};
 
