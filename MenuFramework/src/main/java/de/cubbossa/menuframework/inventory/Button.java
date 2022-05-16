@@ -29,6 +29,10 @@ public class Button {
     private float volume = .8f;
     private final Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler = new HashMap<>();
 
+    protected Button() {
+
+    }
+
     public static Button builder() {
         return new Button();
     }
