@@ -23,6 +23,7 @@ import org.bukkit.inventory.*;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @SuppressWarnings("unchecked")
@@ -41,7 +42,7 @@ public class MenuPresets {
     public static ItemStack RIGHT_DISABLED = ItemStackUtils.createItemStack(Material.MAP, Component.text("Next", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false), null);
     public static ItemStack LEFT_DISABLED = ItemStackUtils.createItemStack(Material.MAP, Component.text("Previous", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false), null);
 
-    public static ListMenuSupplier<Player> PLAYER_LIST_SUPPLIER = new ListMenuSupplier<>() {
+    public static ListMenuSupplier<Player> PLAYER_LIST_SUPPLIER = new ListMenuSupplier<Player>() {
         @Override
         public Collection<Player> getElements() {
             return (Collection<Player>) Bukkit.getOnlinePlayers();
@@ -139,7 +140,8 @@ public class MenuPresets {
 
     public static MenuPreset<?> back(int slot, Action<?>... actions) {
         return applier -> {
-            if (applier.getMenu() instanceof TopInventoryMenu topMenu) {
+            if (applier.getMenu() instanceof TopMenu) {
+                TopMenu topMenu = (TopMenu) applier.getMenu();
                 applier.addItemOnTop(slot, BACK);
                 for (Action<?> action : actions) {
                     applier.addClickHandlerOnTop(slot, action, c -> {
@@ -427,7 +429,8 @@ public class MenuPresets {
         listMenu.addPreset(fillRow(FILLER_DARK, rows - 1));
         listMenu.addPreset(paginationRow(rows - 1, 0, 1, false, Action.LEFT));
 
-        if (supplier instanceof ListMenuManagerSupplier<T> manager) {
+        if (supplier instanceof ListMenuManagerSupplier) {
+            ListMenuManagerSupplier<T> manager = (ListMenuManagerSupplier<T>) supplier;
 
             for (T object : supplier.getElements()) {
                 listMenu.addListEntry(Button.builder()
@@ -474,7 +477,9 @@ public class MenuPresets {
         InventoryMenu workbench = new InventoryMenu(InventoryType.WORKBENCH, title);
         workbench.setItem(0, stack);
 
-        List<Recipe> recipes = Bukkit.getRecipesFor(stack).stream().filter(recipe -> recipe instanceof ShapedRecipe || recipe instanceof ShapelessRecipe).toList();
+        List<Recipe> recipes = Bukkit.getRecipesFor(stack).stream()
+                .filter(recipe -> recipe instanceof ShapedRecipe || recipe instanceof ShapelessRecipe)
+                .collect(Collectors.toList());
         ItemStack[][] animationMap = new ItemStack[9][recipes.size()];
 
         // No recipes -> return empty crafting table view
@@ -484,7 +489,8 @@ public class MenuPresets {
 
         int recipeIndex = 0;
         for (Recipe recipe : recipes) {
-            if (recipe instanceof ShapedRecipe shapedRecipe) {
+            if (recipe instanceof ShapedRecipe) {
+                ShapedRecipe shapedRecipe = (ShapedRecipe) recipe;
                 String combined = concatShape(shapedRecipe.getShape());
                 for (int slotIndex = 0; slotIndex < 9; slotIndex++) {
                     if (combined.charAt(slotIndex) == ' ') {
@@ -493,9 +499,9 @@ public class MenuPresets {
                     animationMap[slotIndex][recipeIndex] = shapedRecipe.getIngredientMap().get(combined.charAt(slotIndex));
                 }
 
-            } else if (recipe instanceof ShapelessRecipe shapelessRecipe) {
+            } else if (recipe instanceof ShapelessRecipe) {
                 int slotIndex = 0;
-                for (ItemStack s : shapelessRecipe.getIngredientList()) {
+                for (ItemStack s : ((ShapelessRecipe) recipe).getIngredientList()) {
                     animationMap[slotIndex++][recipeIndex] = s;
                 }
             }
@@ -532,7 +538,9 @@ public class MenuPresets {
         furnace.setItem(1, new ItemStack(Material.COAL));
         furnace.setItem(2, stack);
 
-        List<Recipe> recipes = Bukkit.getRecipesFor(stack).stream().filter(recipe -> recipe instanceof FurnaceRecipe).toList();
+        List<Recipe> recipes = Bukkit.getRecipesFor(stack).stream()
+                .filter(recipe -> recipe instanceof FurnaceRecipe)
+                .collect(Collectors.toList());
         ItemStack[] animationMap = new ItemStack[recipes.size()];
 
         // No recipes -> return empty crafting table view
@@ -542,8 +550,8 @@ public class MenuPresets {
 
         int recipeIndex = 0;
         for (Recipe recipe : recipes) {
-            if (recipe instanceof FurnaceRecipe furnaceRecipe) {
-                animationMap[recipeIndex] = furnaceRecipe.getInput();
+            if (recipe instanceof FurnaceRecipe) {
+                animationMap[recipeIndex] = ((FurnaceRecipe) recipe).getInput();
             }
             recipeIndex++;
         }

@@ -10,6 +10,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class ItemStackUtils {
@@ -19,7 +20,7 @@ public class ItemStackUtils {
 		ItemMeta meta = stack.getItemMeta();
 		meta.setDisplayName(ChatUtils.toLegacy(name));
 		if (lore != null) {
-			meta.setLore(lore.stream().map(ChatUtils::toLegacy).toList());
+			meta.setLore(lore.stream().map(ChatUtils::toLegacy).collect(Collectors.toList()));
 		}
 		stack.setItemMeta(meta);
 		return stack;
@@ -35,12 +36,12 @@ public class ItemStackUtils {
 
 	public ItemStack createCustomHead(ItemStack itemStack, OfflinePlayer player) {
 		ItemMeta itemMeta = itemStack.getItemMeta();
-		if (itemMeta instanceof SkullMeta meta) {
-			meta.setOwningPlayer(player);
-			itemStack.setItemMeta(meta);
+		if (itemMeta instanceof SkullMeta) {
+			((SkullMeta) itemMeta).setOwningPlayer(player);
 		} else {
 			throw new UnsupportedOperationException("Trying to add a skull texture to a non-playerhead item");
 		}
+		itemStack.setItemMeta(itemMeta);
 		return itemStack;
 	}
 }

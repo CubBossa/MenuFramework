@@ -12,10 +12,7 @@ import lombok.Setter;
 import net.kyori.adventure.text.ComponentLike;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -134,7 +131,9 @@ public class ListMenu extends RectInventoryMenu {
     }
 
     public <T> List<ListElement> addListEntries(Collection<T> elements, Function<T, ItemStack> itemSupplier, Action<?> action, ContextConsumer<TargetContext<T>> clickHandler) {
-        return addListEntries(elements, itemSupplier, Map.of(action, clickHandler));
+        Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> map = new HashMap<>();
+        map.put(action, clickHandler);
+        return addListEntries(elements, itemSupplier, map);
     }
 
 

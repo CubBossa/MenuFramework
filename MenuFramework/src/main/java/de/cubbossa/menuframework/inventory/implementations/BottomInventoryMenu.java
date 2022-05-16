@@ -9,6 +9,7 @@ import org.bukkit.inventory.Inventory;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class BottomInventoryMenu extends AbstractMenu implements BottomMenu {
@@ -22,7 +23,7 @@ public class BottomInventoryMenu extends AbstractMenu implements BottomMenu {
         // turn each row into its range from 0 -> 9 and then flatmap to one list and convert to array
         this(Arrays.stream(rows)
                 .map(inventoryRow -> IntStream.range(inventoryRow.ordinal() * 9, inventoryRow.ordinal() * 9 + 9)
-                        .boxed().toList())
+                        .boxed().collect(Collectors.toList()))
                 .flatMap(List::stream)
                 .mapToInt(Integer::intValue)
                 .toArray());
