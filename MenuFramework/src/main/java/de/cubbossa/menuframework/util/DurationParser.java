@@ -1,5 +1,6 @@
 package de.cubbossa.menuframework.util;
 
+import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 
 import java.time.Duration;
@@ -27,7 +28,7 @@ public class DurationParser {
 
 	public DurationParser(boolean displayEmptyUnits, ChronoUnit... displayedUnits) {
 		this.displayEmptyUnits = displayEmptyUnits;
-		this.displayedUnits = new ArrayList<>(List.of(displayedUnits));
+		this.displayedUnits = new ArrayList<>(Lists.newArrayList(displayedUnits));
 	}
 
 	public String format(Duration duration) {
