@@ -5,7 +5,6 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import com.sun.java.accessibility.util.GUIInitializedListener;
 import de.cubbossa.menuframework.GUIHandler;
 import de.cubbossa.menuframework.inventory.InvMenuHandler;
 import de.cubbossa.menuframework.inventory.Menu;
@@ -41,8 +40,8 @@ public class ProtocolLibListener extends PacketAdapter implements MenuListener {
 
 	@Override
 	public void register(Menu menu) {
-		if (menu instanceof AnvilMenu anvilMenu) {
-			menus.add(anvilMenu);
+		if (menu instanceof AnvilMenu) {
+			menus.add((AnvilMenu) menu);
 		}
 	}
 

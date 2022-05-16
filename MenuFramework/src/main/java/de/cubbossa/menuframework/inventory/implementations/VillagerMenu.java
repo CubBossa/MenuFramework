@@ -1,5 +1,6 @@
 package de.cubbossa.menuframework.inventory.implementations;
 
+import com.google.common.collect.Lists;
 import de.cubbossa.menuframework.GUIHandler;
 import de.cubbossa.menuframework.inventory.Action;
 import de.cubbossa.menuframework.inventory.Button;
@@ -8,6 +9,7 @@ import de.cubbossa.menuframework.inventory.context.TargetContext;
 import de.cubbossa.menuframework.inventory.exception.MenuHandlerException;
 import de.cubbossa.menuframework.util.ChatUtils;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.ComponentLike;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -16,7 +18,6 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.*;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -26,8 +27,11 @@ public class VillagerMenu extends InventoryMenu {
     public static final Action<TargetContext<MerchantRecipe>> TRADE_SELECT = new Action<>();
     public static final Action<TargetContext<MerchantRecipe>> ATTEMPT_BUY = new Action<>();
 
-    public record TradeButton(MerchantRecipe recipe,
-                              Map<Action<? extends TargetContext<?>>, ContextConsumer<? extends TargetContext<?>>> clickHandler) {
+    @RequiredArgsConstructor
+    @Getter
+    public static class TradeButton {
+        private final MerchantRecipe recipe;
+        private final Map<Action<? extends TargetContext<?>>, ContextConsumer<? extends TargetContext<?>>> clickHandler;
     }
 
     @Getter
@@ -64,7 +68,7 @@ public class VillagerMenu extends InventoryMenu {
     @Override
     public Inventory createInventory(Player player, int page) {
         merchant = Bukkit.createMerchant(ChatUtils.toLegacy(getTitle()));
-        merchant.setRecipes(offers.stream().map(TradeButton::recipe).collect(Collectors.toList()));
+        merchant.setRecipes(offers.stream().map(TradeButton::getRecipe).collect(Collectors.toList()));
 
         InventoryView view = player.openMerchant(merchant, true);
         return view == null ? null : view.getInventory(0);
@@ -166,7 +170,7 @@ public class VillagerMenu extends InventoryMenu {
 
         public MerchantRecipe build() {
             MerchantRecipe recipe = new MerchantRecipe(c, uses, maxUses, experience != -1, experience, priceMultiplier);
-            recipe.setIngredients(b == null ? List.of(a) : List.of(a, b));
+            recipe.setIngredients(b == null ? Lists.newArrayList(a) : Lists.newArrayList(a, b));
             if (specialPrice != -1) {
                 recipe.setSpecialPrice(specialPrice);
             }

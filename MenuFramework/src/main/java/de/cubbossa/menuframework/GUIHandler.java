@@ -35,17 +35,19 @@ public class GUIHandler {
 	@Getter
 	@Setter
 	private Consumer<Exception> exceptionHandler = t -> {
-		if (t instanceof MenuHandlerException e) {
+		if (t instanceof MenuHandlerException) {
+			MenuHandlerException e = (MenuHandlerException) t;
 			e.getContext().setCancelled(true);
 			audiences.player(e.getContext().getPlayer()).sendMessage(Component.text("Something went wrong when executing this button action. Please contact an administrator.", NamedTextColor.RED));
 			getLogger().log(Level.SEVERE, "Error occured while interacting with menu " + e.getMenu().getClass() + " at slot " + e.getContext().getSlot(), t);
-		} else if (t instanceof OpenMenuException e) {
-			audiences.player(e.getContext().getPlayer()).sendMessage(Component.text("Something went wrong when opening a menu. Please contact an administrator.", NamedTextColor.RED));
-			getLogger().log(Level.SEVERE, "Error occured while opening menu " + e.getMenu().getClass(), t);
-		} else if (t instanceof ItemPlaceException e) {
+		} else if (t instanceof OpenMenuException) {
+			audiences.player(((OpenMenuException) t).getContext().getPlayer()).sendMessage(Component.text("Something went wrong when opening a menu. Please contact an administrator.", NamedTextColor.RED));
+			getLogger().log(Level.SEVERE, "Error occured while opening menu " + ((OpenMenuException) t).getMenu().getClass(), t);
+		} else if (t instanceof ItemPlaceException) {
+			ItemPlaceException e = (ItemPlaceException) t;
 			getLogger().log(Level.SEVERE, "Error occured while filling menu " + e.getMenu().getClass() + " at slot " + e.getSlot() + " for player " + e.getPlayer(), t);
-		} else if (t instanceof CloseMenuException e) {
-			getLogger().log(Level.SEVERE, "Error occured while closing menu " + e.getMenu().getClass(), t);
+		} else if (t instanceof CloseMenuException) {
+			getLogger().log(Level.SEVERE, "Error occured while closing menu " + ((CloseMenuException) t).getMenu().getClass(), t);
 		}
 	};
 

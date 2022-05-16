@@ -88,7 +88,7 @@ public class AnvilMenu extends TopInventoryMenu {
         boolean cancelled = super.handleInteract(action, context);
         if (context.getAction().equals(Action.LEFT)) {
             String renameText = ((AnvilInventory) inventory).getRenameText();
-            var c = new TargetContext<>(context.getPlayer(), context.getMenu(), context.getSlot(), CONFIRM, true, renameText.isEmpty() ? startText : renameText);
+            TargetContext<String> c = new TargetContext<>(context.getPlayer(), context.getMenu(), context.getSlot(), CONFIRM, true, renameText.isEmpty() ? startText : renameText);
             return super.handleInteract(CONFIRM, c);
         }
         return cancelled;

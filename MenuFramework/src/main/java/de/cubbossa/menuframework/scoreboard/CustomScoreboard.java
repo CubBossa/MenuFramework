@@ -1,9 +1,11 @@
 package de.cubbossa.menuframework.scoreboard;
 
+import com.google.common.collect.Lists;
 import de.cubbossa.menuframework.chat.ChatMenu;
 import de.cubbossa.menuframework.util.Animation;
 import de.cubbossa.menuframework.util.ChatUtils;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.format.TextColor;
@@ -20,7 +22,18 @@ import java.util.function.Supplier;
 
 public class CustomScoreboard {
 
-    record Entry(String key, Supplier<ComponentLike> componentSupplier) {
+    @RequiredArgsConstructor
+    public static class Entry {
+        private final String key;
+        private final Supplier<ComponentLike> componentSupplier;
+
+        public String key() {
+            return key;
+        }
+
+        public Supplier<ComponentLike> componentSupplier() {
+            return componentSupplier;
+        }
     }
 
     @Getter
@@ -242,7 +255,7 @@ public class CustomScoreboard {
      * @return the index of the next free line after inserting the word wrapped text
      */
     public int setLine(int line, String text, int lineLength, TextColor color, int limit) {
-        List<String> lines = List.of(ChatUtils.wordWrap(text, "\n", lineLength).split("\n"));
+        List<String> lines = Lists.newArrayList(ChatUtils.wordWrap(text, "\n", lineLength).split("\n"));
         for (int i = 0; i < lines.size(); i++) {
             String string = lines.get(i);
             if (i >= line + limit - 1) {

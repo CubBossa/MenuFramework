@@ -24,20 +24,33 @@ public class Action<C extends TargetContext<?>> {
     public static final Action<ClickContext> UNKNOWN = new Action<>();
 
     public static Action<ClickContext> fromClickType(ClickType clickType) {
-        return switch (clickType) {
-            case LEFT, CREATIVE -> Action.LEFT;
-            case SHIFT_LEFT -> Action.SHIFT_LEFT;
-            case RIGHT -> Action.RIGHT;
-            case SHIFT_RIGHT -> Action.SHIFT_RIGHT;
-            case WINDOW_BORDER_LEFT -> Action.WINDOW_BORDER_LEFT;
-            case WINDOW_BORDER_RIGHT -> Action.WINDOW_BORDER_RIGHT;
-            case MIDDLE -> Action.MIDDLE;
-            case NUMBER_KEY -> Action.NUMBER_KEY;
-            case DROP -> Action.INVENTORY_DROP;
-            case CONTROL_DROP -> Action.CONTROL_DROP;
-            case SWAP_OFFHAND -> Action.SWAP_OFFHAND;
-            default -> Action.UNKNOWN;
-        };
+        switch (clickType) {
+            case LEFT:
+            case CREATIVE:
+                return Action.LEFT;
+            case SHIFT_LEFT:
+                return Action.SHIFT_LEFT;
+            case RIGHT:
+                return Action.RIGHT;
+            case SHIFT_RIGHT:
+                return Action.SHIFT_RIGHT;
+            case WINDOW_BORDER_LEFT:
+                return Action.WINDOW_BORDER_LEFT;
+            case WINDOW_BORDER_RIGHT:
+                return Action.WINDOW_BORDER_RIGHT;
+            case MIDDLE:
+                return Action.MIDDLE;
+            case NUMBER_KEY:
+                return Action.NUMBER_KEY;
+            case DROP:
+                return Action.INVENTORY_DROP;
+            case CONTROL_DROP:
+                return Action.CONTROL_DROP;
+            case SWAP_OFFHAND:
+                return Action.SWAP_OFFHAND;
+            default:
+                return Action.UNKNOWN;
+        }
     }
 
     public static Action<ClickContext> HOTBAR_DROP = new Action<>();

@@ -200,7 +200,7 @@ public abstract class AbstractMenu implements Menu {
         }
 
         OpenContext openContext = new OpenContext(viewer, this);
-        for (var c : openHandlers) {
+        for (ContextConsumer<OpenContext> c : openHandlers) {
             try {
                 c.accept(openContext);
             } catch (Exception e) {
@@ -256,7 +256,7 @@ public abstract class AbstractMenu implements Menu {
             lastClose();
         }
         CloseContext closeContext = new CloseContext(viewer, this, getCurrentPage());
-        for (var c : closeHandlers) {
+        for (ContextConsumer<CloseContext> c : closeHandlers) {
             try {
                 c.accept(closeContext);
             } catch (Exception exc) {
@@ -376,7 +376,7 @@ public abstract class AbstractMenu implements Menu {
     public ContextConsumer<? extends TargetContext<?>> getClickHandler(int slot, Action<?> action) {
         int fixedSlot = slot % slotsPerPage;
         fixedSlot = fixedSlot < 0 ? fixedSlot + slotsPerPage : fixedSlot;
-        var result = dynamicClickHandlerOnTop.getOrDefault(fixedSlot, new HashMap<>()).get(action);
+        ContextConsumer<? extends TargetContext<?>> result = dynamicClickHandlerOnTop.getOrDefault(fixedSlot, new HashMap<>()).get(action);
         if (result != null) {
             return result;
         }
@@ -408,7 +408,9 @@ public abstract class AbstractMenu implements Menu {
     }
 
     public <C extends TargetContext<?>> void setClickHandler(int slot, Action<C> action, ContextConsumer<C> clickHandler) {
-        setClickHandler(slot, Map.of(action, clickHandler));
+        Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> map = new HashMap<>();
+        map.put(action, clickHandler);
+        setClickHandler(slot, map);
     }
 
     public void setClickHandler(int slot, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler) {

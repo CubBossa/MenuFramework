@@ -2,6 +2,6 @@ author: CubBossa
 name: menu-framework-testing
 version: 1.1.4
 main: de.cubbossa.menuframework.testing.TestMain
-api-version: 1.16
+api-version: 1.8
 depend:
   - ProtocolLib
