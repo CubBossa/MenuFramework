@@ -1,7 +1,8 @@
 package de.cubbossa.menuframework.inventory.panel;
 
+import de.cubbossa.menuframework.inventory.context.TargetContext;
 import de.cubbossa.menuframework.inventory.exception.ItemPlaceException;
-import org.bukkit.entity.Player;
+import de.cubbossa.menuframework.inventory.exception.MenuHandlerException;
 
 import java.util.List;
 
@@ -11,9 +12,7 @@ public interface Panel {
 
 	int[] getSlots();
 
-	void setOffsetInherited(boolean inherited);
-
-	boolean isOffsetInherited();
+	boolean isPanelSlot(int slot);
 
 	void setOffset(int offset);
 
@@ -27,5 +26,7 @@ public interface Panel {
 
 	void setSubPanel(Panel subPanel);
 
-	void render(Player player) throws ItemPlaceException;
+	void render(int slot) throws ItemPlaceException;
+
+	boolean perform(int slot, TargetContext<?> context) throws MenuHandlerException;
 }

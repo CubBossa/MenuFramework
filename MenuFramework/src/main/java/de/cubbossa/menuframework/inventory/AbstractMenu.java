@@ -9,6 +9,7 @@ import de.cubbossa.menuframework.inventory.exception.CloseMenuException;
 import de.cubbossa.menuframework.inventory.exception.ItemPlaceException;
 import de.cubbossa.menuframework.inventory.exception.MenuHandlerException;
 import de.cubbossa.menuframework.inventory.exception.OpenMenuException;
+import de.cubbossa.menuframework.inventory.panel.SimplePanel;
 import de.cubbossa.menuframework.util.Animation;
 import lombok.Getter;
 import org.bukkit.NamespacedKey;
@@ -24,7 +25,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @Getter
-public abstract class AbstractMenu implements Menu {
+public abstract class AbstractMenu extends SimplePanel implements Menu {
 
     protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> clickHandler;
     protected @Nullable ContextConsumer<? extends TargetContext<?>> fallbackDefaultClickHandler = null;
@@ -82,12 +83,12 @@ public abstract class AbstractMenu implements Menu {
     protected final Map<UUID, ViewMode> viewer;
 
     protected final int slotsPerPage;
-    //protected int getCurrentPage() = 0;
     protected int offset = 0;
 
     protected Inventory inventory;
 
-    public AbstractMenu(int slotsPerPage) {
+    public AbstractMenu(int[] slots, int slotsPerPage) {
+        super(slots);
 
         this.itemStacks = new TreeMap<>();
         this.soundPlayer = new TreeMap<>();
@@ -104,9 +105,6 @@ public abstract class AbstractMenu implements Menu {
         this.openHandlers = new ArrayList<>();
         this.closeHandlers = new ArrayList<>();
     }
-
-
-    public abstract int[] getSlots();
 
     protected abstract Inventory createInventory(Player player, int page);
 
