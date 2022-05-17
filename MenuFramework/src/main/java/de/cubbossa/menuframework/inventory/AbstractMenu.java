@@ -9,6 +9,7 @@ import de.cubbossa.menuframework.inventory.exception.CloseMenuException;
 import de.cubbossa.menuframework.inventory.exception.ItemPlaceException;
 import de.cubbossa.menuframework.inventory.exception.MenuHandlerException;
 import de.cubbossa.menuframework.inventory.exception.OpenMenuException;
+import de.cubbossa.menuframework.inventory.panel.MenuIcon;
 import de.cubbossa.menuframework.inventory.panel.SimplePanel;
 import de.cubbossa.menuframework.util.Animation;
 import lombok.Getter;
@@ -21,60 +22,50 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @Getter
 public abstract class AbstractMenu extends SimplePanel implements Menu {
 
-    protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> clickHandler;
-    protected @Nullable ContextConsumer<? extends TargetContext<?>> fallbackDefaultClickHandler = null;
-    protected final Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> defaultClickHandler;
-
-    protected final SortedMap<Integer, Supplier<ItemStack>> itemStacks;
-    protected final SortedMap<Integer, Consumer<Player>> soundPlayer;
-
-    protected final List<MenuPreset<? extends TargetContext<?>>> dynamicProcessors;
-    protected final SortedMap<Integer, ItemStack> dynamicItemStacks;
-    protected final SortedMap<Integer, ItemStack> dynamicItemStacksOnTop;
-    protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> dynamicClickHandler;
-    protected final SortedMap<Integer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>>> dynamicClickHandlerOnTop;
-
-
+    @Getter
     protected final MenuPreset.PresetApplier applier = new MenuPreset.PresetApplier(this) {
+
         @Override
         public void addItem(int slot, ItemStack itemStack) {
-            dynamicItemStacks.put(slot, itemStack);
+            getDynamicItemStacks().put(slot, itemStack);
         }
 
         @Override
         public void addItem(int slot, Supplier<ItemStack> itemStack) {
-            dynamicItemStacks.put(slot, itemStack.get());
+            getDynamicItemStacks().put(slot, itemStack.get());
         }
 
         public void addItemOnTop(int slot, ItemStack itemStack) {
-            dynamicItemStacksOnTop.put(slot, itemStack);
+            getDynamicItemStacksOnTop().put(slot, itemStack);
         }
 
         @Override
         public void addItemOnTop(int slot, Supplier<ItemStack> itemStack) {
-            dynamicItemStacksOnTop.put(slot, itemStack.get());
+            getDynamicItemStacksOnTop().put(slot, itemStack.get());
         }
 
         @Override
         public <C extends TargetContext<?>> void addClickHandler(int slot, Action<C> action, ContextConsumer<C> clickHandler) {
-            Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> map = dynamicClickHandler.getOrDefault(slot, new HashMap<>());
+            Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> map = getDynamicClickHandler().getOrDefault(slot, new HashMap<>());
             map.put(action, clickHandler);
-            dynamicClickHandler.put(slot, map);
+            getDynamicClickHandler().put(slot, map);
         }
 
         @Override
         public <C extends TargetContext<?>> void addClickHandlerOnTop(int slot, Action<C> action, ContextConsumer<C> clickHandler) {
-            Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> map = dynamicClickHandlerOnTop.getOrDefault(slot, new HashMap<>());
+            Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> map = getDynamicClickHandlerOnTop().getOrDefault(slot, new HashMap<>());
             map.put(action, clickHandler);
-            dynamicClickHandlerOnTop.put(slot, map);
+            getDynamicClickHandlerOnTop().put(slot, map);
         }
     };
+
+    protected @Nullable ContextConsumer<? extends TargetContext<?>> fallbackDefaultClickHandler = null;
+    protected final Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> defaultClickHandler;
 
     protected List<ContextConsumer<OpenContext>> openHandlers;
     protected List<ContextConsumer<CloseContext>> closeHandlers;
@@ -90,17 +81,9 @@ public abstract class AbstractMenu extends SimplePanel implements Menu {
     public AbstractMenu(int[] slots, int slotsPerPage) {
         super(slots);
 
-        this.itemStacks = new TreeMap<>();
-        this.soundPlayer = new TreeMap<>();
-        this.dynamicProcessors = new ArrayList<>();
-        this.dynamicItemStacks = new TreeMap<>();
-        this.dynamicClickHandler = new TreeMap<>();
-        this.dynamicItemStacksOnTop = new TreeMap<>();
-        this.dynamicClickHandlerOnTop = new TreeMap<>();
         this.animations = new TreeMap<>();
         this.viewer = new HashMap<>();
         this.slotsPerPage = slotsPerPage;
-        this.clickHandler = new TreeMap<>();
         this.defaultClickHandler = new HashMap<>();
         this.openHandlers = new ArrayList<>();
         this.closeHandlers = new ArrayList<>();
@@ -138,33 +121,24 @@ public abstract class AbstractMenu extends SimplePanel implements Menu {
         });
     }
 
-    public void setNextPage(Player player) {
-        addOffset(player, slotsPerPage);
+    public void setNextPage() {
+        addOffset(slotsPerPage);
     }
 
-    public void setPreviousPage(Player player) {
-        removeOffset(player, slotsPerPage);
+    public void setPreviousPage() {
+        removeOffset(slotsPerPage);
     }
 
-    public void setPage(Player player, int page) {
-        this.setOffset(player, page * slotsPerPage);
+    public void setPage(int page) {
+        this.setOffset(page * slotsPerPage);
     }
 
-    public void setOffset(Player player, int offset) {
-        this.offset = offset;
-        try {
-            render(player, true);
-        } catch (ItemPlaceException e) {
-            GUIHandler.getInstance().getExceptionHandler().accept(e);
-        }
+    public void addOffset(int offset) {
+        this.setOffset(this.offset + offset);
     }
 
-    public void addOffset(Player player, int offset) {
-        this.setOffset(player, this.offset + offset);
-    }
-
-    public void removeOffset(Player player, int offset) {
-        this.setOffset(player, this.offset - offset);
+    public void removeOffset(int offset) {
+        this.setOffset(this.offset - offset);
     }
 
     public void openSync(Player viewer) {
@@ -218,19 +192,8 @@ public abstract class AbstractMenu extends SimplePanel implements Menu {
             clearContent();
         }
 
-        refreshDynamicItemSuppliers();
-
         for (int slot : getSlots()) {
-            try {
-                ItemStack item = getItemStack(slot + offset);
-                if (item == null) {
-                    continue;
-                }
-                inventory.setItem(slot, item.clone());
-
-            } catch (Throwable t) {
-                throw new ItemPlaceException(this, viewer, slot, t);
-            }
+            render(slot);
         }
     }
 
@@ -263,17 +226,14 @@ public abstract class AbstractMenu extends SimplePanel implements Menu {
         }
     }
 
+    @Deprecated
     public MenuPreset<? extends TargetContext<?>> addPreset(MenuPreset<? extends TargetContext<?>> menuPreset) {
-        dynamicProcessors.add(menuPreset);
+        try {
+            menuPreset.placeDynamicEntries(applier);
+            applier.generate().forEach(this::addSubPanel);
+        } catch (Throwable ignored) {
+        }
         return menuPreset;
-    }
-
-    public void removePreset(MenuPreset<? extends TargetContext<?>> menuPreset) {
-        dynamicProcessors.remove(menuPreset);
-    }
-
-    public void removeAllPresets() {
-        dynamicProcessors.clear();
     }
 
     public void clearContent() {
@@ -283,24 +243,6 @@ public abstract class AbstractMenu extends SimplePanel implements Menu {
         for (int slot : getSlots()) {
             inventory.setItem(slot, null);
         }
-    }
-
-    public ItemStack getItemStack(int slot) {
-        int staticSlot = slot - offset;
-        ItemStack stack = dynamicItemStacksOnTop.get(staticSlot);
-        if (stack != null) {
-            return tagStack(stack);
-        }
-        stack = getStaticItemStack(slot);
-        if (stack != null) {
-            return tagStack(stack);
-        }
-        return tagStack(dynamicItemStacks.get(staticSlot));
-    }
-
-    protected ItemStack getStaticItemStack(int slot) {
-        Supplier<ItemStack> supplier = itemStacks.get(slot);
-        return supplier == null ? null : supplier.get();
     }
 
     private ItemStack tagStack(@Nullable ItemStack stack) {
@@ -318,35 +260,28 @@ public abstract class AbstractMenu extends SimplePanel implements Menu {
     }
 
     public void setItem(int slot, Supplier<ItemStack> itemSupplier) {
-        itemStacks.put(slot, itemSupplier);
-    }
-
-    public void removeItem(int... slots) {
-        for (int slot : slots) {
-            if (inventory != null) {
-                inventory.setItem(slot, null);
-            }
-            itemStacks.remove(slot);
-        }
+        setButton(slot, Button.builder().withItemStack(itemSupplier));
     }
 
     public void refresh(int... slots) {
         if (inventory == null) {
             return;
         }
-        int page = getCurrentPage();
         for (int slot : slots) {
-            int realIndex = page * slotsPerPage + slot;
-            inventory.setItem(slot, getItemStack(realIndex));
+            try {
+                render(slot + offset);
+            } catch (ItemPlaceException e) {
+                GUIHandler.getInstance().getExceptionHandler().accept(e);
+            }
         }
     }
 
-    public <C extends TargetContext<?>> boolean handleInteract(Action<C> action, C context) {
+    public <T, C extends TargetContext<T>> boolean handleInteract(C context) {
 
         Player player = context.getPlayer();
         int slot = context.getSlot();
 
-        if (Arrays.stream(getSlots()).noneMatch(value -> value == slot)) {
+        if (!isPanelSlot(slot)) {
             return false;
         }
         if (viewer.containsKey(player.getUniqueId()) && viewer.get(player.getUniqueId()).equals(ViewMode.VIEW)) {
@@ -354,55 +289,12 @@ public abstract class AbstractMenu extends SimplePanel implements Menu {
         }
 
         int actualSlot = slot + offset;
-        if (soundPlayer.containsKey(actualSlot)) {
-            soundPlayer.get(actualSlot).accept(context.getPlayer());
-        }
-
-        ContextConsumer<C> clickHandler = (ContextConsumer<C>) getClickHandler(actualSlot, action);
-
-        if (clickHandler != null) {
-            //execute and catch exceptions so users can't dupe itemstacks.
-            try {
-                clickHandler.accept(context);
-            } catch (Exception exc) {
-                GUIHandler.getInstance().getExceptionHandler().accept(new MenuHandlerException(context, exc));
-            }
+        try {
+            perform(actualSlot, context);
+        } catch (Exception exc) {
+            GUIHandler.getInstance().getExceptionHandler().accept(new MenuHandlerException(context, exc));
         }
         return context.isCancelled();
-    }
-
-    public ContextConsumer<? extends TargetContext<?>> getClickHandler(int slot, Action<?> action) {
-        int fixedSlot = slot % slotsPerPage;
-        fixedSlot = fixedSlot < 0 ? fixedSlot + slotsPerPage : fixedSlot;
-        ContextConsumer<? extends TargetContext<?>> result = dynamicClickHandlerOnTop.getOrDefault(fixedSlot, new HashMap<>()).get(action);
-        if (result != null) {
-            return result;
-        }
-        result = getStaticClickHandler(slot, action);
-        if (result != null) {
-            return result;
-        }
-        result = dynamicClickHandler.getOrDefault(fixedSlot, new HashMap<>()).get(action);
-        if (result != null) {
-            return result;
-        }
-        return defaultClickHandler.getOrDefault(action, fallbackDefaultClickHandler);
-    }
-
-    protected ContextConsumer<? extends TargetContext<?>> getStaticClickHandler(int slot, Action<?> action) {
-        return clickHandler.getOrDefault(slot, new HashMap<>()).get(action);
-    }
-
-    public void setButton(int slot, Button button) {
-        if (button.getStackSupplier() != null) {
-            setItem(slot, button.getStackSupplier());
-        }
-        if (button.getSound() != null) {
-            soundPlayer.put(slot, player -> player.playSound(player.getLocation(), button.getSound(), button.getVolume(), button.getPitch()));
-        }
-        if (!button.getClickHandler().isEmpty()) {
-            setClickHandler(slot, button.getClickHandler());
-        }
     }
 
     public <C extends TargetContext<?>> void setClickHandler(int slot, Action<C> action, ContextConsumer<C> clickHandler) {
@@ -412,19 +304,15 @@ public abstract class AbstractMenu extends SimplePanel implements Menu {
     }
 
     public void setClickHandler(int slot, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler) {
-        Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> map = this.clickHandler.getOrDefault(slot, new HashMap<>());
-        map.putAll(clickHandler);
-        this.clickHandler.put(slot, map);
+        setButton(slot, Button.builder().withClickHandler(clickHandler));
     }
 
     public <C extends TargetContext<?>> void setItemAndClickHandler(int slot, ItemStack item, Action<C> action, ContextConsumer<C> clickHandler) {
-        setItem(slot, item);
-        setClickHandler(slot, action, clickHandler);
+        setButton(slot, Button.builder().withItemStack(item).withClickHandler(action, clickHandler));
     }
 
     public <C extends TargetContext<?>> void setItemAndClickHandler(int slot, Supplier<ItemStack> item, Action<C> action, ContextConsumer<C> clickHandler) {
-        setItem(slot, item);
-        setClickHandler(slot, action, clickHandler);
+        setButton(slot, Button.builder().withItemStack(item).withClickHandler(action, clickHandler));
     }
 
     public void setDefaultClickHandler(ContextConsumer<? extends TargetContext<?>> clickHandler) {
@@ -461,40 +349,6 @@ public abstract class AbstractMenu extends SimplePanel implements Menu {
         closeHandlers.clear();
     }
 
-    public void removeClickHandler(int... slots) {
-        for (int slot : slots) {
-            clickHandler.remove(slot);
-        }
-    }
-
-    public void removeClickHandler(Action<?> action, int... slots) {
-        for (int slot : slots) {
-            Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> map = clickHandler.get(slot);
-            if (map != null) {
-                map.remove(action);
-            }
-        }
-    }
-
-    public void removeItemAndClickHandler(int... slots) {
-        for (int slot : slots) {
-            inventory.setItem(slot, null);
-            itemStacks.remove(slot);
-            clickHandler.remove(slot);
-        }
-    }
-
-    public void removeItemAndClickHandler(Action<?> action, int... slots) {
-        for (int slot : slots) {
-            inventory.setItem(slot, null);
-            itemStacks.remove(slot);
-            Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> map = clickHandler.get(slot);
-            if (map != null) {
-                map.remove(action);
-            }
-        }
-    }
-
     public void removeDefaultClickHandler(Action<?> action) {
         defaultClickHandler.remove(action);
     }
@@ -507,28 +361,18 @@ public abstract class AbstractMenu extends SimplePanel implements Menu {
         return getMaxPage() - getMinPage();
     }
 
-    public void refreshDynamicItemSuppliers() throws ItemPlaceException {
-        dynamicItemStacks.clear();
-        dynamicClickHandler.clear();
-        dynamicItemStacksOnTop.clear();
-        dynamicClickHandlerOnTop.clear();
-
-        for (MenuPreset<?> processor : dynamicProcessors) {
-            try {
-                processor.placeDynamicEntries(applier);
-            } catch (Throwable t) {
-                throw new ItemPlaceException(this, t);
-            }
-        }
-    }
-
     public int getCurrentPage() {
         return (int) Math.floor((double) offset / slotsPerPage);
     }
 
     public int getMinPage() {
         int minPage = 0;
-        int smallestSlot = Integer.min(itemStacks.isEmpty() ? 0 : itemStacks.firstKey(), clickHandler.isEmpty() ? 0 : clickHandler.firstKey());
+
+        int smallestSlot = getSubPanels().stream()
+                .filter(panel -> panel instanceof MenuIcon)
+                .map(panel -> ((MenuIcon) panel).getSlot())
+                .min(Integer::compareTo).orElse(0);
+
         boolean negative = smallestSlot < 0;
         while (negative && smallestSlot < -slotsPerPage || !negative && smallestSlot > slotsPerPage) {
             if (negative) {
@@ -544,7 +388,12 @@ public abstract class AbstractMenu extends SimplePanel implements Menu {
 
     public int getMaxPage() {
         int maxPage = 0;
-        int highestSlot = Integer.max(itemStacks.isEmpty() ? 0 : itemStacks.lastKey(), clickHandler.isEmpty() ? 0 : clickHandler.lastKey());
+
+        int highestSlot = getSubPanels().stream()
+                .filter(panel -> panel instanceof MenuIcon)
+                .map(panel -> ((MenuIcon) panel).getSlot())
+                .max(Integer::compareTo).orElse(0);
+
         while (highestSlot > slotsPerPage) {
             maxPage++;
             highestSlot -= slotsPerPage;

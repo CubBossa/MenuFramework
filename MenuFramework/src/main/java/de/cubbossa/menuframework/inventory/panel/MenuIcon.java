@@ -4,7 +4,6 @@ import de.cubbossa.menuframework.inventory.Action;
 import de.cubbossa.menuframework.inventory.context.ContextConsumer;
 import de.cubbossa.menuframework.inventory.context.TargetContext;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -13,7 +12,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-@RequiredArgsConstructor
 @Getter
 public abstract class MenuIcon implements Panel {
 
@@ -22,6 +20,16 @@ public abstract class MenuIcon implements Panel {
     private final Supplier<ItemStack> item;
     private final Consumer<Player> soundPlayer;
     private final Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler;
+    private final int priority;
+
+    public MenuIcon(Panel parentPanel, int slot, Supplier<ItemStack> item, Consumer<Player> soundPlayer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler) {
+        this.parentPanel = parentPanel;
+        this.priority = parentPanel.getPriority();
+        this.slot = slot;
+        this.item = item;
+        this.soundPlayer = soundPlayer;
+        this.clickHandler = clickHandler;
+    }
 
     public boolean isPanelSlot(int slot) {
         return slot == this.slot;
@@ -49,6 +57,6 @@ public abstract class MenuIcon implements Panel {
         return null;
     }
 
-    public void setSubPanel(Panel subPanel) {
+    public void addSubPanel(Panel subPanel) {
     }
 }

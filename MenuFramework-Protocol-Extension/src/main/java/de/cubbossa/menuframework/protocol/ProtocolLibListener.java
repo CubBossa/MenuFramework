@@ -88,7 +88,7 @@ public class ProtocolLibListener extends PacketAdapter implements MenuListener {
 	private void handleItemNamePacket(PacketEvent packetEvent) {
 		PacketContainer packet = packetEvent.getPacket();
 		menus.forEach(anvilMenu -> {
-			anvilMenu.handleInteract(AnvilMenu.WRITE, new TargetContext<>(packetEvent.getPlayer(), anvilMenu, 0, AnvilMenu.WRITE, false, packet.getStrings().read(0)));
+			anvilMenu.handleInteract(new TargetContext<>(packetEvent.getPlayer(), anvilMenu, 0, AnvilMenu.WRITE, false, packet.getStrings().read(0)));
 			sendLevelCostPacket(packetEvent.getPlayer(), anvilMenu);
 		});
 	}

@@ -84,12 +84,12 @@ public class AnvilMenu extends TopInventoryMenu {
     }
 
     @Override
-    public <C extends TargetContext<?>> boolean handleInteract(Action<C> action, C context) {
-        boolean cancelled = super.handleInteract(action, context);
+    public <T, C extends TargetContext<T>> boolean handleInteract(C context) {
+        boolean cancelled = super.handleInteract(context);
         if (context.getAction().equals(Action.LEFT)) {
             String renameText = ((AnvilInventory) inventory).getRenameText();
             TargetContext<String> c = new TargetContext<>(context.getPlayer(), context.getMenu(), context.getSlot(), CONFIRM, true, renameText.isEmpty() ? startText : renameText);
-            return super.handleInteract(CONFIRM, c);
+            return super.handleInteract(c);
         }
         return cancelled;
     }
@@ -100,10 +100,7 @@ public class AnvilMenu extends TopInventoryMenu {
         ItemStack i = inventory.getItem(0);
         if (startText != null) {
             if (i == null) {
-                i = getItemStack(0);
-                if (i == null) {
-                    i = new ItemStack(Material.PAPER);
-                }
+                i = new ItemStack(Material.PAPER);
             }
             ItemMeta paperMeta = i.getItemMeta();
             paperMeta.setDisplayName(startText);

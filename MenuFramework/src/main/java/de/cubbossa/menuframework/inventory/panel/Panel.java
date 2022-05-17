@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface Panel {
 
+	int getPriority();
+
 	int getPageSize();
 
 	int[] getSlots();
@@ -24,9 +26,9 @@ public interface Panel {
 
 	List<Panel> getSubPanels();
 
-	void setSubPanel(Panel subPanel);
+	void addSubPanel(Panel panel);
 
 	void render(int slot) throws ItemPlaceException;
 
-	boolean perform(int slot, TargetContext<?> context) throws MenuHandlerException;
+	<T> boolean perform(int slot, TargetContext<T> context) throws MenuHandlerException;
 }

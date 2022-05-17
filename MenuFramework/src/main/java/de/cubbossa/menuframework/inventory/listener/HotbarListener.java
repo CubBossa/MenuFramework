@@ -32,7 +32,7 @@ public class HotbarListener implements Listener {
             return;
         }
         ClickContext clickContext = new ClickContext(player, menu, slot, Action.HOTBAR_DROP, true);
-        event.setCancelled(menu.handleInteract(Action.HOTBAR_DROP, clickContext));
+        event.setCancelled(menu.handleInteract(clickContext));
         if (clickContext.isCancelled()) {
             Bukkit.getScheduler().runTaskLater(GUIHandler.getInstance().getPlugin(), () -> player.getInventory().removeItem(stack), 1);
         }
@@ -50,16 +50,16 @@ public class HotbarListener implements Listener {
 
         switch (event.getAction()) {
             case LEFT_CLICK_AIR:
-                event.setCancelled(menu.handleInteract(Action.LEFT_CLICK_AIR, new ClickContext(player, menu, slot, Action.LEFT_CLICK_AIR, true)));
+                event.setCancelled(menu.handleInteract(new ClickContext(player, menu, slot, Action.LEFT_CLICK_AIR, true)));
                 break;
             case RIGHT_CLICK_AIR:
-                event.setCancelled(menu.handleInteract(Action.RIGHT_CLICK_AIR, new ClickContext(player, menu, slot, Action.RIGHT_CLICK_AIR, true)));
+                event.setCancelled(menu.handleInteract(new ClickContext(player, menu, slot, Action.RIGHT_CLICK_AIR, true)));
                 break;
             case LEFT_CLICK_BLOCK:
-                event.setCancelled(menu.handleInteract(Action.LEFT_CLICK_BLOCK, new TargetContext<>(player, menu, slot, Action.LEFT_CLICK_BLOCK, true, event.getClickedBlock())));
+                event.setCancelled(menu.handleInteract(new TargetContext<>(player, menu, slot, Action.LEFT_CLICK_BLOCK, true, event.getClickedBlock())));
                 break;
             case RIGHT_CLICK_BLOCK:
-                event.setCancelled(menu.handleInteract(Action.RIGHT_CLICK_BLOCK, new TargetContext<>(player, menu, slot, Action.RIGHT_CLICK_BLOCK, true, event.getClickedBlock())));
+                event.setCancelled(menu.handleInteract(new TargetContext<>(player, menu, slot, Action.RIGHT_CLICK_BLOCK, true, event.getClickedBlock())));
                 break;
         }
     }

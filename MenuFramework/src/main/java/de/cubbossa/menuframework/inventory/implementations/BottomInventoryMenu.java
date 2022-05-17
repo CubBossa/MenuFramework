@@ -1,6 +1,8 @@
 package de.cubbossa.menuframework.inventory.implementations;
 
+import de.cubbossa.menuframework.GUIHandler;
 import de.cubbossa.menuframework.inventory.*;
+import de.cubbossa.menuframework.inventory.exception.ItemPlaceException;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -15,8 +17,6 @@ import java.util.stream.IntStream;
 public class BottomInventoryMenu extends AbstractMenu implements BottomMenu {
 
     @Getter
-    private final int[] slots;
-    @Getter
     private final long slotMask;
 
     public BottomInventoryMenu(InventoryRow... rows) {
@@ -30,8 +30,7 @@ public class BottomInventoryMenu extends AbstractMenu implements BottomMenu {
     }
 
     public BottomInventoryMenu(int... slots) {
-        super(slots.length);
-        this.slots = Arrays.stream(slots).filter(s -> s >= 0 && s < 9 * 4).distinct().sorted().toArray();
+        super(Arrays.stream(slots).filter(s -> s >= 0 && s < 9 * 4).distinct().sorted().toArray(), slots.length);
         this.slotMask = BottomMenu.getMaskFromSlots(slots);
         addPreset(MenuPresets.fill(MenuPresets.FILLER_LIGHT));
     }
@@ -78,13 +77,21 @@ public class BottomInventoryMenu extends AbstractMenu implements BottomMenu {
                     if (InvMenuHandler.getInstance().getMenuAtSlot(player, slot) != this) {
                         continue;
                     }
-                    player.getInventory().setItem(slot, getItemStack(slot + offset));
+                    try {
+                        render(slot);
+                    } catch (ItemPlaceException e) {
+                        GUIHandler.getInstance().getExceptionHandler().accept(e);
+                    }
                 }
             });
         } else {
             viewer.keySet().stream().map(Bukkit::getPlayer).filter(Objects::nonNull).forEach(player -> {
                 for (int slot : slots) {
-                    player.getInventory().setItem(slot, getItemStack(slot + offset));
+                    try {
+                        render(slot);
+                    } catch (ItemPlaceException e) {
+                        GUIHandler.getInstance().getExceptionHandler().accept(e);
+                    }
                 }
             });
         }

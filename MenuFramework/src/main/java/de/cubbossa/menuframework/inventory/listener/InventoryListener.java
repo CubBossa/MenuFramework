@@ -67,7 +67,7 @@ public class InventoryListener implements MenuListener {
 					return;
 				}
 				Action<ClickContext> action = Action.fromClickType(event.getClick());
-				event.setCancelled(menu.handleInteract(action, new ClickContext(player, menu, event.getSlot(), action, true)));
+				event.setCancelled(menu.handleInteract(new ClickContext(player, menu, event.getSlot(), action, true)));
 			}
 		}
 	}
@@ -85,7 +85,7 @@ public class InventoryListener implements MenuListener {
 					return;
 				}
 				Action<ClickContext> action = Action.fromClickType(type);
-				event.setCancelled(menu.handleInteract(Action.fromClickType(type), new ClickContext(player, menu, slot, action, true)));
+				event.setCancelled(menu.handleInteract(new ClickContext(player, menu, slot, action, true)));
 			}
 		}
 	}
@@ -113,7 +113,7 @@ public class InventoryListener implements MenuListener {
 						Bukkit.getScheduler().runTaskLater(GUIHandler.getInstance().getPlugin(), () -> {
 							List<Integer> allowedSlots = new ArrayList<>();
 							for (int slot : slots) {
-								if (!menu.handleInteract(Action.SHIFT_INSERT, new ClickContext(player, menu, slot, Action.SHIFT_INSERT, true))) {
+								if (!menu.handleInteract(new ClickContext(player, menu, slot, Action.SHIFT_INSERT, true))) {
 									allowedSlots.add(slot);
 								}
 							}
@@ -138,7 +138,7 @@ public class InventoryListener implements MenuListener {
 				Action<ClickContext> action = Action.fromClickType(event.getClick());
 
 				ClickContext c = new ClickContext(player, menu, event.getSlot(), action, true);
-				event.setCancelled(menu.handleInteract(action, c));
+				event.setCancelled(menu.handleInteract(c));
 				if (event.getClick().equals(ClickType.CREATIVE) && event.isCancelled()) {
 					player.updateInventory();
 				}
@@ -249,7 +249,7 @@ public class InventoryListener implements MenuListener {
 					return;
 				}
 				Action<ClickContext> action = Action.fromClickType(type);
-				event.setCancelled(menu.handleInteract(action, new ClickContext(player, menu, slot, action, true)));
+				event.setCancelled(menu.handleInteract(new ClickContext(player, menu, slot, action, true)));
 			});
 		}
 	}
@@ -266,8 +266,7 @@ public class InventoryListener implements MenuListener {
 				if (!menu.isThisInventory(event.getInventory(), player)) {
 					return;
 				}
-				event.setCancelled(menu.handleInteract(VillagerMenu.TRADE_SELECT,
-						new TargetContext<>(player, menu, event.getIndex(), VillagerMenu.TRADE_SELECT, false, event.getMerchant().getRecipe(event.getIndex()))));
+				event.setCancelled(menu.handleInteract(new TargetContext<>(player, menu, event.getIndex(), VillagerMenu.TRADE_SELECT, false, event.getMerchant().getRecipe(event.getIndex()))));
 			});
 		}
 	}
