@@ -56,6 +56,12 @@ public interface MenuPreset<C extends TargetContext<?>> {
 			HashSet<Panel> sortedMap = new HashSet<>();
 			sortedMap.add(bottom);
 			sortedMap.add(top);
+
+			dynamicClickHandler.clear();
+			dynamicClickHandlerOnTop.clear();
+			dynamicItemStacks.clear();
+			dynamicItemStacksOnTop.clear();
+
 			return sortedMap;
 		}
 

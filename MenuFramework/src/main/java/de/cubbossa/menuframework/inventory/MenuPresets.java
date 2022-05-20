@@ -7,6 +7,8 @@ import de.cubbossa.menuframework.inventory.context.TargetContext;
 import de.cubbossa.menuframework.inventory.implementations.BottomInventoryMenu;
 import de.cubbossa.menuframework.inventory.implementations.InventoryMenu;
 import de.cubbossa.menuframework.inventory.implementations.ListMenu;
+import de.cubbossa.menuframework.inventory.panel.MenuIcon;
+import de.cubbossa.menuframework.inventory.panel.Panel;
 import de.cubbossa.menuframework.util.Animation;
 import de.cubbossa.menuframework.util.ItemStackUtils;
 import net.kyori.adventure.identity.Identity;
@@ -129,31 +131,22 @@ public class MenuPresets {
      * Places a back icon to close the current menu and open the parent menu if one was set.
      * The icon will be {@link #BACK} or {@link #BACK_DISABLED} if disabled.
      *
-     * @param row     the row to place the back icon at.
-     * @param slot    the slot to place the back icon at.
      * @param actions all valid actions to run the back handler.
      * @return an instance of the {@link MenuPreset} to register it on a menu.
      */
-    public static MenuPreset<?> back(int row, int slot, Action<?>... actions) {
-        return back(XY_TO_INDEX.apply(slot, row), actions);
-    }
-
-    public static MenuPreset<?> back(int slot, Action<?>... actions) {
-        return applier -> {
-            if (applier.getMenu() instanceof TopMenu) {
-                TopMenu topMenu = (TopMenu) applier.getMenu();
-                applier.addItemOnTop(slot, BACK);
-                for (Action<?> action : actions) {
-                    applier.addClickHandlerOnTop(slot, action, c -> {
-                        if (topMenu.getPrevious(c.getPlayer()) != null) {
-                            topMenu.openPreviousMenu(c.getPlayer());
-                        }
-                    });
-                }
-            } else {
-                GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Back Context cannot be applied to bottom Inventories.");
-            }
-        };
+    public static Panel back(Action<?>... actions) {
+        return new MenuIcon(() -> BACK, player -> {
+        }, Button.builder()
+                .withClickHandler(c -> {
+                    if (!(c.getMenu() instanceof TopMenu)) {
+                        GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Back Context cannot be applied to bottom Inventories.");
+                        return;
+                    }
+                    TopMenu topMenu = (TopMenu) c.getMenu();
+                    if (topMenu.getPrevious(c.getPlayer()) != null) {
+                        topMenu.openPreviousMenu(c.getPlayer());
+                    }
+                }, actions).getClickHandler());
     }
 
     /**

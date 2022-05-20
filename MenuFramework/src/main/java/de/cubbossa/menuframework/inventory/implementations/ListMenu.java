@@ -2,14 +2,17 @@ package de.cubbossa.menuframework.inventory.implementations;
 
 import de.cubbossa.menuframework.GUIHandler;
 import de.cubbossa.menuframework.inventory.Action;
-import de.cubbossa.menuframework.inventory.BottomMenu;
 import de.cubbossa.menuframework.inventory.Button;
 import de.cubbossa.menuframework.inventory.context.ContextConsumer;
 import de.cubbossa.menuframework.inventory.context.TargetContext;
+import de.cubbossa.menuframework.inventory.exception.ItemPlaceException;
+import de.cubbossa.menuframework.inventory.panel.Panel;
+import de.cubbossa.menuframework.inventory.panel.SimplePanel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.ComponentLike;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
@@ -21,9 +24,9 @@ import java.util.stream.IntStream;
 /**
  * A Chest Menu, that provides methods to add list entries without worrying about the last slot.
  */
+@Getter
 public class ListMenu extends RectInventoryMenu {
 
-    @Getter
     @Setter
     @AllArgsConstructor
     public static class ListElement {
@@ -31,11 +34,10 @@ public class ListMenu extends RectInventoryMenu {
         private Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandlers;
     }
 
-    @Getter
-    private final int[] listSlots;
-    private final long listSlotMask;
     private final List<ListElement> listElements;
-    private int listSlotCount;
+
+    private final Panel entryPanel;
+    private final Panel navigationPanel;
 
     /**
      * Creates a new chest list menu with the given count of rows
@@ -49,57 +51,22 @@ public class ListMenu extends RectInventoryMenu {
         if (listSlots.length == 0) {
             listSlots = IntStream.range(0, (rows - 1) * 9).toArray();
         }
-        this.listSlotMask = BottomMenu.getMaskFromSlots(listSlots);
-        this.listSlotCount = listSlots.length;
-        this.listSlots = new int[rows * 9];
-        this.setupListTable();
+        this.entryPanel = new SimplePanel(listSlots);
+        this.navigationPanel = new SimplePanel(IntStream.range(0, 9).toArray());
         this.listElements = new ArrayList<>();
-    }
 
-    private void setupListTable() {
-        // -1 = no list slot, every other number means how many slots to subtract
-        int sub = 0;
-        for (int i = 0; i < listSlots.length; i++) {
-            if (isListSlot(i)) {
-                listSlots[i] = sub++;
-            } else {
-                listSlots[i] = -1;
-            }
-        }
-    }
-
-    private boolean isListSlot(int slot) {
-        return (listSlotMask >> (slot % slotsPerPage) & 1) == 1;
-    }
-
-    private ListElement getListElement(int slot) {
-        int listSlots = listSlotCount * (offset / slotsPerPage);
-        int listSlot = this.listSlots[slot % slotsPerPage];
-        return listSlot == -1 || listSlot + listSlots >= listElements.size() ? null : listElements.get(listSlot + listSlots);
+        addSubPanel(0, entryPanel);
+        addSubPanel((rows - 1) * 9, navigationPanel);
     }
 
     @Override
-    protected ItemStack getStaticItemStack(int slot) {
-        if (!isListSlot(slot)) {
-            return null;
+    public void render(Player viewer, boolean clear) throws ItemPlaceException {
+        entryPanel.clearSubPanels();
+        for (int i = 0; i < listElements.size(); i++) {
+            ListElement e = listElements.get(i);
+            entryPanel.setButton(i, Button.builder().withItemStack(e.itemSupplier).withClickHandler(e.clickHandlers));
         }
-        ListElement element = getListElement(slot);
-        if (element == null || element.itemSupplier == null) {
-            return null;
-        }
-        return element.itemSupplier.get();
-    }
-
-    @Override
-    protected ContextConsumer<? extends TargetContext<?>> getStaticClickHandler(int slot, Action<?> action) {
-        if(!isListSlot(slot)) {
-            return null;
-        }
-        ListElement element = getListElement(slot);
-        if (element == null || element.clickHandlers == null) {
-            return null;
-        }
-        return element.clickHandlers.get(action);
+        super.render(viewer, clear);
     }
 
     @Override
@@ -114,7 +81,7 @@ public class ListMenu extends RectInventoryMenu {
 
     @Override
     public int getMaxPage() {
-        return (int) Math.floor((double) listElements.size() / listSlotCount);
+        return (int) Math.floor((double) listElements.size() / entryPanel.getPageSize());
     }
 
     /**

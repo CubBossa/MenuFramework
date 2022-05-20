@@ -1,9 +1,13 @@
 package de.cubbossa.menuframework.inventory.panel;
 
 import de.cubbossa.menuframework.inventory.Action;
+import de.cubbossa.menuframework.inventory.Button;
 import de.cubbossa.menuframework.inventory.context.ContextConsumer;
 import de.cubbossa.menuframework.inventory.context.TargetContext;
+import de.cubbossa.menuframework.inventory.exception.ItemPlaceException;
+import de.cubbossa.menuframework.inventory.exception.MenuHandlerException;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -13,26 +17,24 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @Getter
-public abstract class MenuIcon implements Panel {
+public class MenuIcon implements Panel {
 
-    private final Panel parentPanel;
-    private final int slot;
+    @Setter
+    private Panel parentPanel;
     private final Supplier<ItemStack> item;
     private final Consumer<Player> soundPlayer;
     private final Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler;
     private final int priority;
 
-    public MenuIcon(Panel parentPanel, int slot, Supplier<ItemStack> item, Consumer<Player> soundPlayer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler) {
-        this.parentPanel = parentPanel;
+    public MenuIcon(Supplier<ItemStack> item, Consumer<Player> soundPlayer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler) {
         this.priority = parentPanel.getPriority();
-        this.slot = slot;
         this.item = item;
         this.soundPlayer = soundPlayer;
         this.clickHandler = clickHandler;
     }
 
     public boolean isPanelSlot(int slot) {
-        return slot == this.slot;
+        return slot == 0;
     }
 
     public int getPageSize() {
@@ -40,7 +42,7 @@ public abstract class MenuIcon implements Panel {
     }
 
     public int[] getSlots() {
-        return new int[]{slot};
+        return new int[]{0};
     }
 
     public void setOffset(int offset) {
@@ -50,13 +52,32 @@ public abstract class MenuIcon implements Panel {
         return 0;
     }
 
-    public void setParentPanel(Panel parentPanel) {
-    }
-
     public List<Panel> getSubPanels() {
         return null;
     }
 
-    public void addSubPanel(Panel subPanel) {
+    public void setButton(int slot, Button button) {
+    }
+
+    public void addSubPanel(int position, Panel subPanel) {
+    }
+
+    public void clearSubPanels() {
+    }
+
+    public void render(int slot) throws ItemPlaceException {
+    }
+
+    public <T> boolean perform(int slot, TargetContext<T> context) throws MenuHandlerException {
+        ContextConsumer<TargetContext<T>> clickHandler = (ContextConsumer<TargetContext<T>>) getClickHandler().get(context.getAction());
+        if (clickHandler == null) {
+            return true;
+        }
+        try {
+            clickHandler.accept(context);
+        } catch (Throwable t) {
+            throw new MenuHandlerException(context, t);
+        }
+        return context.isCancelled();
     }
 }

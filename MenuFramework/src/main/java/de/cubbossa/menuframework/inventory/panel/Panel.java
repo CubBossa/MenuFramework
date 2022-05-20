@@ -1,5 +1,6 @@
 package de.cubbossa.menuframework.inventory.panel;
 
+import de.cubbossa.menuframework.inventory.Button;
 import de.cubbossa.menuframework.inventory.context.TargetContext;
 import de.cubbossa.menuframework.inventory.exception.ItemPlaceException;
 import de.cubbossa.menuframework.inventory.exception.MenuHandlerException;
@@ -26,7 +27,11 @@ public interface Panel {
 
 	List<Panel> getSubPanels();
 
-	void addSubPanel(Panel panel);
+	void setButton(int slot, Button button);
+
+	void addSubPanel(int position, Panel panel);
+
+	void clearSubPanels();
 
 	void render(int slot) throws ItemPlaceException;
 
