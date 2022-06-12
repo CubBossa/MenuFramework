@@ -43,8 +43,6 @@ public class RectInventoryMenu extends TopInventoryMenu {
 
     @Getter
     private final int rows;
-    @Getter
-    private final int[] slots;
     @Setter
     private OffsetApplier offsetApplier = OFFSET_TOP_RIGHT;
     private InventoryType type = InventoryType.CHEST;
@@ -56,9 +54,8 @@ public class RectInventoryMenu extends TopInventoryMenu {
      * @param title the title component of the chest inventory
      */
     public RectInventoryMenu(ComponentLike title, int rows) {
-        super(title, rows * 9);
+        super(title, rows * 9, IntStream.range(0, rows * 9).toArray());
         this.rows = rows;
-        this.slots = IntStream.range(0, rows * 9).toArray();
     }
 
     /**
@@ -68,14 +65,13 @@ public class RectInventoryMenu extends TopInventoryMenu {
      * @param title the title component of the chest inventory
      */
     public RectInventoryMenu(ComponentLike title, InventoryType type) {
-        super(title, 3 * 9);
+        super(title, 3 * 9, IntStream.range(0, 3 * 9).toArray());
         if (!VALID_TYPES.contains(type)) {
             GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Only square inventory types are valid for RectInventoryMenu class.", new RuntimeException());
         } else {
             this.type = type;
         }
         this.rows = 3;
-        this.slots = IntStream.range(0, rows * 9).toArray();
     }
 
     @Override

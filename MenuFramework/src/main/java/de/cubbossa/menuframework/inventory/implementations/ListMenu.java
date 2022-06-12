@@ -7,11 +7,13 @@ import de.cubbossa.menuframework.inventory.context.ContextConsumer;
 import de.cubbossa.menuframework.inventory.context.TargetContext;
 import de.cubbossa.menuframework.inventory.exception.ItemPlaceException;
 import de.cubbossa.menuframework.inventory.panel.Panel;
+import de.cubbossa.menuframework.inventory.panel.RectPanel;
 import de.cubbossa.menuframework.inventory.panel.SimplePanel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.ComponentLike;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -48,15 +50,27 @@ public class ListMenu extends RectInventoryMenu {
      */
     public ListMenu(ComponentLike title, int rows, int... listSlots) {
         super(title, rows);
+        int[] slots = listSlots;
         if (listSlots.length == 0) {
-            listSlots = IntStream.range(0, (rows - 1) * 9).toArray();
+            slots = IntStream.range(0, (rows - 1) * 9).toArray();
         }
-        this.entryPanel = new SimplePanel(listSlots);
-        this.navigationPanel = new SimplePanel(IntStream.range(0, 9).toArray());
+        this.entryPanel = new SimplePanel(slots);
+        this.navigationPanel = new RectPanel(9, 1);
+        this.navigationPanel.setButton(0, Button.builder()
+                .withItemStack(Material.PAPER)
+                .withClickHandler(Action.LEFT, c -> entryPanel.setOffset(entryPanel.getOffset() - entryPanel.getPageSize())));
+        this.navigationPanel.setButton(1, Button.builder()
+                .withItemStack(Material.PAPER)
+                .withClickHandler(Action.LEFT, c -> entryPanel.setOffset(entryPanel.getOffset() + entryPanel.getPageSize())));
         this.listElements = new ArrayList<>();
 
+        clearSubPanels();
+    }
+
+    @Override public void clearSubPanels() {
+        super.clearSubPanels();
         addSubPanel(0, entryPanel);
-        addSubPanel((rows - 1) * 9, navigationPanel);
+        addSubPanel((getRows() - 1) * 9, navigationPanel);
     }
 
     @Override
@@ -79,9 +93,13 @@ public class ListMenu extends RectInventoryMenu {
         GUIHandler.getInstance().getLogger().log(Level.SEVERE, "Don't use #setClickHandler or #setItem on ListMenus. Instead, append with #addListEntry");
     }
 
+    @Override public int getMinPage() {
+        return 0;
+    }
+
     @Override
     public int getMaxPage() {
-        return (int) Math.floor((double) listElements.size() / entryPanel.getPageSize());
+        return entryPanel.getMaxPage();
     }
 
     /**

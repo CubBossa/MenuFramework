@@ -36,4 +36,8 @@ public interface Panel {
 	void render(int slot) throws ItemPlaceException;
 
 	<T> boolean perform(int slot, TargetContext<T> context) throws MenuHandlerException;
+
+	int getMinPage();
+
+	int getMaxPage();
 }

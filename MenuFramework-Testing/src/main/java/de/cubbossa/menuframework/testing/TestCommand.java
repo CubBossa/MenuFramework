@@ -51,7 +51,7 @@ public class TestCommand extends BaseCommand {
 	@Subcommand("close InventoryMenu")
 	public void closeInventoryMenu(Player player) {
 		openInventoryMenu.close(player);
-		openInventoryMenu.removeAllPresets();
+		openInventoryMenu.clearSubPanels();
 	}
 
 	BottomInventoryMenu openBottomInventoryMenu = new BottomInventoryMenu(InventoryRow.FIRST_ROW, InventoryRow.THIRD_ROW);
@@ -65,7 +65,7 @@ public class TestCommand extends BaseCommand {
 	@Subcommand("close BottomInventoryMenu")
 	public void closeBottomInventoryMenu(Player player) {
 		openBottomInventoryMenu.close(player);
-		openBottomInventoryMenu.removeAllPresets();
+		openBottomInventoryMenu.clearSubPanels();
 	}
 
 	AnvilMenu openAnvilMenu = new AnvilMenu(Component.text("Yay"), "Eingabe");
@@ -91,7 +91,6 @@ public class TestCommand extends BaseCommand {
 	@Subcommand("open ListMenu")
 	public void openListMenu(Player player) {
 		openListMenu.clearListEntries();
-		openListMenu.removeAllPresets();
 		openListMenu.addPreset(MenuPresets.fillRow(MenuPresets.FILLER_DARK, 2));
 		openListMenu.addPreset(MenuPresets.paginationRow(2, 0, 1, false, Action.LEFT));
 		IntStream.range(3, 2 * 9).forEach(value -> openListMenu.addListEntry(Button.builder()
@@ -105,13 +104,14 @@ public class TestCommand extends BaseCommand {
 	@Subcommand("close ListMenu")
 	public void closeListMenu(Player player) {
 		openListMenu.close(player);
-		openListMenu.removeAllPresets();
+		openListMenu.clearSubPanels();
 	}
 
 	RectInventoryMenu openRectInventoryMenu = new RectInventoryMenu(Component.text("Yay"), 4);
 
 	@Subcommand("open RectInventoryMenu")
 	public void openRectInventoryMenu(Player player) {
+		openRectInventoryMenu.setButton(1, Button.builder().withItemStack(Material.REDSTONE));
 		openRectInventoryMenu.addPreset(MenuPresets.fillRowOnTop(new ItemStack(Material.DIAMOND), 3));
 		openRectInventoryMenu.open(player);
 	}
@@ -119,7 +119,7 @@ public class TestCommand extends BaseCommand {
 	@Subcommand("close RectInventoryMenu")
 	public void closeRectInventoryMenu(Player player) {
 		openRectInventoryMenu.close(player);
-		openRectInventoryMenu.removeAllPresets();
+		openRectInventoryMenu.clearSubPanels();
 	}
 
 	@Subcommand("open WorkbenchMenu")
@@ -158,7 +158,7 @@ public class TestCommand extends BaseCommand {
 				.withItemStack(Material.EMERALD)
 				.withClickHandler(Action.LEFT, c -> m1.openSubMenu(c.getPlayer(), () -> {
 					RectInventoryMenu m2 = new RectInventoryMenu(Component.text("Yay2"), 4);
-					m2.addPreset(MenuPresets.back(1, 1, Action.LEFT));
+					m2.addSubPanel(10, MenuPresets.back(Action.LEFT));
 					m2.setButton(1, Button.builder()
 							.withItemStack(Material.REDSTONE)
 							.withClickHandler(Action.LEFT, c1 -> m2.openSubMenu(c1.getPlayer(), () -> {

@@ -24,8 +24,8 @@ public abstract class TopInventoryMenu extends AbstractMenu implements TopMenu {
     private Component title;
     private final Map<Integer, Component> pageTitles;
 
-    public TopInventoryMenu(ComponentLike title, int slotsPerPage) {
-        super(slotsPerPage);
+    public TopInventoryMenu(ComponentLike title, int slotsPerPage, int[] slots) {
+        super(slots, slotsPerPage);
         this.title = title.asComponent();
         this.pageTitles = new TreeMap<>();
         this.previous = new HashMap<>();
@@ -104,8 +104,8 @@ public abstract class TopInventoryMenu extends AbstractMenu implements TopMenu {
     }
 
     @Override
-    public void setPage(Player player, int page) {
-        super.setPage(player, page);
+    public void setPage(int page) {
+        super.setPage(page);
         updateCurrentInventoryTitle(getTitle(page));
     }
 

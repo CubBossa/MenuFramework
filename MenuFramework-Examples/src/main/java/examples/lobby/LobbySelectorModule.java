@@ -56,7 +56,7 @@ public class LobbySelectorModule implements CommandExecutor {
                     }));
         }
         // Refresh Menu every second.
-        lobbyMenu.playEndlessAnimation(20, lobbyMenu.getListSlots());
+        lobbyMenu.playEndlessAnimation(20, lobbyMenu.getEntryPanel().getSlots());
 
         Objects.requireNonNull(plugin.getCommand(COMMAND)).setExecutor(this);
     }

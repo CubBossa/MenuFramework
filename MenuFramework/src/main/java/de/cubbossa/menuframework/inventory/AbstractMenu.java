@@ -230,7 +230,7 @@ public abstract class AbstractMenu extends SimplePanel implements Menu {
     public MenuPreset<? extends TargetContext<?>> addPreset(MenuPreset<? extends TargetContext<?>> menuPreset) {
         try {
             menuPreset.placeDynamicEntries(applier);
-            applier.generate().forEach(this::addSubPanel);
+            applier.generate().forEach(panel -> addSubPanel(0, panel));
         } catch (Throwable ignored) {
         }
         return menuPreset;
@@ -363,42 +363,6 @@ public abstract class AbstractMenu extends SimplePanel implements Menu {
 
     public int getCurrentPage() {
         return (int) Math.floor((double) offset / slotsPerPage);
-    }
-
-    public int getMinPage() {
-        int minPage = 0;
-
-        int smallestSlot = getSubPanels().stream()
-                .filter(panel -> panel instanceof MenuIcon)
-                .map(panel -> ((MenuIcon) panel).getSlot())
-                .min(Integer::compareTo).orElse(0);
-
-        boolean negative = smallestSlot < 0;
-        while (negative && smallestSlot < -slotsPerPage || !negative && smallestSlot > slotsPerPage) {
-            if (negative) {
-                minPage--;
-                smallestSlot += slotsPerPage;
-            } else {
-                minPage++;
-                smallestSlot -= slotsPerPage;
-            }
-        }
-        return Integer.min(negative ? --minPage : minPage, getCurrentPage());
-    }
-
-    public int getMaxPage() {
-        int maxPage = 0;
-
-        int highestSlot = getSubPanels().stream()
-                .filter(panel -> panel instanceof MenuIcon)
-                .map(panel -> ((MenuIcon) panel).getSlot())
-                .max(Integer::compareTo).orElse(0);
-
-        while (highestSlot > slotsPerPage) {
-            maxPage++;
-            highestSlot -= slotsPerPage;
-        }
-        return Integer.max(maxPage, getCurrentPage());
     }
 
     protected int applyOffset(int slot) {

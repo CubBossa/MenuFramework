@@ -389,7 +389,7 @@ public class MenuPresets {
 
     /**
      * Creates a list menu with all Online Players. The implementation of refresh on join and disconnect needs to be implemented manually.
-     * To refresh the current page, call {@link ListMenu#refresh(int...)} for {@link ListMenu#getListSlots()}
+     * To refresh the current page, call {@link ListMenu#refresh(int...)} for {@link ListMenu#getEntryPanel().getSlots()}
      *
      * @param title        The title of the list menu
      * @param rows         The amount of rows of the list menu
@@ -404,7 +404,7 @@ public class MenuPresets {
     /**
      * Creates a list menu from a supplier and allows viewing, deleting and duplicating elements if the supplier derives from
      * {@link ListMenuManagerSupplier}.
-     * To refresh the current page after adding a new element, call {@link ListMenu#refresh(int...)} for {@link ListMenu#getListSlots()}
+     * To refresh the current page after adding a new element, call {@link ListMenu#refresh(int...)} for {@link ListMenu#getEntryPanel().getSlots()}
      *
      * @param title        The title of the list menu
      * @param rows         The amount of rows of the list menu
@@ -431,11 +431,11 @@ public class MenuPresets {
                         })
                         .withClickHandler(Action.MIDDLE, clickContext -> {
                             manager.duplicateElementFromMenu(object);
-                            listMenu.refresh(listMenu.getListSlots());
+                            listMenu.refresh(listMenu.getEntryPanel().getSlots());
                         })
                         .withClickHandler(Action.RIGHT, clickContext -> {
                             manager.deleteFromMenu(object);
-                            listMenu.refresh(listMenu.getListSlots());
+                            listMenu.refresh(listMenu.getEntryPanel().getSlots());
                         }));
             }
         } else {

@@ -84,7 +84,7 @@ public class VillagerMenu extends InventoryMenu {
     @Override
     public <T, C extends TargetContext<T>> boolean handleInteract(C context) {
 
-        Action<TargetContext<MerchantRecipe>> a = context.getAction() == TRADE_SELECT ? TRADE_SELECT : null;
+        Action<TargetContext<MerchantRecipe>> a = context.getAction().equals(TRADE_SELECT) ? TRADE_SELECT : null;
         if (a == null && context.getSlot() == 2) {
             a = ATTEMPT_BUY;
         }

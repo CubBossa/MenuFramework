@@ -29,8 +29,6 @@ public class AnvilMenu extends TopInventoryMenu {
     private static final VersionWrapper WRAPPER = new VersionMatcher().match();
 
     @Getter
-    private final int[] slots = {0, 1, 2};
-    @Getter
     @Setter
     private String startText;
     @Getter
@@ -51,7 +49,7 @@ public class AnvilMenu extends TopInventoryMenu {
     private int containerId;
 
     public AnvilMenu(ComponentLike title, String startText) {
-        super(title, 3);
+        super(title, 3, new int[]{0, 1, 2});
         this.startText = startText;
     }
 

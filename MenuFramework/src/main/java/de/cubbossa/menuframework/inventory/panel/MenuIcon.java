@@ -27,7 +27,10 @@ public class MenuIcon implements Panel {
     private final int priority;
 
     public MenuIcon(Supplier<ItemStack> item, Consumer<Player> soundPlayer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler) {
-        this.priority = parentPanel.getPriority();
+        this(item, soundPlayer, clickHandler, 1);
+    }
+    public MenuIcon(Supplier<ItemStack> item, Consumer<Player> soundPlayer, Map<Action<?>, ContextConsumer<? extends TargetContext<?>>> clickHandler, int priority) {
+        this.priority = priority;
         this.item = item;
         this.soundPlayer = soundPlayer;
         this.clickHandler = clickHandler;
@@ -79,5 +82,15 @@ public class MenuIcon implements Panel {
             throw new MenuHandlerException(context, t);
         }
         return context.isCancelled();
+    }
+
+    @Override
+    public int getMinPage() {
+        return 0;
+    }
+
+    @Override
+    public int getMaxPage() {
+        return 0;
     }
 }

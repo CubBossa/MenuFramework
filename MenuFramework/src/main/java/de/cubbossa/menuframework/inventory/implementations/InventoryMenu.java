@@ -18,8 +18,6 @@ public class InventoryMenu extends TopInventoryMenu {
 
     @Getter
     private final InventoryType inventoryType;
-    @Getter
-    private final int[] slots;
 
     /**
      * Creates an empty Inventory Menu
@@ -28,9 +26,8 @@ public class InventoryMenu extends TopInventoryMenu {
      * @param title the title component of the top inventory
      */
     public InventoryMenu(InventoryType type, ComponentLike title) {
-        super(title, type.getDefaultSize());
+        super(title, type.getDefaultSize(), IntStream.range(0, type.getDefaultSize()).toArray());
         this.inventoryType = type;
-        this.slots = IntStream.range(0, inventoryType.getDefaultSize()).toArray();
     }
 
     /**
@@ -41,9 +38,8 @@ public class InventoryMenu extends TopInventoryMenu {
      * @param slots All valid slots of this menu.
      */
     public InventoryMenu(InventoryType type, ComponentLike title, int[] slots) {
-        super(title, type.getDefaultSize());
+        super(title, type.getDefaultSize(), slots);
         this.inventoryType = type;
-        this.slots = slots;
     }
 
     @Override
