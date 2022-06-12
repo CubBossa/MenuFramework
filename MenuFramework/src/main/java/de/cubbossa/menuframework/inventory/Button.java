@@ -1,10 +1,11 @@
 package de.cubbossa.menuframework.inventory;
 
-import de.cubbossa.menuframework.inventory.context.ContextConsumer;
-import de.cubbossa.menuframework.util.ItemStackUtils;
 import de.cubbossa.menuframework.GUIHandler;
+import de.cubbossa.menuframework.inventory.context.ContextConsumer;
 import de.cubbossa.menuframework.inventory.context.TargetContext;
 import de.cubbossa.menuframework.util.ChatUtils;
+import de.cubbossa.menuframework.util.ItemStackUtils;
+import de.cubbossa.translations.MenuIcon;
 import lombok.Getter;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
@@ -31,6 +32,11 @@ public class Button {
 
     public static Button builder() {
         return new Button();
+    }
+
+    public Button withItemStack(MenuIcon menuIcon) {
+        this.stackSupplier = menuIcon::createItem;
+        return this;
     }
 
     public Button withItemStack(Supplier<ItemStack> stackSupplier) {
