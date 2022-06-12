@@ -43,6 +43,12 @@
             <version>1.1.4</version>
         </dependency>
 
+        <dependency>
+            <groupId>de.cubbossa</groupId>
+            <artifactId>translations_framework</artifactId>
+            <version>0.1</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -74,6 +80,10 @@
                             <pattern>net.wesjd.anvilgui</pattern>
                             <shadedPattern>de.cubbossa.menuframework.anvilgui</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>de.cubbossa.translations</pattern>
+                            <shadedPattern>de.cubbossa.menuframework.translations</shadedPattern>
+                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>
@@ -89,6 +99,7 @@
                                     <include>co.aikar:acf-paper</include>
                                     <include>de.cubbossa:MenuFramework</include>
                                     <include>de.cubbossa:MenuFramework-Protocol-Extension</include>
+                                    <include>de.cubbossa:translations_framework</include>
                                     <include>net.kyori:**</include>
                                     <include>net.wesjd:anvilgui</include>
                                 </includes>

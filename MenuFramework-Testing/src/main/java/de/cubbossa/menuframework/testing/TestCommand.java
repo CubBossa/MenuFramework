@@ -3,6 +3,7 @@ package de.cubbossa.menuframework.testing;
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.Subcommand;
+import com.google.common.collect.Lists;
 import de.cubbossa.menuframework.GUIHandler;
 import de.cubbossa.menuframework.inventory.*;
 import de.cubbossa.menuframework.inventory.implementations.*;
@@ -41,6 +42,21 @@ public class TestCommand extends BaseCommand {
 	// Open and close menu types
 
 	InventoryMenu openInventoryMenu = new InventoryMenu(InventoryType.BREWING, Component.text("Yay"));
+
+	@Subcommand("translated")
+	public void openTranslatedMenu(Player player) {
+		RectInventoryMenu menu = new RectInventoryMenu(Component.text("Test"), 4);
+		menu.setButton(1, Button.builder()
+				.withItemStack(() -> {
+					ItemStack stack = new ItemStack(Material.APPLE);
+					ItemMeta meta = stack.getItemMeta();
+					meta.setDisplayName("<message:prefix>");
+					meta.setLore(Lists.newArrayList("<message:prefix>"));
+					stack.setItemMeta(meta);
+					return stack;
+				}));
+		menu.open(player);
+	}
 
 	@Subcommand("open InventoryMenu")
 	public void openInventoryMenu(Player player) {
