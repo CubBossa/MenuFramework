@@ -5,7 +5,7 @@ import de.cubbossa.menuframework.inventory.context.ContextConsumer;
 import de.cubbossa.menuframework.inventory.context.TargetContext;
 import de.cubbossa.menuframework.util.ChatUtils;
 import de.cubbossa.menuframework.util.ItemStackUtils;
-import de.cubbossa.translations.MenuIcon;
+import de.cubbossa.translations.TranslatedItem;
 import lombok.Getter;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
@@ -34,7 +34,7 @@ public class Button {
         return new Button();
     }
 
-    public Button withItemStack(MenuIcon menuIcon) {
+    public Button withItemStack(TranslatedItem menuIcon) {
         this.stackSupplier = menuIcon::createItem;
         return this;
     }

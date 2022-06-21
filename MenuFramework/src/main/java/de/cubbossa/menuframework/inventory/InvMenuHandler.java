@@ -17,6 +17,8 @@ public class InvMenuHandler {
     private final Map<UUID, Stack<BottomMenu>> navigationBottomMap;
     private final Map<UUID, ItemStack[]> coveredInventories;
 
+    private final Map<UUID, Collection<Menu>> openMenus;
+
     private final Set<MenuListener> listeners;
 
     public InvMenuHandler() {
@@ -24,6 +26,7 @@ public class InvMenuHandler {
 
         this.navigationBottomMap = new HashMap<>();
         this.coveredInventories = new HashMap<>();
+        this.openMenus = new HashMap<>();
         this.listeners = new HashSet<>();
     }
 

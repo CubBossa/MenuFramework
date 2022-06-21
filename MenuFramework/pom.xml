@@ -5,7 +5,7 @@
     <parent>
         <artifactId>MenuFramework-Parent</artifactId>
         <groupId>de.cubbossa</groupId>
-        <version>1.1.4</version>
+        <version>1.1.5</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -38,8 +38,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>11</source>
-                    <target>11</target>
+                    <source>16</source>
+                    <target>16</target>
                 </configuration>
             </plugin>
             <plugin>

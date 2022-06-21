@@ -99,13 +99,17 @@ public class InventoryListener implements MenuListener {
 			}
 			// Prevent shifting items into the upper menu
 			if (event.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY)) {
+				if (event.getCurrentItem() == null) {
+					return;
+				}
+				// Cancel moving to upper inventory
 				if (event.getClickedInventory().equals(player.getOpenInventory().getBottomInventory())) {
-					if (event.getCurrentItem() == null) {
-						return;
-					}
 
 					menus.forEach(menu -> {
 						if (menu.getViewer().size() == 0) {
+							return;
+						}
+						if (!menu.isThisInventory(player.getOpenInventory().getTopInventory(), player)) {
 							return;
 						}
 						int[] slots = getShiftClickSlots(event.getCurrentItem(), player.getOpenInventory().getTopInventory());
@@ -120,15 +124,45 @@ public class InventoryListener implements MenuListener {
 							long mask = BottomMenu.getMaskFromSlots(allowedSlots.stream().mapToInt(Integer::intValue).toArray());
 							simulatedShiftClick(event.getCurrentItem(), player.getOpenInventory().getTopInventory(), mask);
 						}, 1);
+						event.setCancelled(true);
 					});
 				}
-				event.setCancelled(true);
-				return;
+				// Cancel moving to lower inventory
+				else {
+					Menu menu = menus.stream().filter(m -> m.isThisInventory(player.getOpenInventory().getTopInventory(), player)).findFirst().orElse(null);
+					if (menu == null) {
+						return;
+					}
+					Action<ClickContext> a = event.getClick().isLeftClick() ? Action.SHIFT_LEFT : Action.SHIFT_RIGHT;
+					if (menu.handleInteract(a, new ClickContext(player, menu, event.getSlot(), a, true))) {
+						event.setCancelled(true);
+						return;
+					}
+					List<Integer> slots = new ArrayList<>();
+					for (int slot : getShiftClickSlots(event.getCurrentItem(), player.getInventory())) {
+						if (InvMenuHandler.getInstance().getMenuAtSlot(player, slot) == null) {
+
+							if (!menu.handleInteract(Action.SHIFT_INSERT, new ClickContext(player, menu, slot, Action.SHIFT_INSERT, true))) {
+								slots.add(slot);
+							}
+							slots.add(slot);
+						}
+					}
+					long mask = BottomMenu.getMaskFromSlots(slots.stream().mapToInt(Integer::intValue).toArray());
+					simulatedShiftClick(event.getCurrentItem(), player.getInventory(), mask);
+					event.setCancelled(true);
+				}
 			}
 			// Prevent collecting all equal items from menu
 			if (event.getAction().equals(InventoryAction.COLLECT_TO_CURSOR)) {
-				event.setCancelled(true);
-				return;
+				menus.forEach(menu -> {
+					if (menu.getViewer().size() == 0) {
+						return;
+					}
+					if (menu.isThisInventory(event.getClickedInventory(), player)) {
+						event.setCancelled(true);
+					}
+				});
 			}
 
 			new ArrayList<>(menus).stream().filter(menu -> menu instanceof TopMenu).forEach(menu -> {

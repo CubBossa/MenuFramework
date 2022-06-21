@@ -1,6 +1,6 @@
 author: CubBossa
 name: menu-framework-testing
-version: 1.1.4
+version: 1.1.5
 main: de.cubbossa.menuframework.testing.TestMain
 api-version: 1.14
 depend:

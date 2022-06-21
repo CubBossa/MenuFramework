@@ -31,9 +31,9 @@ public class TestMain extends JavaPlugin {
 		guiHandler.enable();
 
 		new File(getDataFolder(), "lang/").mkdirs();
-		TranslationHandler translationHandler = new TranslationHandler(this, audiences, miniMessage, new File(getDataFolder(), "lang/"), "lang");
+		TranslationHandler translationHandler = new TranslationHandler(this, audiences, miniMessage, new File(getDataFolder(), "lang/"));
 		translationHandler.registerAnnotatedLanguageClass(Messages.class);
-		translationHandler.loadLanguages(Locale.US);
+		translationHandler.loadLanguages();
 
 		listener = new ProtocolLibListener(this);
 		new PacketTranslationHandler(this);

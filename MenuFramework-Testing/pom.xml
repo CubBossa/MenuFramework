@@ -5,7 +5,7 @@
     <parent>
         <artifactId>MenuFramework-Parent</artifactId>
         <groupId>de.cubbossa</groupId>
-        <version>1.1.4</version>
+        <version>1.1.5</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -28,7 +28,7 @@
         <dependency>
             <groupId>de.cubbossa</groupId>
             <artifactId>MenuFramework</artifactId>
-            <version>1.1.4</version>
+            <version>1.1.5</version>
         </dependency>
 
         <dependency>
@@ -40,7 +40,7 @@
         <dependency>
             <groupId>de.cubbossa</groupId>
             <artifactId>MenuFramework-Protocol-Extension</artifactId>
-            <version>1.1.4</version>
+            <version>1.1.5</version>
         </dependency>
 
         <dependency>
@@ -99,7 +99,7 @@
                                     <include>co.aikar:acf-paper</include>
                                     <include>de.cubbossa:MenuFramework</include>
                                     <include>de.cubbossa:MenuFramework-Protocol-Extension</include>
-                                    <include>de.cubbossa:translations_framework</include>
+                                    <include>de.cubbossa:Translations</include>
                                     <include>net.kyori:**</include>
                                     <include>net.wesjd:anvilgui</include>
                                 </includes>
