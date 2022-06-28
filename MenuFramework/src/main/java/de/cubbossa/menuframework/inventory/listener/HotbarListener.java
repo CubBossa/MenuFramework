@@ -13,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 public class HotbarListener implements Listener {
@@ -40,6 +41,10 @@ public class HotbarListener implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
+        if(event.getHand() != EquipmentSlot.HAND) {
+            return;
+        }
+
         Player player = event.getPlayer();
         int slot = player.getInventory().getHeldItemSlot();
 

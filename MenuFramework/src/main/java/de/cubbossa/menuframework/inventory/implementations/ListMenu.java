@@ -51,7 +51,7 @@ public class ListMenu extends RectInventoryMenu {
         }
         this.listSlotMask = BottomMenu.getMaskFromSlots(listSlots);
         this.listSlotCount = listSlots.length;
-        this.listSlots = new int[rows * 9];
+        this.listSlots = new int[listSlotCount];
         this.setupListTable();
         this.listElements = new ArrayList<>();
     }

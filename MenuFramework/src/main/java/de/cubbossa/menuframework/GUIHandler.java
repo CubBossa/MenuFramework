@@ -39,7 +39,7 @@ public class GUIHandler {
 			MenuHandlerException e = (MenuHandlerException) t;
 			e.getContext().setCancelled(true);
 			audiences.player(e.getContext().getPlayer()).sendMessage(Component.text("Something went wrong when executing this button action. Please contact an administrator.", NamedTextColor.RED));
-			getLogger().log(Level.SEVERE, "Error occured while interacting with menu " + e.getMenu().getClass() + " at slot " + e.getContext().getSlot(), t);
+			getLogger().log(Level.SEVERE, "Error occured while interacting with menu " + e.getMenu().getClass() + " at slot " + e.getContext().getSlot(), t.getCause());
 		} else if (t instanceof OpenMenuException) {
 			audiences.player(((OpenMenuException) t).getContext().getPlayer()).sendMessage(Component.text("Something went wrong when opening a menu. Please contact an administrator.", NamedTextColor.RED));
 			getLogger().log(Level.SEVERE, "Error occured while opening menu " + ((OpenMenuException) t).getMenu().getClass(), t);
