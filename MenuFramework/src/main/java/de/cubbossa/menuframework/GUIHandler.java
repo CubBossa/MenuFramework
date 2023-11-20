@@ -7,7 +7,6 @@ import de.cubbossa.menuframework.inventory.exception.MenuHandlerException;
 import de.cubbossa.menuframework.inventory.exception.OpenMenuException;
 import de.cubbossa.menuframework.inventory.listener.HotbarListener;
 import de.cubbossa.menuframework.inventory.listener.InventoryListener;
-import de.cubbossa.menuframework.scoreboard.CustomScoreboardHandler;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -62,7 +61,6 @@ public class GUIHandler {
 		this.audiences = BukkitAudiences.create(plugin);
 
 		new InvMenuHandler();
-		new CustomScoreboardHandler();
 
 		registerDefaultListeners();
 	}
